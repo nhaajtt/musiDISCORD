@@ -1829,6 +1829,110 @@
   })();
 
   /* =====================================================================
+     Contribution gate + wishlist demo
+     ===================================================================== */
+
+  (function initGate() {
+    const g = $("#gate");
+    if (!g) return;
+    const own = $("#g-own");
+    const send = $("#g-send");
+    const ok = $("#g-ok");
+    const no = $("#g-no");
+    const stamp = $("#g-stamp");
+    const log = $("#g-log");
+    const lib = $("#g-lib");
+    const bell = $("#g-bell");
+    const bellc = $("#g-bellc");
+    const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+    const files = ["Đêm ở ga cuối.mp3", "Remix cuối tuần.mp3", "Bài lạ chưa rõ nguồn.mp3"];
+    let n = 0;
+    let cur = null;
+    let notified = 0;
+    const say = (s) => {
+      const li = document.createElement("li");
+      li.textContent = s;
+      log.prepend(li);
+      while (log.children.length > 4) log.lastChild.remove();
+    };
+    const step = (id, on) => $(id, g).classList.toggle("is-on", on);
+    const mark = (big) => {
+      stamp.textContent = big;
+      stamp.classList.remove("show");
+      void stamp.offsetWidth;
+      stamp.classList.add("show");
+      setTimeout(() => slamFx(stamp), 280);
+    };
+    const sync = () => {
+      send.disabled = !own.checked || !!cur;
+      ok.disabled = no.disabled = !cur;
+    };
+    own.addEventListener("change", sync);
+    send.addEventListener("click", () => {
+      cur = files[n % files.length];
+      n += 1;
+      $("#g-file").textContent = cur;
+      $("#g-state").textContent = "đang chờ duyệt";
+      $("#g-dm").textContent = "chủ bot nhận DM có nút Duyệt, Từ chối";
+      step("#g-s1", true);
+      step("#g-s2", true);
+      step("#g-s3", false);
+      say("đã gửi " + cur + ", file nằm trong hàng chờ duyệt");
+      sync();
+    });
+    ok.addEventListener("click", () => {
+      if (!cur) return;
+      const f = cur;
+      cur = null;
+      $("#g-state").textContent = "đã duyệt";
+      $("#g-dm").textContent = "người gửi được báo qua DM";
+      step("#g-s3", true);
+      const e = $(".empty", lib);
+      if (e) e.remove();
+      const li = document.createElement("li");
+      li.textContent = f;
+      lib.appendChild(li);
+      mark("ĐÃ DUYỆT");
+      say(f + " được duyệt, chuyển vào music/Đóng góp/");
+      const key = norm(f.replace(/\.mp3$/, ""));
+      $$("#g-board li").forEach((r) => {
+        if (r.dataset.match === key && !r.classList.contains("done")) {
+          r.classList.add("done");
+          $(".st", r).textContent = "đã có trong kho";
+          const votes = +$("b", r).textContent;
+          notified += votes;
+          bellc.textContent = String(notified);
+          bell.classList.remove("ring");
+          void bell.offsetWidth;
+          bell.classList.add("ring");
+          say("có file khớp, báo " + votes + " người đã đề xuất hoặc bầu qua DM");
+        }
+      });
+      sync();
+    });
+    no.addEventListener("click", () => {
+      if (!cur) return;
+      const f = cur;
+      cur = null;
+      $("#g-state").textContent = "bị từ chối";
+      $("#g-dm").textContent = "file tạm bị xóa, người gửi được báo lý do";
+      step("#g-s3", false);
+      mark("TỪ CHỐI");
+      say(f + " bị từ chối, file tạm đã xóa");
+      sync();
+    });
+    $("#g-board").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-vote]");
+      if (!b || b.disabled) return;
+      const c = $("b", b);
+      c.textContent = String(+c.textContent + 1);
+      b.disabled = true;
+      say("đã thêm một phiếu bầu, mỗi người một phiếu cho mỗi đề xuất");
+    });
+    sync();
+  })();
+
+  /* =====================================================================
      Easter egg: Konami code, or tap the logo seven times
      ===================================================================== */
 

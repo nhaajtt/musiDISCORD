@@ -74,6 +74,46 @@ db.exec(`
     user_id TEXT PRIMARY KEY
   );
 
+  CREATE TABLE IF NOT EXISTS contributions (
+    id            INTEGER PRIMARY KEY,
+    guild_id      TEXT,
+    user_id       TEXT,
+    original_name TEXT NOT NULL,
+    ext           TEXT NOT NULL,
+    size_bytes    INTEGER NOT NULL,
+    sha256        TEXT NOT NULL,
+    title         TEXT,
+    artist        TEXT,
+    duration_ms   INTEGER,
+    status        TEXT NOT NULL DEFAULT 'pending',
+    reason        TEXT,
+    created_at    INTEGER NOT NULL,
+    reviewed_by   TEXT,
+    reviewed_at   INTEGER,
+    final_path    TEXT
+  );
+  CREATE INDEX IF NOT EXISTS contributions_status ON contributions (status, created_at);
+  CREATE INDEX IF NOT EXISTS contributions_user ON contributions (user_id, created_at);
+  CREATE INDEX IF NOT EXISTS contributions_hash ON contributions (sha256);
+
+  CREATE TABLE IF NOT EXISTS song_requests (
+    id             INTEGER PRIMARY KEY,
+    key            TEXT NOT NULL UNIQUE,
+    display        TEXT NOT NULL,
+    guild_id       TEXT,
+    channel_id     TEXT,
+    created_by     TEXT,
+    created_at     INTEGER NOT NULL,
+    status         TEXT NOT NULL DEFAULT 'open',
+    fulfilled_file TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS request_votes (
+    request_id INTEGER NOT NULL REFERENCES song_requests (id) ON DELETE CASCADE,
+    user_id    TEXT NOT NULL,
+    PRIMARY KEY (request_id, user_id)
+  );
+
   CREATE TABLE IF NOT EXISTS lyrics_cache (
     track_key  TEXT PRIMARY KEY,
     synced     TEXT,

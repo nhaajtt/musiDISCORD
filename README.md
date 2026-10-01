@@ -12,6 +12,7 @@ Bot phát nhạc Discord tự host, viết bằng discord.js và phát qua Laval
 - **Hàng chờ công bằng, `/bump`, bỏ phiếu bỏ qua bài** khi đông người nghe.
 - **Thống kê:** `/mystats`, `/leaderboard`, `/wrapped` (thẻ ảnh tổng kết năm vẽ như bản thiết kế) và huy hiệu vui.
 - **Lời bài hát:** từ file `.lrc` cạnh bài, lời nhúng trong thẻ hoặc tra LRCLIB, hiện dạng karaoke tô sáng dòng đang hát.
+- **Đóng góp từ thành viên:** `/contribute` gửi file nhạc của chính mình để chủ bot duyệt, `/request` đề xuất bài chưa có và được báo khi bài xuất hiện. Bot **không** tải nhạc từ YouTube hay trang chuyển đổi nào.
 - **24/7:** ở lại kênh kể cả khi không có ai và sau khi khởi động lại; tuỳ chọn radio phát thư viện mãi mãi.
 - **Vận hành:** khôi phục hàng chờ sau khi khởi động lại, healthcheck, cảnh báo khi Lavalink mất kết nối, tự rời kênh khi rảnh (trừ 24/7).
 
@@ -33,7 +34,9 @@ Bot phát nhạc Discord tự host, viết bằng discord.js và phát qua Laval
 | `/mystats`, `/leaderboard`, `/wrapped [year]` | Thống kê cá nhân, bảng xếp hạng, tổng kết năm |
 | `/privacy stats \| delete` | Tắt thống kê của bạn hoặc xoá toàn bộ dữ liệu của bạn |
 | `/247 on [radio] \| off` | Chế độ 24/7 |
-| `/settings view \| dj-role \| volume \| fair-queue \| vc-status` | Quản trị (cần quyền Manage Server) |
+| `/contribute submit \| pending \| stats` | Gửi file nhạc của bạn để chủ bot duyệt (tắt mặc định) |
+| `/request add \| list \| vote \| mine \| remove \| done \| dismiss` | Đề xuất bài chưa có, bỏ phiếu, được báo khi bài có trong thư viện |
+| `/settings view \| dj-role \| volume \| fair-queue \| vc-status \| contributions` | Quản trị (cần quyền Manage Server) |
 | `/help`, `/stats` | Hướng dẫn lệnh, tình trạng bot |
 
 ## Chuẩn bị
@@ -54,6 +57,16 @@ Bỏ file nhạc (`.mp3`, `.flac`, `.wav`, `.ogg`, `.opus`, `.m4a`, `.aac`, `.we
 - Ảnh bìa lấy từ ảnh nhúng trong file hoặc từ `cover.jpg` / `folder.jpg` trong thư mục.
 - Lời bài hát: đặt `Tên bài.lrc` cạnh `Tên bài.mp3` (LRC có mốc thời gian để hiện karaoke).
 - Bạn chịu trách nhiệm về bản quyền của file nhạc đặt vào đây.
+
+## Đóng góp nhạc từ thành viên
+
+Thư viện `music/` dùng chung cho mọi server mà bot tham gia, nên **chủ bot** là người duyệt, không phải quản trị từng server.
+
+- **Bật:** đặt `CONTRIBUTIONS=on` trong `.env`, khởi động lại bot, rồi quản trị server dùng `/settings contributions enabled:true`. Tính năng tắt mặc định.
+- **Gửi:** thành viên dùng `/contribute submit`, đính kèm file của họ và chọn `confirm: True` để xác nhận mình sở hữu hoặc được phép chia sẻ. Bot kiểm tra file là âm thanh thật (tối đa `CONTRIB_MAX_MB` MB, 10 giây đến 20 phút), chặn trùng nội dung, giới hạn 3 file chờ và 5 file mỗi ngày cho mỗi người.
+- **Duyệt:** chủ bot nhận tin nhắn riêng có nút Duyệt / Từ chối (hoặc dùng `/contribute pending`). File được duyệt chuyển vào `music/Đóng góp/` và xuất hiện ở `/local`. File chờ quá 14 ngày tự bị xoá. Chủ bot lấy từ ứng dụng Discord của bot, hoặc đặt `OWNER_IDS`.
+- **Đề xuất:** `/request add` nhận tên bài hoặc link YouTube, Spotify, SoundCloud. Bot chỉ ghi lại để bỏ phiếu, **không mở hay tải** link đó. Khi một file khớp xuất hiện trong thư viện (từ đóng góp được duyệt hoặc do bạn tự bỏ vào `music/`), mọi người đã đề xuất và bỏ phiếu được báo qua tin nhắn riêng.
+- Container `bot` được ghi vào `music/` (Lavalink vẫn chỉ đọc); đường dẫn ghi luôn bị ép nằm trong `music/Đóng góp/`.
 
 ## Chạy bằng Docker (VPS)
 

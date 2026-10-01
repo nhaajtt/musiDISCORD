@@ -5,7 +5,7 @@ import { config } from "./config.js";
 const file = path.join(config.dataDir, "settings.json");
 
 // stay247: { voiceChannelId, textChannelId, radio } khi bật chế độ 24/7
-const DEFAULTS = { djRoleId: null, defaultVolume: 100, vcStatus: true, fairQueue: false, stay247: null };
+const DEFAULTS = { djRoleId: null, defaultVolume: 100, vcStatus: true, fairQueue: false, stay247: null, contributions: false };
 
 let data = {};
 try {

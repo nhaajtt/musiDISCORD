@@ -1,4 +1,5 @@
 import { Events, MessageFlags } from "discord.js";
+import { handleContribButton, handleContribModal } from "../contrib/handlers.js";
 import { handleQuizButton, handleQuizModal } from "../quiz/handlers.js";
 import { handleControl } from "../utils/controls.js";
 import { errorEmbed } from "../utils/embeds.js";
@@ -28,6 +29,14 @@ export default {
     }
     if (interaction.isModalSubmit() && interaction.customId === "qz:modal") {
       return safely("Đáp án đố nhạc", interaction, handleQuizModal);
+    }
+
+    // Đóng góp nhạc: chủ bot duyệt hoặc từ chối
+    if (interaction.isButton() && interaction.customId.startsWith("ct:")) {
+      return safely("Nút đóng góp", interaction, handleContribButton);
+    }
+    if (interaction.isModalSubmit() && interaction.customId.startsWith("ct:rmodal:")) {
+      return safely("Từ chối đóng góp", interaction, handleContribModal);
     }
 
     const command = client.commands.get(interaction.commandName);

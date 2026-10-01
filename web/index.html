@@ -53,7 +53,7 @@
   <span class="strip__name" id="strip-name">Bìa</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>D</span>
+  <span class="hide-sm"><b>Bản</b>E</span>
 </div>
 
 <header class="top">
@@ -90,7 +90,7 @@
       <h1 data-split>musiDISCORD</h1>
       <div class="dim hero__dim" aria-hidden="true"><i></i><b>một bot, cả kênh thoại cùng nghe</b><i></i></div>
       <p class="lead">Bot nhạc tự host cho Discord. Dán link hoặc gõ tên bài, cả kênh thoại nghe cùng một lúc.</p>
-      <p class="lead">Bản 2.0 có thêm thư viện nhạc thông minh, thẻ Đang phát mới, đố nhạc, lời bài hát chạy theo giọng, Wrapped cuối năm và <code>/nhaajt</code> biết xáo trộn có gu.</p>
+      <p class="lead">Bản 2.1 có thêm cổng nhận file đóng góp, và thư viện nhạc thông minh, thẻ Đang phát mới, đố nhạc, lời bài hát chạy theo giọng, Wrapped cuối năm và <code>/nhaajt</code> biết xáo trộn có gu.</p>
       <div class="hero__cta">
         <a class="btn btn--solid" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
         <a class="btn" href="#so-do">Xem bản vẽ</a>
@@ -98,7 +98,7 @@
       </div>
       <dl class="spec">
         <div><dt>Nguồn nhạc</dt><dd>Link hoặc tên bài từ YouTube, SoundCloud, Spotify, và thư viện file nhạc của riêng bạn</dd></div>
-        <div><dt>Điều khiển</dt><dd>Thẻ Đang phát với hai hàng nút và 29 lệnh gạch chéo</dd></div>
+        <div><dt>Điều khiển</dt><dd>Thẻ Đang phát với hai hàng nút và 31 lệnh gạch chéo</dd></div>
         <div><dt>Chế độ riêng</dt><dd><code>/nhaajt</code> xáo trộn thông minh, <code>/247</code> ở lại kênh cả khi vắng người</dd></div>
       </dl>
     </div>
@@ -161,7 +161,7 @@
           <g class="stamp-pop" id="hero-stamp" style="--d:2.7s">
             <rect x="40" y="444" width="230" height="64" rx="3" fill="var(--paper)" fill-opacity=".88" stroke="var(--redline)" stroke-width="2.5"/>
             <text class="t-d t-red" x="155" y="479" text-anchor="middle" style="font-size:34px">ĐÃ DUYỆT</text>
-            <text class="t t-sm t-red" x="155" y="499" text-anchor="middle">bản D, 2026-10-01</text>
+            <text class="t t-sm t-red" x="155" y="499" text-anchor="middle">bản E, 2026-10-01</text>
           </g>
         </g>
       </svg>
@@ -172,7 +172,7 @@
 <!-- đồng hồ số -->
 <section class="gauges" aria-label="Vài con số của bản 2.0">
   <div class="wrap gauges__row">
-    <figure class="gauge" data-gauge="29" data-max="32"><div class="gauge__dial"></div><figcaption><b data-num>29</b><span>lệnh gạch chéo</span></figcaption></figure>
+    <figure class="gauge" data-gauge="31" data-max="34"><div class="gauge__dial"></div><figcaption><b data-num>31</b><span>lệnh gạch chéo</span></figcaption></figure>
     <figure class="gauge" data-gauge="9" data-max="10"><div class="gauge__dial"></div><figcaption><b data-num>9</b><span>nút trên thẻ Đang phát</span></figcaption></figure>
     <figure class="gauge" data-gauge="5" data-max="6"><div class="gauge__dial"></div><figcaption><b data-num>5</b><span>mục trong <code>/settings</code></span></figcaption></figure>
     <figure class="gauge" data-gauge="24" data-max="24"><div class="gauge__dial"></div><figcaption><b data-num>24</b><span>giờ mỗi ngày với <code>/247</code></span></figcaption></figure>
@@ -785,7 +785,7 @@
               <rect class="wc-ln" x="22" y="486" width="316" height="44"/>
               <path class="wc-ln wc-thin" d="M130 486V530M236 486V530"/>
               <text class="wc-t" x="30" y="502" font-size="8">DỰ ÁN</text><text class="wc-d" x="30" y="522" font-size="18">musiDISCORD</text>
-              <text class="wc-t" x="138" y="502" font-size="8">BẢN</text><text class="wc-d" x="138" y="522" font-size="18">D / 2.0</text>
+              <text class="wc-t" x="138" y="502" font-size="8">BẢN</text><text class="wc-d" x="138" y="522" font-size="18">E / 2.1</text>
               <text class="wc-t" x="244" y="502" font-size="8">LỆNH</text><text class="wc-d" x="244" y="522" font-size="18">/wrapped</text>
             </g>
           </svg>
@@ -892,11 +892,54 @@
   </div>
 </section>
 
-<!-- S-10: mô hình khối -->
-<section class="sheet" id="kien-truc" data-sheet="S-10|Mô hình khối, hình chiếu đẳng cự" aria-labelledby="h-kien-truc">
+<!-- S-10: cổng nhận hàng -->
+<section class="sheet" id="cong-nhan-hang" data-sheet="S-10|Cổng nhận hàng, đóng góp và đề xuất" aria-labelledby="h-cong">
   <div class="wrap">
     <header class="sheet__head">
       <span class="sheet__no">S-10</span>
+      <h2 id="h-cong">Cổng nhận hàng</h2>
+      <p class="sheet__scale">File hợp lệ đi vào kho, chủ bot đóng dấu<br>bot không tải gì từ YouTube</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p><code>/contribute</code> (<code>submit</code>, <code>pending</code>, <code>stats</code>): bạn đính kèm file nhạc của chính mình và tick ô xác nhận rằng bạn sở hữu hoặc được phép chia sẻ file đó. File vào hàng chờ duyệt, chủ bot (không phải admin server, vì kho nhạc dùng chung cho mọi server) nhận tin nhắn riêng có nút Duyệt hoặc Từ chối. Duyệt xong, file được chuyển vào thư mục <code>music/Đóng góp/</code>, tìm được bằng <code>/local</code>, và bạn được báo qua tin nhắn riêng.</p>
+        <ul class="ticks">
+          <li><strong>Tắt sẵn.</strong> Cần <code>CONTRIBUTIONS=on</code> trong .env, rồi bật <code>/settings contributions</code> cho từng server.</li>
+          <li><strong>Chỉ file âm thanh thật,</strong> tối đa 30 MB (chỉnh được), dài từ 10 giây tới 20 phút, và chỉ nhận link của Discord CDN.</li>
+          <li><strong>Chống trùng và chống spam:</strong> file trùng (so mã băm) bị từ chối, mỗi người tối đa 3 file đang chờ và 5 file mỗi ngày, file chờ quá 14 ngày tự hết hạn.</li>
+        </ul>
+        <p><code>/request</code> (<code>add</code>, <code>list</code>, <code>vote</code>, <code>mine</code>, <code>remove</code>, <code>done</code>, <code>dismiss</code>): đề xuất bài bằng tên hoặc link YouTube, Spotify, SoundCloud. <strong>Bot không tải gì và không mở link đó</strong>, chỉ ghi một mục vào danh sách mong muốn kèm phiếu bầu. Khi có file khớp trong kho (bản đóng góp được duyệt, hoặc chủ bot bỏ file vào music/), mọi người đã đề xuất hoặc bầu đều được báo tự động qua tin nhắn riêng. Mỗi người có tối đa 5 đề xuất đang mở.</p>
+        <p class="note">chỉ nhận file hợp lệ, chủ bot duyệt</p>
+      </div>
+      <div class="gate" id="gate" aria-label="Bản mẫu cổng nhận hàng">
+        <div class="gate__flow">
+          <div class="gate__step" id="g-s1"><small>1. Gửi file</small><b id="g-file">Đêm ở ga cuối.mp3</b><span>4,2 MB, 3:05</span></div>
+          <div class="gate__step" id="g-s2"><small>2. Chủ bot xem</small><b id="g-state">chưa có file</b><span id="g-dm">chờ bạn gửi</span></div>
+          <div class="gate__step" id="g-s3"><small>3. Vào kho</small><b>music/Đóng góp/</b><ul id="g-lib"><li class="empty">(trống)</li></ul></div>
+        </div>
+        <label class="sw"><input type="checkbox" id="g-own"><span class="sw__t" aria-hidden="true"></span><span>Tôi sở hữu file này hoặc được phép chia sẻ</span></label>
+        <div class="gate__btns">
+          <button type="button" class="btn btn--solid btn--sm" id="g-send" disabled>Gửi file mẫu</button>
+          <button type="button" class="btn btn--sm" id="g-ok" disabled>Duyệt (vai chủ bot)</button>
+          <button type="button" class="btn btn--sm" id="g-no" disabled>Từ chối</button>
+        </div>
+        <div class="gate__stamp" id="g-stamp" aria-live="assertive"></div>
+        <h3 class="gate__h">Bảng mong muốn <span class="gate__bell" id="g-bell" aria-hidden="true">🔔 <b id="g-bellc">0</b></span></h3>
+        <ul class="gate__board" id="g-board">
+          <li data-match="dem o ga cuoi"><span>Đêm ở ga cuối</span><i class="st">đang chờ</i><button type="button" data-vote aria-label="Bầu cho Đêm ở ga cuối">+1 <b>2</b></button></li>
+          <li data-match="remix cuoi tuan"><span>Remix cuối tuần (link YouTube, bot không mở)</span><i class="st">đang chờ</i><button type="button" data-vote aria-label="Bầu cho Remix cuối tuần">+1 <b>1</b></button></li>
+        </ul>
+        <ul class="vc__log" id="g-log" aria-live="polite"><li>sẵn sàng, thử tick ô xác nhận rồi gửi file</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S-11: mô hình khối -->
+<section class="sheet" id="kien-truc" data-sheet="S-11|Mô hình khối, hình chiếu đẳng cự" aria-labelledby="h-kien-truc">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-11</span>
       <h2 id="h-kien-truc">Mô hình khối của cả hệ thống</h2>
       <p class="sheet__scale">Hình chiếu đẳng cự, mâm xoay<br>kéo để xoay, hoặc dùng phím mũi tên</p>
     </header>
@@ -915,11 +958,11 @@
   </div>
 </section>
 
-<!-- S-11: bảng hạng mục -->
-<section class="sheet" id="hang-muc" data-sheet="S-11|Bảng thống kê hạng mục" aria-labelledby="h-hang-muc">
+<!-- S-12: bảng hạng mục -->
+<section class="sheet" id="hang-muc" data-sheet="S-12|Bảng thống kê hạng mục" aria-labelledby="h-hang-muc">
   <div class="wrap">
     <header class="sheet__head">
-      <span class="sheet__no">S-11</span>
+      <span class="sheet__no">S-12</span>
       <h2 id="h-hang-muc">Bảng thống kê hạng mục</h2>
       <p class="sheet__scale">Những thứ nhỏ làm bot đỡ phiền<br>cho cả server</p>
     </header>
@@ -938,20 +981,22 @@
           <tr><td>D-08</td><td>Nhớ hàng chờ</td><td>tự động</td><td>Bot khởi động lại thì hàng chờ được nạp lại, bạn nghe tiếp mà không phải thêm bài từ đầu.</td></tr>
           <tr><td>D-09</td><td>Tự rời kênh</td><td>tự động</td><td>Kênh không còn ai, hoặc hết bài, bot rời sau 60 giây cho đỡ chiếm chỗ. Bật <code>/247</code> thì bot không rời.</td></tr>
           <tr><td>D-10</td><td>Quyền riêng tư</td><td><code>/privacy</code></td><td>Mỗi người tự tắt việc ghi thống kê về mình hoặc xóa dữ liệu của mình.</td></tr>
-          <tr><td>D-11</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
+          <tr><td>D-11</td><td>Đóng góp file</td><td><code>/contribute</code>, <code>/settings contributions</code></td><td>Tắt sẵn. Chủ bot duyệt từng file trước khi vào kho nhạc.</td></tr>
+          <tr><td>D-12</td><td>Danh sách mong muốn</td><td><code>/request</code></td><td>Ghi tên bài kèm phiếu bầu, không tải gì. Có file khớp thì báo người đề xuất.</td></tr>
+          <tr><td>D-13</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
 
-<!-- S-12: bảng lệnh -->
-<section class="sheet" id="lenh" data-sheet="S-12|Bảng lệnh" aria-labelledby="h-lenh">
+<!-- S-13: bảng lệnh -->
+<section class="sheet" id="lenh" data-sheet="S-13|Bảng lệnh" aria-labelledby="h-lenh">
   <div class="wrap">
     <header class="sheet__head">
-      <span class="sheet__no">S-12</span>
+      <span class="sheet__no">S-13</span>
       <h2 id="h-lenh">Bảng lệnh</h2>
-      <p class="sheet__scale">29 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
+      <p class="sheet__scale">31 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
     </header>
     <div class="table-wrap">
       <table class="cmds">
@@ -983,6 +1028,9 @@
           <tr><th scope="row"><code>/lyrics</code></th><td>Lời bài hát chạy theo giọng, dòng đang hát được tô sáng.</td></tr>
           <tr><th scope="row"><code>/stats</code></th><td>Tình trạng bot: thời gian chạy, ping, số server, Lavalink.</td></tr>
           <tr><th scope="row"><code>/help</code></th><td>Danh sách lệnh chia nhóm.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Đóng góp và đề xuất</th></tr>
+          <tr><th scope="row"><code>/contribute</code> submit, pending, stats</th><td>Gửi file nhạc của chính bạn (kèm xác nhận bạn có quyền chia sẻ) để chủ bot duyệt, xem file đang chờ, xem thống kê. Tắt sẵn.</td></tr>
+          <tr><th scope="row"><code>/request</code> add, list, vote, mine, remove, done, dismiss</th><td>Đề xuất bài theo tên hoặc link, bầu cho đề xuất của người khác, quản lý đề xuất của bạn. Bot không tải gì từ link.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Đố nhạc</th></tr>
           <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Bắt đầu hoặc dừng một ván đố nhạc từ thư viện của server, xem bảng xếp hạng.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Thống kê và riêng tư</th></tr>
@@ -991,7 +1039,7 @@
           <tr><th scope="row"><code>/wrapped</code></th><td>Ảnh tổng kết một năm của bạn, vẽ như bản vẽ cyanotype.</td></tr>
           <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Tắt việc ghi thống kê về bạn, hoặc xóa dữ liệu của bạn.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Quản trị</th></tr>
-          <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status</th><td>Xem và đổi cài đặt của server: role DJ, âm lượng mặc định, hàng chờ công bằng, hiện tên bài trên kênh thoại. Cần quyền Manage Server.</td></tr>
+          <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status, contributions</th><td>Xem và đổi cài đặt của server: role DJ, âm lượng mặc định, hàng chờ công bằng, hiện tên bài trên kênh thoại, bật nhận đóng góp. Cần quyền Manage Server.</td></tr>
           <tr><th scope="row"><code>/247</code> on, off (radio)</th><td>Bật hoặc tắt chế độ ở lại kênh thoại 24/7; tùy chọn radio phát cả thư mục không ngừng.</td></tr>
         </tbody>
       </table>
@@ -999,11 +1047,11 @@
   </div>
 </section>
 
-<!-- S-13: tự host -->
-<section class="sheet" id="tu-host" data-sheet="S-13|Trình tự thi công, tự host" aria-labelledby="h-tu-host">
+<!-- S-14: tự host -->
+<section class="sheet" id="tu-host" data-sheet="S-14|Trình tự thi công, tự host" aria-labelledby="h-tu-host">
   <div class="wrap">
     <header class="sheet__head">
-      <span class="sheet__no">S-13</span>
+      <span class="sheet__no">S-14</span>
       <h2 id="h-tu-host">Tự host: trình tự thi công</h2>
       <p class="sheet__scale">Cần Docker và một chỗ chạy 24/7<br>làm lần lượt từ bước 1</p>
     </header>
@@ -1014,7 +1062,7 @@
       </li>
       <li>
         <h3>Tạo file .env</h3>
-        <p>Sao chép file mẫu rồi điền <code>DISCORD_TOKEN</code> và <code>CLIENT_ID</code>. Đặt thêm <code>LAVALINK_PASSWORD</code>; điền khóa Spotify nếu muốn dán link Spotify.</p>
+        <p>Sao chép file mẫu rồi điền <code>DISCORD_TOKEN</code> và <code>CLIENT_ID</code>. Đặt thêm <code>LAVALINK_PASSWORD</code>; muốn nhận file đóng góp thì thêm <code>CONTRIBUTIONS=on</code>; điền khóa Spotify nếu muốn dán link Spotify.</p>
         <div class="code"><pre><code>cp .env.example .env</code></pre><button type="button" data-copy>Chép</button></div>
         <p class="sub">Tra lời bài hát online qua LRCLIB là tùy chọn, bạn bật hoặc tắt trong cấu hình; xem file .env.example để biết tên biến.</p>
       </li>
@@ -1025,7 +1073,7 @@
       </li>
       <li>
         <h3>Đăng ký lệnh gạch chéo</h3>
-        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.0 thêm nhiều lệnh mới). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
+        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.1 thêm nhiều lệnh mới). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
         <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Chép</button></div>
       </li>
       <li>
@@ -1037,11 +1085,11 @@
   </div>
 </section>
 
-<!-- S-14: hỏi đáp -->
-<section class="sheet" id="hoi-dap" data-sheet="S-14|Ghi chú chung" aria-labelledby="h-hoi-dap">
+<!-- S-15: hỏi đáp -->
+<section class="sheet" id="hoi-dap" data-sheet="S-15|Ghi chú chung" aria-labelledby="h-hoi-dap">
   <div class="wrap">
     <header class="sheet__head">
-      <span class="sheet__no">S-14</span>
+      <span class="sheet__no">S-15</span>
       <h2 id="h-hoi-dap">Ghi chú chung</h2>
       <p class="sheet__scale">Những câu hay được hỏi<br>trước khi mời bot</p>
     </header>
@@ -1071,8 +1119,16 @@
         <div class="ans"><p>Từ file .lrc cạnh file nhạc, hoặc lời nhúng trong thẻ của file. Nếu không có, bot có thể tra online ở LRCLIB và việc đó gửi tên bài, nghệ sĩ, thời lượng tới dịch vụ ấy. Người host tắt được tính năng này.</p></div>
       </details>
       <details>
+        <summary>Bot có tải nhạc từ YouTube về không?</summary>
+        <div class="ans"><p>Không. Bot không tải gì từ YouTube, Spotify hay SoundCloud về kho. Với <code>/request</code>, bot chỉ ghi tên hoặc link vào danh sách mong muốn và không mở link đó. Chỉ file hợp lệ được đưa vào kho.</p></div>
+      </details>
+      <details>
+        <summary>Làm sao thêm bài vào kho nhạc?</summary>
+        <div class="ans"><p>Gửi file của bạn qua <code>/contribute</code> (tick xác nhận bạn sở hữu hoặc được phép chia sẻ, chủ bot sẽ duyệt) hoặc đề xuất bằng <code>/request</code>. Tính năng đóng góp tắt sẵn, cần chủ bot bật <code>CONTRIBUTIONS=on</code> và quản trị server bật <code>/settings contributions</code>.</p></div>
+      </details>
+      <details>
         <summary>Bot nhớ gì về server và về tôi?</summary>
-        <div class="ans"><p>Cài đặt của server, hàng chờ đã lưu, và từ bản 2.0 có thêm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu theo ID Discord. Bạn tắt việc ghi thống kê bằng <code>/privacy stats</code> và xóa dữ liệu của mình bằng <code>/privacy delete</code>. Chi tiết ở trang <a href="privacy.html">Quyền riêng tư</a>.</p></div>
+        <div class="ans"><p>Cài đặt của server, hàng chờ đã lưu, và từ bản 2.0 có thêm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu theo ID Discord. Từ bản 2.1 còn có hồ sơ đóng góp và đề xuất của bạn. Bạn tắt việc ghi thống kê bằng <code>/privacy stats</code> và xóa dữ liệu của mình bằng <code>/privacy delete</code>. Chi tiết ở trang <a href="privacy.html">Quyền riêng tư</a>.</p></div>
       </details>
       <details>
         <summary>Bot có tự rời kênh không?</summary>
@@ -1082,11 +1138,11 @@
   </div>
 </section>
 
-<!-- S-15: nhật ký bản vẽ. Sửa bảng này khi ra bản mới: thêm một dòng <tr> ở cuối và đổi class="now" sang dòng mới nhất. -->
-<section class="sheet" id="nhat-ky" data-sheet="S-15|Nhật ký bản vẽ" aria-labelledby="h-nhat-ky">
+<!-- S-16: nhật ký bản vẽ. Sửa bảng này khi ra bản mới: thêm một dòng <tr> ở cuối và đổi class="now" sang dòng mới nhất. -->
+<section class="sheet" id="nhat-ky" data-sheet="S-16|Nhật ký bản vẽ" aria-labelledby="h-nhat-ky">
   <div class="wrap">
     <header class="sheet__head">
-      <span class="sheet__no">S-15</span>
+      <span class="sheet__no">S-16</span>
       <h2 id="h-nhat-ky">Nhật ký bản vẽ</h2>
       <p class="sheet__scale">Bảng sửa đổi, như khung bản vẽ thật<br>dòng mới nhất nằm cuối</p>
     </header>
@@ -1098,7 +1154,8 @@
           <tr><th scope="row">A</th><td>1.0</td><td>đã phát hành</td><td>Bản đầu: trình phát nhạc cơ bản.</td></tr>
           <tr><th scope="row">B</th><td>1.1</td><td>đã phát hành</td><td>Nút điều khiển dưới bài đang phát, lệnh <code>/settings</code>, role DJ.</td></tr>
           <tr><th scope="row">C</th><td>1.2</td><td>đã phát hành</td><td>Khôi phục hàng chờ sau khi khởi động lại, bỏ phiếu bỏ qua, kiểm tra sức khỏe dịch vụ.</td></tr>
-          <tr class="now"><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Thư viện nhạc thông minh, thẻ Đang phát mới, tên bài trên kênh thoại, đố nhạc, hàng chờ công bằng và <code>/bump</code>, thống kê, Wrapped và đánh giá bài hát, lời bài hát chạy theo giọng, chế độ 24/7.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+          <tr><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Thư viện nhạc thông minh, thẻ Đang phát mới, tên bài trên kênh thoại, đố nhạc, hàng chờ công bằng và <code>/bump</code>, thống kê, Wrapped và đánh giá bài hát, lời bài hát chạy theo giọng, chế độ 24/7.</td></tr>
+        <tr class="now"><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Đóng góp file có chủ bot duyệt (<code>/contribute</code>, <code>/settings contributions</code>) và danh sách mong muốn (<code>/request</code>), bot không tải gì từ YouTube.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -1107,15 +1164,15 @@
 
 </main>
 
-<footer class="foot" data-sheet="S-16|Khung tên bản vẽ">
+<footer class="foot" data-sheet="S-17|Khung tên bản vẽ">
   <div class="wrap">
     <p class="foot__word" aria-hidden="true">musiDISCORD</p>
     <div class="tblock">
       <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Bot nhạc cho Discord</span></div>
-      <div class="w2"><small>Bản vẽ số</small><strong>S-16</strong></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>S-17</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-01</strong></div>
-      <div class="w2"><small>Bản</small><strong>D / 2.0</strong></div>
+      <div class="w2"><small>Bản</small><strong>E / 2.1</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

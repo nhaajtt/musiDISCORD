@@ -1,6 +1,14 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, escapeMarkdown } from "discord.js";
 
 const COLOR = 0x5865f2;
+
+/**
+ * Chuẩn bị chữ do người dùng đặt để hiển thị trong tin nhắn Discord: thoát markdown và cả [ ] ( ) < >
+ * (escapeMarkdown không thoát link kiểu [chữ](url) và cú pháp nhắc tên <@id>).
+ */
+export function safeText(text, max = 200) {
+  return escapeMarkdown(String(text ?? "")).replace(/[\[\]()<>]/g, "\\$&").slice(0, max);
+}
 
 export function formatDuration(ms) {
   if (!Number.isFinite(ms)) return "LIVE";

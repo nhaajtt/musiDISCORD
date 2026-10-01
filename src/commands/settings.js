@@ -33,6 +33,12 @@ export default {
     )
     .addSubcommand((s) =>
       s
+        .setName("contributions")
+        .setDescription("Cho phép thành viên gửi file nhạc đóng góp (chủ bot duyệt, cần CONTRIBUTIONS=on)")
+        .addBooleanOption((o) => o.setName("enabled").setDescription("Bật hay tắt").setRequired(true)),
+    )
+    .addSubcommand((s) =>
+      s
         .setName("vc-status")
         .setDescription("Tự ghi tên bài đang phát lên trạng thái kênh thoại")
         .addBooleanOption((o) => o.setName("enabled").setDescription("Bật hay tắt").setRequired(true)),
@@ -65,6 +71,14 @@ export default {
       });
     }
 
+    if (sub === "contributions") {
+      const enabled = interaction.options.getBoolean("enabled", true);
+      updateSettings(guildId, { contributions: enabled });
+      return interaction.reply({
+        embeds: [infoEmbed(enabled ? "🎁 Đã bật đóng góp nhạc ở server này. Thành viên dùng `/contribute submit`, chủ bot duyệt trước khi file vào thư viện." : "🎁 Đã tắt đóng góp nhạc ở server này.")],
+      });
+    }
+
     if (sub === "vc-status") {
       const enabled = interaction.options.getBoolean("enabled", true);
       updateSettings(guildId, { vcStatus: enabled });
@@ -83,6 +97,7 @@ export default {
         { name: "Âm lượng mặc định", value: `${settings.defaultVolume}%`, inline: true },
         { name: "Hàng chờ công bằng", value: onOff(settings.fairQueue), inline: true },
         { name: "Trạng thái kênh thoại", value: onOff(settings.vcStatus), inline: true },
+        { name: "Đóng góp nhạc", value: onOff(settings.contributions), inline: true },
         { name: "Chế độ 24/7", value: stay ? `Bật tại <#${stay.voiceChannelId}>${stay.radio ? " (radio)" : ""}` : "Tắt", inline: true },
       );
     await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });

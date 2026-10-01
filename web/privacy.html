@@ -42,7 +42,7 @@
   <span class="strip__name">Quyền riêng tư</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>D</span>
+  <span class="hide-sm"><b>Bản</b>E</span>
 </div>
 
 <header class="top">
@@ -74,7 +74,7 @@
     <p class="lead">Bot giữ những gì cần để phát nhạc cho đúng, nhớ cài đặt của server, và từ bản 2.0 còn ghi thống kê nghe nhạc để làm bảng xếp hạng, huy hiệu và Wrapped. Dưới đây là toàn bộ, nói thẳng, và bạn tắt hoặc xóa được phần của mình.</p>
     <div class="legal__meta">
       <span>Cập nhật lần cuối: 2026-10-01</span>
-      <span class="stamp" style="font-size:18px">bản D</span>
+      <span class="stamp" style="font-size:18px">bản E</span>
     </div>
 
     <div class="legal__body">
@@ -86,6 +86,9 @@
           <li>Lịch sử nghe: bài nào đã phát, vào lúc nào, do người dùng nào (ID Discord) yêu cầu, và những người dùng nào (ID Discord) đang nghe trong kênh lúc đó.</li>
           <li>Đánh giá 👍 👎 và danh sách yêu thích của từng người dùng.</li>
           <li>Điểm đố nhạc và huy hiệu của từng người dùng trong từng server.</li>
+          <li>Hồ sơ đóng góp (nếu tính năng được bật): ID Discord của người gửi, tên file, dung lượng, mã băm SHA-256, thẻ của file, trạng thái duyệt và lý do từ chối.</li>
+          <li>File âm thanh đang chờ duyệt, giữ tạm cho tới khi được duyệt hoặc bị từ chối (xóa khi bị từ chối, hoặc sau 14 ngày không ai duyệt).</li>
+          <li>Nội dung đề xuất bài hát (<code>/request</code>) cùng danh sách người bầu. Bot chỉ ghi chữ, không mở hay tải link bạn đưa.</li>
           <li>Tất cả các mục trên gắn với ID người dùng và ID server của Discord.</li>
           <li>Nhật ký vận hành: khi có lỗi, nhật ký trên máy chủ chạy bot có thể ghi ID server, ID kênh và tên bài.</li>
         </ul>
@@ -107,10 +110,14 @@
         <p>Bot ghi dòng "Đang phát: tên bài" vào trạng thái của kênh thoại, nên ai nhìn thấy kênh đó đều thấy tên bài. Quản trị viên tắt được bằng <code>/settings vc-status</code>.</p>
       </section>
       <section class="clause">
+        <h2>Tin nhắn riêng từ bot</h2>
+        <p>Bot gửi tin nhắn riêng (DM) để báo kết quả duyệt file đóng góp, báo khi có file khớp với bài bạn đề xuất hoặc bầu, và gửi chủ bot yêu cầu duyệt kèm tên file.</p>
+      </section>
+      <section class="clause">
         <h2>Quyền của bạn: tắt và xóa</h2>
         <ul>
           <li><code>/privacy stats</code>: bật hoặc tắt việc ghi thống kê về bạn. Khi tắt, bot ngừng ghi lịch sử nghe của bạn.</li>
-          <li><code>/privacy delete</code>: xóa dữ liệu của bạn mà bot đang lưu, gồm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu.</li>
+          <li><code>/privacy delete</code>: xóa dữ liệu của bạn mà bot đang lưu, gồm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu, đồng thời ẩn danh các đề xuất và đóng góp của bạn. File đã được duyệt vẫn nằm trong kho nhưng không còn gắn tên bạn.</li>
         </ul>
         <p>Hai lệnh này tự bạn bấm, không cần xin ai.</p>
       </section>
@@ -143,7 +150,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>P-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-01</strong></div>
-      <div class="w2"><small>Bản</small><strong>D / 2.0</strong></div>
+      <div class="w2"><small>Bản</small><strong>E / 2.1</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="index.html">Trang chủ</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

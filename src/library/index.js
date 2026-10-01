@@ -11,6 +11,7 @@ const MAX_COVER_BYTES = 4 * 1024 * 1024;
 const COVER_NAMES = ["cover", "folder", "front", "album"];
 const COVER_EXT = [".jpg", ".jpeg", ".png", ".webp"];
 
+const scanListeners = new Set();
 let entries = new Map();
 let lastScan = 0;
 let scanning = null;
@@ -27,10 +28,25 @@ export function normalizeText(text) {
     .trim();
 }
 
-const clean = (value) => {
-  const text = typeof value === "string" ? value.trim() : "";
+// Ký tự điều khiển, ẩn và đổi chiều chữ
+const HIDDEN = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g;
+
+/**
+ * Làm sạch chữ đọc từ thẻ file (do người dùng đặt): bỏ ký tự ẩn, bỏ link dạng [chữ](url) và dấu < >
+ * (tránh dựng link hoặc nhắc tên trong tin nhắn), gọn khoảng trắng, giới hạn độ dài.
+ */
+export function cleanMeta(value) {
+  const text = String(value ?? "")
+    .replace(HIDDEN, " ")
+    .replace(/\[([^\]]*)\]\(([^)]*)\)/g, "$1")
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 150);
   return text || null;
-};
+}
+
+const clean = (value) => (typeof value === "string" ? cleanMeta(value) : null);
 
 /** Đoán nghệ sĩ và tên bài từ tên file ("01-ten-bai", "Nghệ sĩ - Tên bài"). */
 export function guessFromName(name) {
@@ -137,7 +153,20 @@ async function doScan() {
   entries = nextEntries;
   covers.clear();
   if (changed) await saveCache(nextCache);
+  for (const listener of scanListeners) {
+    try {
+      listener(all());
+    } catch (error) {
+      console.error("Xử lý sau khi quét thư viện lỗi:", error);
+    }
+  }
   return entries.size;
+}
+
+/** Đăng ký hàm được gọi (với toàn bộ danh sách bài) sau mỗi lần quét xong. Trả về hàm huỷ đăng ký. */
+export function onScanned(listener) {
+  scanListeners.add(listener);
+  return () => scanListeners.delete(listener);
 }
 
 /** Quét lại thư mục music (chỉ đọc lại thẻ của file mới hoặc đã đổi). */

@@ -85,9 +85,12 @@ export function deleteUserData(userId) {
     db.prepare("DELETE FROM listeners WHERE user_id = ?").run(userId);
     db.prepare("UPDATE plays SET requester_id = NULL WHERE requester_id = ?").run(userId);
     db.prepare("UPDATE plays SET skipped_by = NULL WHERE skipped_by = ?").run(userId);
-    for (const table of ["ratings", "favorites", "quiz_scores", "badges"]) {
+    for (const table of ["ratings", "favorites", "quiz_scores", "badges", "request_votes"]) {
       db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
     }
+    // Đề xuất và đóng góp được giữ lại nhưng ẩn danh
+    db.prepare("UPDATE song_requests SET created_by = NULL WHERE created_by = ?").run(userId);
+    db.prepare("UPDATE contributions SET user_id = NULL WHERE user_id = ?").run(userId);
     db.exec("COMMIT");
   } catch (error) {
     db.exec("ROLLBACK");

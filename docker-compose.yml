@@ -34,7 +34,7 @@ services:
     environment:
       - LAVALINK_HOST=lavalink
     volumes:
-      - ./music:/music:ro
+      - ./music:/music
       - ./data:/app/data
     depends_on:
       - lavalink

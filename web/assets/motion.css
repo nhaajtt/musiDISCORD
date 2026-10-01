@@ -2025,3 +2025,28 @@ html.encore .paper {
   transform: none;
   translate: none;
 }
+
+/* ---------- cổng nhận hàng ---------- */
+.gate { max-width: 580px; width: 100%; justify-self: center; border: 1.5px solid var(--line); padding: clamp(14px, 3vw, 24px); background: color-mix(in srgb, var(--paper-2) 70%, transparent); position: relative; display: grid; gap: 14px; }
+.gate__flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gate__step { border: 1px dashed var(--line-dim); padding: 8px; display: grid; gap: 2px; align-content: start; font-size: 11.5px; min-width: 0; transition: border-color .3s, background .3s; }
+.gate__step.is-on { border: 1.5px solid var(--redline); background: var(--fill); }
+.gate__step small { color: var(--ink-dim); font-size: 10.5px; }
+.gate__step b { font-size: 12.5px; overflow-wrap: anywhere; }
+.gate__step ul { list-style: none; margin: 0; padding: 0; font-size: 11px; }
+.gate__step li.empty { color: var(--ink-dim); }
+.gate__btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.gate__btns .btn[disabled] { opacity: .4; cursor: not-allowed; }
+.gate__h { font-size: 26px; display: flex; justify-content: space-between; align-items: baseline; }
+.gate__bell { font: 600 14px var(--mono); }
+.gate__bell.ring { animation: bell .8s ease; display: inline-block; transform-origin: 50% 0; }
+@keyframes bell { 20% { rotate: 18deg; } 40% { rotate: -16deg; } 60% { rotate: 10deg; } 80% { rotate: -6deg; } }
+.gate__board { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-dim); }
+.gate__board li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line-dim); font-size: 13px; }
+.gate__board .st { font-style: normal; font-size: 11px; color: var(--ink-dim); }
+.gate__board li.done .st { color: var(--redline); font-weight: 600; }
+.gate__board button { min-width: 56px; min-height: 36px; border: 1px solid var(--line-dim); background: transparent; color: var(--ink); font: 600 12px var(--mono); cursor: pointer; border-radius: 2px; }
+.gate__board button:hover { border-color: var(--line); }
+.gate__stamp { position: absolute; right: 16px; top: 112px; pointer-events: none; font-family: var(--display); font-weight: 700; font-size: clamp(28px, 7vw, 44px); line-height: 1; color: var(--redline); border: 3px solid var(--redline); border-radius: 4px; padding: 4px 12px 0; background: color-mix(in srgb, var(--paper) 88%, transparent); opacity: 0; transform: rotate(-8deg); }
+.gate__stamp.show { animation: slam .5s cubic-bezier(.2, 1.3, .4, 1) forwards, stamp-out .4s ease 2.2s forwards; }
+@media (max-width: 520px) { .gate__flow { grid-template-columns: minmax(0, 1fr); } }
