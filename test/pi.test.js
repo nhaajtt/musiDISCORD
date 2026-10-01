@@ -310,8 +310,8 @@ test("trạng thái đang phát không lộ ID hay tên người yêu cầu", ()
 
 test("trạng thái: ẩn khi đố nhạc, rỗng khi không có player hay bài", () => {
   const quiz = fakePlayer({ data: { quiz: true } });
-  assert.deepEqual(nowPlayingState(fakeClient(quiz), quiz), { bot: "Bot Hai", playing: false, hidden: true });
-  assert.deepEqual(nowPlayingState(fakeClient(), null), { bot: "Bot Hai", playing: false });
+  assert.deepEqual(nowPlayingState(fakeClient(quiz), quiz), { bot: "Bot Hai", playing: false, canControl: false, hidden: true });
+  assert.deepEqual(nowPlayingState(fakeClient(), null), { bot: "Bot Hai", playing: false, canControl: false });
   const empty = fakePlayer();
   empty.queue.current = null;
   assert.equal(nowPlayingState(fakeClient(empty), empty).playing, false);
@@ -332,8 +332,10 @@ test("HTTP: trang /display, /api/np, 404, và điều khiển bị tắt khi kh�
   let res = fakeRes();
   await handle(fakeReq("/display"), res, client, cfg);
   assert.equal(res.status, 200);
-  assert.match(res.body, /<!doctype html>/);
-  assert.match(res.headers["Content-Security-Policy"], /default-src 'self'/);
+  assert.match(String(res.body), /<!doctype html>/);
+  assert.match(res.headers["Content-Security-Policy"], /default-src 'none'/);
+  assert.match(res.headers["Content-Security-Policy"], /script-src 'self'/);
+  assert.doesNotMatch(res.headers["Content-Security-Policy"], /unsafe-inline/);
 
   res = fakeRes();
   await handle(fakeReq("/api/np"), res, client, cfg);
@@ -378,6 +380,7 @@ test("HTTP: có token thì mọi /api cần token đúng, điều khiển hoạt
   assert.equal((await control({ action: "volume", value: 500 })).status, 200);
   assert.equal(player.volume, 150, "âm lượng bị chặn ở 150");
   assert.equal((await control({ action: "volume", value: "abc" })).status, 400);
+  for (const bad of [null, "", "  ", undefined, {}, [], true]) assert.equal((await control({ action: "volume", value: bad })).status, 400, `âm lượng ${JSON.stringify(bad)}`);
   assert.equal((await control({ action: "rm -rf" })).status, 400);
   assert.equal((await control({ action: "skip" })).status, 200);
   assert.ok(player.calls.includes("skip"));
@@ -447,4 +450,83 @@ test("sao lưu: VACUUM INTO đọc lại được, bỏ backups/cache/contrib, g
   assert.equal(restored.prepare("SELECT v FROM t").get().v, "xin chào");
   restored.close();
   assert.deepEqual(prune(path.join(dataDir, "backups"), 3), []);
+});
+
+// ---------- giao diện /display ----------
+
+test("giao diện: phục vụ css, js, font đúng loại; không cho đường dẫn tự do hay thoát thư mục", async () => {
+  const client = fakeClient(fakePlayer());
+  const get = async (p) => {
+    const r = fakeRes();
+    await handle(fakeReq(p), r, client, { token: "t" });
+    return r;
+  };
+  let r = await get("/display.css");
+  assert.equal(r.status, 200);
+  assert.match(r.headers["Content-Type"], /text\/css/);
+  r = await get("/display.js");
+  assert.equal(r.status, 200);
+  assert.match(r.headers["Content-Type"], /javascript/);
+  r = await get("/assets/fonts/BarlowCondensed-Bold.ttf");
+  assert.equal(r.status, 200);
+  assert.equal(r.headers["Content-Type"], "font/ttf");
+  for (const bad of ["/assets/fonts/../../.env", "/assets/fonts/OFL-BarlowCondensed.txt", "/src/config.js", "/display.html", "/assets/fonts/"]) {
+    assert.equal((await get(bad)).status, 404, bad);
+  }
+  // trang tĩnh không cần token, dữ liệu thì cần
+  assert.equal((await get("/api/np")).status, 401);
+});
+
+test("giao diện: HTML không nhúng script hay style trực tiếp (hợp CSP) và không gọi tài nguyên ngoài", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("../src/web/static/display.html", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../src/web/static/display.css", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)/i);
+  assert.doesNotMatch(html, /\sstyle=/i);
+  assert.doesNotMatch(html + css, /https?:\/\/(?!www\.w3\.org)/i);
+  assert.doesNotMatch(css, /@import/);
+});
+
+test("trạng thái có BPM, năng lượng, tâm trạng từ phân tích và cờ điều khiển", () => {
+  const rel = "Nghệ sĩ/Album/01 - Bài ba.mp3";
+  overlay.features.set(rel, { mtimeMs: 1, size: 1, bpm: 120.5, energy: 0.7, brightness: 0.4, mood: "hype" });
+  const s = nowPlayingState(fakeClient(fakePlayer()), fakePlayer(), "B", true);
+  assert.equal(s.bpm, 120.5);
+  assert.equal(s.energy, 0.7);
+  assert.equal(s.mood, "hype");
+  assert.equal(s.canControl, true);
+  assert.equal(nowPlayingState(fakeClient(fakePlayer()), fakePlayer()).canControl, false);
+
+  overlay.features.set(rel, { mtimeMs: 1, size: 1, failed: true });
+  assert.equal(nowPlayingState(fakeClient(fakePlayer()), fakePlayer()).bpm, null, "phân tích lỗi thì không có BPM");
+  overlay.features.delete(rel);
+});
+
+test("điều khiển: tua kiểm tra giới hạn, lặp đổi vòng, báo lại trạng thái có canControl", async () => {
+  const player = fakePlayer({ player: { seek: async function (ms) { this.calls.push(["seek", ms]); }, setRepeatMode: async function (m) { this.repeatMode = m; } } });
+  player.seek = player.seek.bind(player);
+  player.setRepeatMode = player.setRepeatMode.bind(player);
+  const client = fakeClient(player);
+  const cfg = { token: "k" };
+  const control = async (body) => {
+    const r = fakeRes();
+    await handle(fakeReq("/api/control", "POST", body, { "x-token": "k" }), r, client, cfg);
+    return r;
+  };
+
+  let r = await control({ action: "seek", value: 90_000 });
+  assert.equal(r.status, 200);
+  assert.deepEqual(player.calls.at(-1), ["seek", 90_000]);
+  assert.equal(JSON.parse(r.body).canControl, true);
+  for (const bad of [-1, 200_000, 999_999, "abc", null]) assert.equal((await control({ action: "seek", value: bad })).status, 400, String(bad));
+
+  assert.equal((await control({ action: "loop" })).status, 200);
+  assert.equal(player.repeatMode, "track");
+  assert.equal((await control({ action: "loop" })).status, 200);
+  assert.equal(player.repeatMode, "queue");
+  assert.equal((await control({ action: "loop" })).status, 200);
+  assert.equal(player.repeatMode, "off");
+
+  player.queue.current.info.isStream = true;
+  assert.equal((await control({ action: "seek", value: 1000 })).status, 400, "không tua được luồng trực tiếp");
 });

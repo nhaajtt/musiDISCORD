@@ -1,16 +1,43 @@
 import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { timingSafeEqual } from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { config } from "../config.js";
 import { getCover } from "../library/index.js";
+import { featuresOf } from "../library/worker.js";
 import { accentFor } from "../ui/nowPlaying.js";
-import { skipTrack } from "../utils/actions.js";
+import { cycleLoop, skipTrack } from "../utils/actions.js";
 import { localRelativePath } from "../utils/trackKey.js";
-import { displayHtml } from "./page.js";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const FONT_DIR = path.join(HERE, "..", "..", "assets", "fonts");
+
+// Chỉ phục vụ đúng các file này (không cho đường dẫn tự do)
+const STATIC = new Map([
+  ["/", { file: path.join(HERE, "static", "display.html"), type: "text/html; charset=utf-8" }],
+  ["/display", { file: path.join(HERE, "static", "display.html"), type: "text/html; charset=utf-8" }],
+  ["/display.css", { file: path.join(HERE, "static", "display.css"), type: "text/css; charset=utf-8" }],
+  ["/display.js", { file: path.join(HERE, "static", "display.js"), type: "text/javascript; charset=utf-8" }],
+  ...["BarlowCondensed-Bold.ttf", "BarlowCondensed-SemiBold.ttf", "IBMPlexMono-Regular.ttf", "IBMPlexMono-Bold.ttf"].map((name) => [
+    `/assets/fonts/${name}`,
+    { file: path.join(FONT_DIR, name), type: "font/ttf", cache: "public, max-age=604800" },
+  ]),
+]);
+
+const PAGE_CSP = "default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'";
 
 const MAX_BODY = 2048;
 const COVER_TTL_MS = 10 * 60_000;
 const coverCache = new Map();
+
+/** Chỉ nhận số thật (hoặc chuỗi số không rỗng); null, undefined, "" không bị coi là 0. */
+export function toNumber(v) {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v === "string" && v.trim() !== "") return Number.isFinite(Number(v)) ? Number(v) : null;
+  return null;
+}
 
 const hex = (n) => `#${n.toString(16).padStart(6, "0")}`;
 
@@ -26,8 +53,8 @@ export function pickPlayer(client, guildId) {
  * Trạng thái đang phát dạng JSON an toàn để công khai trong mạng nhà: không có ID Discord, không có tên người yêu cầu,
  * và ẩn hoàn toàn khi đang đố nhạc (kẻo lộ đáp án).
  */
-export function nowPlayingState(client, player, botName = config.botName) {
-  const base = { bot: botName, playing: false };
+export function nowPlayingState(client, player, botName = config.botName, canControl = false) {
+  const base = { bot: botName, playing: false, canControl };
   if (!player) return base;
   if (player.getData("quiz")) return { ...base, hidden: true };
   const track = player.queue.current;
@@ -35,8 +62,10 @@ export function nowPlayingState(client, player, botName = config.botName) {
 
   const info = track.info;
   const rel = localRelativePath(info);
+  const f = rel !== null ? featuresOf(rel) : null;
   return {
     bot: botName,
+    canControl,
     guildId: player.guildId,
     guild: client.guilds?.cache.get(player.guildId)?.name ?? null,
     playing: Boolean(player.playing) && !player.paused,
@@ -52,6 +81,11 @@ export function nowPlayingState(client, player, botName = config.botName) {
     accent: hex(accentFor(`${info.title}${info.author ?? ""}`)),
     cover: rel !== null || /^https?:\/\//i.test(info.artworkUrl ?? ""),
     repeat: player.repeatMode,
+    // Đặc trưng âm thanh do chính bot phân tích (có khi chưa phân tích xong)
+    bpm: f?.bpm ?? null,
+    energy: f?.energy ?? null,
+    brightness: f?.brightness ?? null,
+    mood: f?.mood ?? null,
   };
 }
 
@@ -95,15 +129,22 @@ async function coverFor(rel) {
 export async function handle(req, res, client, cfg = config.display) {
   const url = new URL(req.url, "http://localhost");
 
-  if (url.pathname === "/" || url.pathname === "/display") {
-    return send(res, 200, displayHtml(), "text/html; charset=utf-8", { "Content-Security-Policy": "default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'" });
+  const asset = req.method === "GET" ? STATIC.get(url.pathname) : null;
+  if (asset) {
+    try {
+      const body = await readFile(asset.file);
+      const isPage = asset.type.startsWith("text/html");
+      return send(res, 200, body, asset.type, { "Cache-Control": asset.cache ?? "no-cache", ...(isPage ? { "Content-Security-Policy": PAGE_CSP, "Referrer-Policy": "no-referrer" } : {}) });
+    } catch {
+      return send(res, 404, { error: "Không có tệp này" });
+    }
   }
   if (!url.pathname.startsWith("/api/")) return send(res, 404, { error: "Không có trang này" });
   if (!authorized(req, url, cfg.token)) return send(res, 401, { error: "Sai token" });
 
   const player = pickPlayer(client, url.searchParams.get("guild"));
 
-  if (req.method === "GET" && url.pathname === "/api/np") return send(res, 200, nowPlayingState(client, player));
+  if (req.method === "GET" && url.pathname === "/api/np") return send(res, 200, nowPlayingState(client, player, config.botName, Boolean(cfg.token)));
 
   if (req.method === "GET" && url.pathname === "/api/cover") {
     const track = player?.queue.current;
@@ -135,15 +176,26 @@ export async function handle(req, res, client, cfg = config.display) {
         await skipTrack(player);
         break;
       case "volume": {
-        const v = Math.round(Number(body.value));
-        if (!Number.isFinite(v)) return send(res, 400, { error: "Âm lượng không hợp lệ" });
-        await player.setVolume(Math.min(150, Math.max(0, v)));
+        const raw = toNumber(body.value);
+        if (raw === null) return send(res, 400, { error: "Âm lượng không hợp lệ" });
+        await player.setVolume(Math.min(150, Math.max(0, Math.round(raw))));
         break;
       }
+      case "seek": {
+        const raw = toNumber(body.value);
+        const ms = raw === null ? null : Math.round(raw);
+        const dur = player.queue.current.info.duration;
+        if (player.queue.current.info.isStream || !Number.isFinite(dur) || ms === null || ms < 0 || ms >= dur) return send(res, 400, { error: "Vị trí tua không hợp lệ" });
+        await player.seek(ms);
+        break;
+      }
+      case "loop":
+        await cycleLoop(player);
+        break;
       default:
         return send(res, 400, { error: "Hành động không hợp lệ" });
     }
-    return send(res, 200, nowPlayingState(client, player));
+    return send(res, 200, nowPlayingState(client, player, config.botName, Boolean(cfg.token)));
   }
 
   return send(res, 404, { error: "Không có đường dẫn này" });

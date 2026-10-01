@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1b1233" id="themeColor">
+<meta name="robots" content="noindex">
+<title>Đang phát</title>
+<link rel="stylesheet" href="/display.css">
+</head>
+<body data-state="idle">
+<div class="stage">
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="ghost" aria-hidden="true"><span id="ghost"></span></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="room">
+    <section class="deck" aria-label="Đĩa đang quay">
+      <div class="deck__inner" id="deck">
+        <div class="pulse" id="pulse"></div>
+        <svg class="ring" id="ring" viewBox="0 0 400 400" aria-hidden="true">
+          <defs><path id="ringPath" d="M200,200 m-176,0 a176,176 0 1,1 352,0 a176,176 0 1,1 -352,0"/></defs>
+          <text><textPath href="#ringPath" id="ringText" textLength="1105" lengthAdjust="spacing"></textPath></text>
+        </svg>
+        <svg class="prog" viewBox="0 0 400 400" aria-hidden="true">
+          <circle class="prog__track" cx="200" cy="200" r="197"/>
+          <circle class="prog__fill" id="progFill" cx="200" cy="200" r="197" pathLength="1000"/>
+        </svg>
+        <button class="disc" id="disc" type="button" aria-label="Tạm dừng hoặc phát tiếp">
+          <span class="disc__spin" id="discSpin">
+            <span class="disc__grooves"></span>
+            <img class="disc__cover" id="cover" alt="" hidden>
+          </span>
+          <span class="disc__sheen"></span>
+          <span class="disc__label"><b id="bpm"></b><small id="bpmUnit"></small></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="info">
+      <p class="where" id="where"></p>
+      <h1 class="title" id="title"></h1>
+      <p class="artist" id="artist"></p>
+      <p class="meta" id="meta"></p>
+
+      <div class="empty">
+        <h2 id="emptyTitle"></h2>
+        <p id="emptyText"></p>
+      </div>
+
+      <div class="timeline">
+        <div class="ruler" id="ruler" role="slider" aria-label="Tua bài" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="ruler__ticks"></div>
+          <div class="ruler__ticks ruler__ticks--on" id="rulerOn"></div>
+          <i class="ruler__head" id="head"></i>
+        </div>
+        <div class="times"><span id="pos">0:00</span><span id="dur">0:00</span></div>
+      </div>
+
+      <nav class="controls" id="controls" aria-label="Điều khiển">
+        <button type="button" class="btn" data-act="loop" aria-label="Chế độ lặp">
+          <svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/></svg>
+          <i class="btn__dot" id="loopDot"></i>
+        </button>
+        <button type="button" class="btn" data-act="vol-" aria-label="Giảm âm lượng">
+          <svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9.5a3.5 3.5 0 010 5"/></svg>
+        </button>
+        <button type="button" class="btn btn--main" data-act="toggle" aria-label="Tạm dừng hoặc phát tiếp">
+          <svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
+          <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>
+        </button>
+        <button type="button" class="btn" data-act="vol+" aria-label="Tăng âm lượng">
+          <svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9.5a3.5 3.5 0 010 5"/><path d="M19 7a7 7 0 010 10"/></svg>
+        </button>
+        <button type="button" class="btn" data-act="skip" aria-label="Bỏ qua bài">
+          <svg viewBox="0 0 24 24"><path d="M5 5v14l10-7z"/><path d="M19 5v14"/></svg>
+        </button>
+      </nav>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="wipe" id="wipe" aria-hidden="true"></div>
+</div>
+<p class="sr-only" id="live" aria-live="polite"></p>
+<script src="/display.js"></script>
+</body>
+</html>
