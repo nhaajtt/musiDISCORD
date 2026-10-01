@@ -1,0 +1,30 @@
+services:
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4
+    container_name: musidiscord-lavalink
+    restart: unless-stopped
+    environment:
+      - _JAVA_OPTIONS=-Xmx512M
+      - LAVALINK_PASSWORD=${LAVALINK_PASSWORD}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - YOUTUBE_REFRESH_TOKEN=${YOUTUBE_REFRESH_TOKEN}
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./lavalink/plugins:/opt/Lavalink/plugins
+      - ./music:/music:ro
+    expose:
+      - "2333"
+
+  bot:
+    build: .
+    container_name: musidiscord-bot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - LAVALINK_HOST=lavalink
+    volumes:
+      - ./music:/music:ro
+      - ./data:/app/data
+    depends_on:
+      - lavalink

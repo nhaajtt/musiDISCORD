@@ -1,0 +1,10 @@
+node_modules/
+.env
+data/
+music/*
+!music/.gitkeep
+lavalink/plugins/
+lavalink/logs/
+.testdata/
+*.log
+.vercel

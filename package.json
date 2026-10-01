@@ -1,0 +1,22 @@
+{
+  "name": "musidiscord",
+  "version": "1.0.0",
+  "description": "Bot phát nhạc Discord dùng Lavalink",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --test",
+    "deploy-commands": "node src/deploy-commands.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "lavalink-client": "^2.4.0",
+    "music-metadata": "^11.16.1"
+  }
+}

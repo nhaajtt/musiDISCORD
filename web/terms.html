@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điều khoản sử dụng, musiDISCORD</title>
+<meta name="description" content="Điều khoản khi dùng bot musiDISCORD: bot làm gì, trách nhiệm về nội dung phát, hành vi không được phép và quyền của người duy trì bot.">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/motion.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Bỏ qua tới nội dung</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Dự án</b>musiDISCORD</span>
+  <span><b>P-02</b></span>
+  <span class="strip__name">Điều khoản sử dụng</span>
+  <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
+  <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
+  <span class="hide-sm"><b>Bản</b>D</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, về trang chủ">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Các phần của trang">
+    <a href="index.html#so-do">Sơ đồ</a>
+    <a href="index.html#thu-vien">Tính năng</a>
+    <a href="index.html#lenh">Lệnh</a>
+    <a href="index.html#tu-host">Tự host</a>
+    <a href="index.html#hoi-dap">Hỏi đáp</a>
+    <a href="index.html#nhat-ky">Nhật ký</a>
+  </nav>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+</header>
+
+<main id="noi-dung" class="legal">
+  <div class="wrap">
+    <h1>Điều khoản sử dụng</h1>
+    <p class="lead">Vài quy tắc để bot chạy êm cho mọi người. Dùng bot nghĩa là bạn đồng ý với những điều dưới đây.</p>
+    <div class="legal__meta">
+      <span>Cập nhật lần cuối: 2026-10-01</span>
+      <span class="stamp" style="font-size:18px">bản D</span>
+    </div>
+
+    <div class="legal__body">
+      <section class="clause">
+        <h2>Đồng ý điều khoản</h2>
+        <p>Khi mời bot vào server hoặc dùng các lệnh của bot, bạn đồng ý với trang này, với <a href="privacy.html">Quyền riêng tư</a> và với điều khoản của chính Discord.</p>
+      </section>
+      <section class="clause">
+        <h2>Bot làm gì</h2>
+        <p>musiDISCORD phát nhạc vào kênh thoại từ link, tên bài hoặc thư viện file nhạc, và cho phép điều khiển bằng lệnh và nút bấm. Bản 2.0 có thêm thư viện nhạc thông minh, đố nhạc, thống kê, Wrapped, lời bài hát và chế độ 24/7. Bot được cung cấp ở trạng thái hiện có: có thể lỗi, tạm ngừng hoặc thay đổi bất cứ lúc nào, và không có cam kết về thời gian hoạt động.</p>
+      </section>
+      <section class="clause">
+        <h2>Nguồn nhạc và bản quyền</h2>
+        <ul>
+          <li>Bạn chịu trách nhiệm về những gì bạn yêu cầu bot phát và việc bạn có quyền phát chúng.</li>
+          <li>YouTube, SoundCloud và Spotify có điều khoản riêng. Bạn tự tuân thủ khi dùng link của họ qua bot.</li>
+          <li>File trong thư mục music phải là file bạn có quyền sử dụng.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>Thư viện nhạc và nội dung bạn thêm</h2>
+        <ul>
+          <li>Bạn chịu trách nhiệm về việc hợp pháp của mọi file nhạc, ảnh bìa và file lời (.lrc) bạn đưa vào thư viện của bot, và về cách bạn dùng bot để phát chúng, nhất là khi phát trong server công cộng.</li>
+          <li>Đố nhạc và <code>/nhaajt</code> chỉ dùng nhạc nằm trong thư viện của người host.</li>
+          <li>Lời bài hát tra online (nếu bật) thuộc về chủ sở hữu của chúng; bot chỉ hiển thị, không cấp quyền gì thêm cho bạn.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>Thống kê, huy hiệu, chế độ 24/7</h2>
+        <p>Thống kê, bảng xếp hạng, huy hiệu và Wrapped chỉ để cho vui, không có giá trị nào khác. Bot lưu và dùng dữ liệu đó theo trang <a href="privacy.html">Quyền riêng tư</a>, và bạn tắt hoặc xóa phần của mình bằng <code>/privacy</code>. Chế độ 24/7 có thể bị tắt hoặc giới hạn theo máy chủ chạy bot, và không có cam kết về thời gian hoạt động.</p>
+      </section>
+      <section class="clause">
+        <h2>Hành vi không được phép</h2>
+        <ul>
+          <li>Dùng bot để quấy rối người khác, gây rối kênh thoại hoặc spam lệnh.</li>
+          <li>Cố làm bot hoặc máy chủ phía sau quá tải, hoặc tìm cách vượt quyền do server đặt (như role DJ).</li>
+          <li>Vi phạm điều khoản hay hướng dẫn cộng đồng của Discord khi dùng bot.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>Quyền của người duy trì bot</h2>
+        <p>Người duy trì bot (nhaajt) có thể chặn một server hoặc một người dùng lạm dụng, thay đổi tính năng, hoặc ngừng bot, kể cả không báo trước khi cần bảo vệ bot và người dùng khác.</p>
+      </section>
+      <section class="clause">
+        <h2>Giới hạn trách nhiệm</h2>
+        <p>Trong phạm vi pháp luật cho phép, người duy trì bot không chịu trách nhiệm về thiệt hại gián tiếp phát sinh từ việc dùng bot, như gián đoạn buổi nghe nhạc hay mất hàng chờ.</p>
+      </section>
+      <section class="clause">
+        <h2>Thay đổi điều khoản</h2>
+        <p>Điều khoản có thể được cập nhật. Ngày cập nhật gần nhất nằm ở đầu trang. Tiếp tục dùng bot sau khi cập nhật nghĩa là bạn chấp nhận bản mới.</p>
+      </section>
+      <section class="clause">
+        <h2>Liên hệ</h2>
+        <p>Có câu hỏi về điều khoản, nhắn người duy trì bot:</p>
+        <p class="contact">[liên hệ: nhaajt trên Discord]</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="foot" data-sheet="P-02|Điều khoản sử dụng">
+  <div class="wrap">
+    <div class="tblock">
+      <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Điều khoản sử dụng</span></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>P-02</strong></div>
+      <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Ngày</small><strong>2026-10-01</strong></div>
+      <div class="w2"><small>Bản</small><strong>D / 2.0</strong></div>
+      <div class="w6">
+        <small>Tài liệu kèm theo</small>
+        <span><a href="index.html">Trang chủ</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span>Made by nhaajt. musiDISCORD là dự án độc lập, không liên kết với Discord Inc.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>musiDISCORD, bot nhạc cho Discord</title>
+<meta name="description" content="Bot nhạc tự host cho Discord: thư viện nhạc thông minh, thẻ Đang phát mới, đố nhạc, lời bài hát chạy theo giọng, Wrapped cuối năm, chế độ 24/7 và /nhaajt xáo trộn cả thư mục nhạc.">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/motion.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Bỏ qua tới nội dung</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="mk" d="M0 0L10 5L0 10z"/>
+    </marker>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="8" style="stroke:var(--line);stroke-opacity:.5;stroke-width:1.2"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Dự án</b>musiDISCORD</span>
+  <span><b id="strip-no">S-00</b></span>
+  <span class="strip__name" id="strip-name">Bìa</span>
+  <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
+  <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
+  <span class="hide-sm"><b>Bản</b>D</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="#" aria-label="musiDISCORD, về đầu trang">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Các phần của trang">
+    <a href="#so-do">Sơ đồ</a>
+    <a href="#thu-vien">Tính năng</a>
+    <a href="#lenh">Lệnh</a>
+    <a href="#tu-host">Tự host</a>
+    <a href="#hoi-dap">Hỏi đáp</a>
+    <a href="#nhat-ky">Nhật ký</a>
+  </nav>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+</header>
+
+<main id="noi-dung">
+
+<!-- S-00: bìa -->
+<section class="hero" data-sheet="S-00|Bìa" aria-label="Giới thiệu">
+  <i class="fold fold--1"></i><i class="fold fold--2"></i>
+  <i class="reg reg--tl"></i><i class="reg reg--tr"></i>
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <h1 data-split>musiDISCORD</h1>
+      <div class="dim hero__dim" aria-hidden="true"><i></i><b>một bot, cả kênh thoại cùng nghe</b><i></i></div>
+      <p class="lead">Bot nhạc tự host cho Discord. Dán link hoặc gõ tên bài, cả kênh thoại nghe cùng một lúc.</p>
+      <p class="lead">Bản 2.0 có thêm thư viện nhạc thông minh, thẻ Đang phát mới, đố nhạc, lời bài hát chạy theo giọng, Wrapped cuối năm và <code>/nhaajt</code> biết xáo trộn có gu.</p>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+        <a class="btn" href="#so-do">Xem bản vẽ</a>
+        <a class="link" href="#tu-host">Tự host</a>
+      </div>
+      <dl class="spec">
+        <div><dt>Nguồn nhạc</dt><dd>Link hoặc tên bài từ YouTube, SoundCloud, Spotify, và thư viện file nhạc của riêng bạn</dd></div>
+        <div><dt>Điều khiển</dt><dd>Thẻ Đang phát với hai hàng nút và 29 lệnh gạch chéo</dd></div>
+        <div><dt>Chế độ riêng</dt><dd><code>/nhaajt</code> xáo trộn thông minh, <code>/247</code> ở lại kênh cả khi vắng người</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero__fig plot">
+      <svg viewBox="0 0 640 650" role="img" aria-label="Bản vẽ kỹ thuật một chiếc đĩa nhạc nhìn từ trên xuống, đường kính 300 milimét, có cần kim và mặt cắt A-A">
+        <g data-fade style="--d:.2s">
+          <path class="ln-dim dashdot" d="M30 310H610"/>
+          <path class="ln-dim dashdot" d="M320 34V586"/>
+        </g>
+        <circle class="ln" data-intro style="--d:.1s" cx="320" cy="310" r="250"/>
+        <g class="compass" aria-hidden="true">
+          <path class="ln-thin" d="M320 310L445 160L570 310"/>
+          <path class="ln-thin" d="M445 160V138"/>
+          <circle class="paper-fill ln-thin" cx="445" cy="160" r="7"/>
+          <circle class="mk" cx="320" cy="310" r="4"/>
+          <path class="mk" d="M566 302L574 302L570 316Z"/>
+        </g>
+        <circle class="ln-thin" data-intro style="--d:.3s" cx="320" cy="310" r="240"/>
+        <circle class="ln-dim" data-intro style="--d:.5s" cx="320" cy="310" r="214"/>
+        <circle class="ln-dim" data-intro style="--d:.6s" cx="320" cy="310" r="196"/>
+        <circle class="ln-dim" data-intro style="--d:.7s" cx="320" cy="310" r="178"/>
+        <circle class="ln-dim" data-intro style="--d:.8s" cx="320" cy="310" r="160"/>
+        <circle class="ln-dim" data-intro style="--d:.9s" cx="320" cy="310" r="142"/>
+        <circle class="hatch-fill" data-fade style="--d:1.2s" cx="320" cy="310" r="92"/>
+        <circle class="ln" data-intro style="--d:1s" cx="320" cy="310" r="92"/>
+        <circle class="ln" data-intro style="--d:1.2s" cx="320" cy="310" r="9"/>
+
+        <circle class="ln" data-intro style="--d:1.1s" cx="572" cy="74" r="26"/>
+        <circle class="ln-thin" data-intro style="--d:1.3s" cx="572" cy="74" r="11"/>
+        <path class="ln" data-intro style="--d:1.3s" d="M558 96L490 204"/>
+        <path class="ln paper-fill" data-intro style="--d:1.5s" d="M492 198L510 208L486 244L468 234Z"/>
+
+        <g class="flyin flyin--l" style="--d:1.6s"><path class="ln-dim" d="M70 566V600M570 566V600"/></g>
+        <g class="flyin flyin--r" style="--d:1.7s"><path class="ln-thin" d="M70 596H570"/></g>
+        <g class="flyin flyin--l" style="--d:1.8s"><path class="ln-thin" d="M70 584V608M570 584V608"/></g>
+        <g data-fade style="--d:2s">
+          <rect class="paper-fill" x="236" y="582" width="168" height="30"/>
+          <text class="t" x="320" y="603" text-anchor="middle">Ø 300 mm</text>
+        </g>
+
+        <g data-fade style="--d:1.9s">
+          <circle class="bubble" cx="22" cy="310" r="13"/>
+          <text class="t t-sm" x="22" y="315" text-anchor="middle">A</text>
+          <circle class="bubble" cx="618" cy="310" r="13"/>
+          <text class="t t-sm" x="618" y="315" text-anchor="middle">A</text>
+        </g>
+
+        <g class="hide-sm-svg" data-fade style="--d:2.3s">
+          <text class="t-hand" x="30" y="60">đĩa 12 inch,</text>
+          <text class="t-hand" x="30" y="86">không xước, không nhảy kim</text>
+          <path class="ln-thin" d="M90 100Q130 128 164 160"/>
+          <circle class="mk" cx="165" cy="161" r="3.5"/>
+          <text class="t-hand" x="352" y="52">kim đã hạ</text>
+          <path class="ln-thin" d="M420 60Q472 80 484 196"/>
+          <circle class="mk" cx="484" cy="198" r="3.5"/>
+        </g>
+
+        <g transform="rotate(-9 155 476)">
+          <g class="stamp-pop" id="hero-stamp" style="--d:2.7s">
+            <rect x="40" y="444" width="230" height="64" rx="3" fill="var(--paper)" fill-opacity=".88" stroke="var(--redline)" stroke-width="2.5"/>
+            <text class="t-d t-red" x="155" y="479" text-anchor="middle" style="font-size:34px">ĐÃ DUYỆT</text>
+            <text class="t t-sm t-red" x="155" y="499" text-anchor="middle">bản D, 2026-10-01</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- đồng hồ số -->
+<section class="gauges" aria-label="Vài con số của bản 2.0">
+  <div class="wrap gauges__row">
+    <figure class="gauge" data-gauge="29" data-max="32"><div class="gauge__dial"></div><figcaption><b data-num>29</b><span>lệnh gạch chéo</span></figcaption></figure>
+    <figure class="gauge" data-gauge="9" data-max="10"><div class="gauge__dial"></div><figcaption><b data-num>9</b><span>nút trên thẻ Đang phát</span></figcaption></figure>
+    <figure class="gauge" data-gauge="5" data-max="6"><div class="gauge__dial"></div><figcaption><b data-num>5</b><span>mục trong <code>/settings</code></span></figcaption></figure>
+    <figure class="gauge" data-gauge="24" data-max="24"><div class="gauge__dial"></div><figcaption><b data-num>24</b><span>giờ mỗi ngày với <code>/247</code></span></figcaption></figure>
+  </div>
+</section>
+
+<!-- S-01: sơ đồ đường âm thanh (cuộn để vẽ) -->
+<section class="sheet pin" id="so-do" data-plot="pin" data-sheet="S-01|Sơ đồ đường âm thanh" aria-labelledby="h-so-do">
+  <div class="pin__stage">
+    <div class="wrap">
+      <header class="sheet__head">
+        <span class="sheet__no">S-01</span>
+        <h2 id="h-so-do">Đường đi của một bài hát</h2>
+        <p class="sheet__scale">Mặt bằng, tỷ lệ 1:1<br>nét liền là âm thanh, nét đứt là lệnh</p>
+      </header>
+
+      <div class="pin__fig plot">
+        <svg class="show-wide" viewBox="0 0 1200 600" role="img" aria-label="Sơ đồ: người dùng gửi lệnh cho bot, bot điều khiển Lavalink, Lavalink lấy nhạc từ YouTube, SoundCloud, Spotify hoặc thư viện file trong thư mục music rồi phát vào kênh thoại Discord">
+          <rect class="ln" data-draw="0,.08" x="30" y="40" width="230" height="100" rx="3"/>
+          <g data-show=".05">
+            <text class="t-d" x="50" y="84">Người dùng</text>
+            <text class="t t-sm t-dim" x="50" y="114">gõ /play, bấm nút</text>
+          </g>
+
+          <rect class="ln" data-draw=".06,.16" x="400" y="40" width="260" height="100" rx="3"/>
+          <g data-show=".12">
+            <text class="t-d" x="420" y="84">musiDISCORD</text>
+            <text class="t t-sm t-dim" x="420" y="114">nhận lệnh, giữ hàng chờ</text>
+          </g>
+
+          <path id="w-cmd" class="ln dash" data-show=".16" d="M262 90H396" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".18" x="330" y="76" text-anchor="middle">lệnh</text>
+
+          <path id="w-ctl" class="ln dash" data-show=".26" d="M530 142V246" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".28" x="546" y="200">điều khiển</text>
+
+          <rect class="solid-fill" data-show=".34" x="401" y="251" width="258" height="188"/>
+          <rect class="ln" data-draw=".24,.38" x="400" y="250" width="260" height="190" rx="3"/>
+          <g data-show=".36">
+            <text class="t-d" x="420" y="296">Lavalink</text>
+            <text class="t t-sm t-dim" x="420" y="326">máy chủ âm thanh riêng</text>
+            <text class="t t-sm t-dim" x="420" y="348">lấy nhạc, giải mã, phát đi</text>
+          </g>
+
+          <rect class="ln" data-draw=".34,.44" x="30" y="210" width="230" height="60" rx="3"/>
+          <g data-show=".40"><text class="t-d" style="font-size:24px" x="46" y="236">YouTube</text><text class="t t-sm t-dim" x="46" y="257">link hoặc tên bài</text></g>
+          <rect class="ln" data-draw=".38,.48" x="30" y="290" width="230" height="60" rx="3"/>
+          <g data-show=".44"><text class="t-d" style="font-size:24px" x="46" y="316">SoundCloud</text><text class="t t-sm t-dim" x="46" y="337">link hoặc tên bài</text></g>
+          <rect class="ln" data-draw=".42,.52" x="30" y="370" width="230" height="60" rx="3"/>
+          <g data-show=".48"><text class="t-d" style="font-size:24px" x="46" y="396">Spotify</text><text class="t t-sm t-dim" x="46" y="417">link bài hoặc playlist</text></g>
+          <rect class="ln" data-draw=".46,.56" x="30" y="450" width="230" height="60" rx="3"/>
+          <g data-show=".52"><text class="t-d" style="font-size:24px" x="46" y="476">Thư viện nhạc</text><text class="t t-sm t-dim" x="46" y="497">file của bạn, /local /album</text></g>
+
+          <path id="w-s1" class="ln" data-show=".54" d="M262 240C330 240 330 285 396 285" marker-end="url(#ah)"/>
+          <path id="w-s2" class="ln" data-show=".57" d="M262 320C330 320 330 330 396 330" marker-end="url(#ah)"/>
+          <path id="w-s3" class="ln" data-show=".60" d="M262 400C330 400 330 375 396 375" marker-end="url(#ah)"/>
+          <path id="w-s4" class="ln" data-show=".63" d="M262 480C330 480 330 420 396 420" marker-end="url(#ah)"/>
+
+          <rect class="ln" data-draw=".66,.80" x="860" y="240" width="310" height="210" rx="3"/>
+          <g data-show=".72">
+            <text class="t-d" x="882" y="288">Kênh thoại Discord</text>
+            <text class="t t-sm t-dim" x="882" y="316">cả kênh nghe cùng một lúc</text>
+          </g>
+          <g data-show=".78">
+            <circle class="ln-thin" cx="930" cy="372" r="15"/><path class="ln-thin" d="M906 418c0-18 11-28 24-28s24 10 24 28"/>
+            <circle class="ln-thin" cx="1015" cy="372" r="15"/><path class="ln-thin" d="M991 418c0-18 11-28 24-28s24 10 24 28"/>
+            <circle class="ln-thin" cx="1100" cy="372" r="15"/><path class="ln-thin" d="M1076 418c0-18 11-28 24-28s24 10 24 28"/>
+          </g>
+          <path id="w-aud" class="ln-heavy" data-show=".70" d="M662 345H854" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".72" x="758" y="326" text-anchor="middle">âm thanh</text>
+          <g class="eq" data-show=".74" aria-hidden="true">
+            <rect class="eqbar" x="690" y="364" width="6" height="36"/><rect class="eqbar" x="704" y="364" width="6" height="36"/><rect class="eqbar" x="718" y="364" width="6" height="36"/><rect class="eqbar" x="732" y="364" width="6" height="36"/><rect class="eqbar" x="746" y="364" width="6" height="36"/><rect class="eqbar" x="760" y="364" width="6" height="36"/><rect class="eqbar" x="774" y="364" width="6" height="36"/><rect class="eqbar" x="788" y="364" width="6" height="36"/><rect class="eqbar" x="802" y="364" width="6" height="36"/><rect class="eqbar" x="816" y="364" width="6" height="36"/>
+          </g>
+
+          <path class="ln-dim" data-draw=".84,.9" d="M30 516V566M1170 460V566"/>
+          <path class="ln-thin" data-draw=".86,.98" d="M30 560H1170"/>
+          <path class="ln-thin" data-draw=".86,.98" d="M30 548V572M1170 548V572"/>
+          <g data-show=".92">
+            <rect class="paper-fill" x="410" y="545" width="380" height="30"/>
+            <text class="t" x="600" y="566" text-anchor="middle">một lệnh, cả kênh thoại cùng nghe</text>
+          </g>
+          <g data-show=".96">
+            <text class="t-hand" x="840" y="118">đã thử loa rồi, mời nghe</text>
+            <path class="ln-thin" d="M1010 130Q1022 190 1016 238"/>
+            <circle class="mk" cx="1016" cy="240" r="3.5"/>
+          </g>
+
+          <g class="signal" aria-hidden="true">
+            <circle class="pulse" r="5" data-sig="w-cmd" data-sp=".5"/>
+            <circle class="pulse" r="5" data-sig="w-ctl" data-sp=".5" data-off=".3"/>
+            <circle class="pulse" r="4" data-sig="w-s1" data-sp=".55" data-off=".1"/>
+            <circle class="pulse" r="4" data-sig="w-s2" data-sp=".55" data-off=".4"/>
+            <circle class="pulse" r="4" data-sig="w-s3" data-sp=".55" data-off=".7"/>
+            <circle class="pulse" r="4" data-sig="w-s4" data-sp=".55" data-off=".25"/>
+            <circle class="pulse pulse--hot" r="6" data-sig="w-aud" data-sp=".45"/>
+            <circle class="pulse pulse--hot" r="6" data-sig="w-aud" data-sp=".45" data-off=".5"/>
+          </g>
+        </svg>
+
+        <svg class="show-narrow" viewBox="0 0 340 640" role="img" aria-label="Sơ đồ: người dùng gửi lệnh cho bot, bot điều khiển Lavalink, Lavalink lấy nhạc từ các nguồn rồi phát vào kênh thoại Discord">
+          <rect class="ln" data-draw="0,.08" x="20" y="10" width="300" height="70" rx="3"/>
+          <g data-show=".05"><text class="t-d" style="font-size:26px" x="36" y="44">Người dùng</text><text class="t t-sm t-dim" x="36" y="66">gõ /play, bấm nút</text></g>
+          <path id="n-cmd" class="ln dash" data-show=".14" d="M170 82V118" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".16" x="184" y="104">lệnh</text>
+
+          <rect class="ln" data-draw=".1,.2" x="20" y="120" width="300" height="70" rx="3"/>
+          <g data-show=".16"><text class="t-d" style="font-size:26px" x="36" y="154">musiDISCORD</text><text class="t t-sm t-dim" x="36" y="176">nhận lệnh, giữ hàng chờ</text></g>
+          <path id="n-ctl" class="ln dash" data-show=".26" d="M240 192V228" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".28" x="254" y="214">điều khiển</text>
+
+          <rect class="solid-fill" data-show=".38" x="151" y="231" width="168" height="178"/>
+          <rect class="ln" data-draw=".26,.4" x="150" y="230" width="170" height="180" rx="3"/>
+          <g data-show=".38"><text class="t-d" style="font-size:26px" x="164" y="268">Lavalink</text><text class="t t-sm t-dim" x="164" y="292">máy chủ âm</text><text class="t t-sm t-dim" x="164" y="310">thanh riêng,</text><text class="t t-sm t-dim" x="164" y="328">lấy nhạc, giải</text><text class="t t-sm t-dim" x="164" y="346">mã, phát đi</text></g>
+
+          <rect class="ln" data-draw=".4,.5" x="10" y="238" width="118" height="34" rx="2"/>
+          <text class="t t-sm" data-show=".46" x="20" y="260">YouTube</text>
+          <rect class="ln" data-draw=".44,.54" x="10" y="282" width="118" height="34" rx="2"/>
+          <text class="t t-sm" data-show=".5" x="20" y="304">SoundCloud</text>
+          <rect class="ln" data-draw=".48,.58" x="10" y="326" width="118" height="34" rx="2"/>
+          <text class="t t-sm" data-show=".54" x="20" y="348">Spotify</text>
+          <rect class="ln" data-draw=".52,.62" x="10" y="370" width="118" height="34" rx="2"/>
+          <text class="t t-sm" data-show=".58" x="20" y="392">Thư viện nhạc</text>
+          <path class="ln" data-show=".56" d="M130 255H148" marker-end="url(#ah)"/>
+          <path class="ln" data-show=".6" d="M130 299H148" marker-end="url(#ah)"/>
+          <path class="ln" data-show=".64" d="M130 343H148" marker-end="url(#ah)"/>
+          <path class="ln" data-show=".68" d="M130 387H148" marker-end="url(#ah)"/>
+
+          <path id="n-aud" class="ln-heavy" data-show=".72" d="M235 412V452" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".74" x="250" y="438">âm thanh</text>
+          <rect class="ln" data-draw=".7,.84" x="20" y="456" width="300" height="100" rx="3"/>
+          <g data-show=".78"><text class="t-d" style="font-size:26px" x="36" y="490">Kênh thoại Discord</text><text class="t t-sm t-dim" x="36" y="512">cả kênh nghe cùng một lúc</text></g>
+          <g data-show=".82">
+            <circle class="ln-thin" cx="260" cy="528" r="8"/><circle class="ln-thin" cx="284" cy="528" r="8"/><circle class="ln-thin" cx="308" cy="528" r="8"/>
+          </g>
+
+          <path class="ln-thin" data-draw=".86,.98" d="M20 598H320"/>
+          <path class="ln-thin" data-draw=".86,.98" d="M20 588V608M320 588V608"/>
+          <g data-show=".92">
+            <rect class="paper-fill" x="26" y="583" width="288" height="30"/>
+            <text class="t t-sm" x="170" y="603" text-anchor="middle">một lệnh, cả kênh thoại cùng nghe</text>
+          </g>
+
+          <g class="signal" aria-hidden="true">
+            <circle class="pulse" r="4" data-sig="n-cmd" data-sp=".5"/>
+            <circle class="pulse" r="4" data-sig="n-ctl" data-sp=".5" data-off=".3"/>
+            <circle class="pulse pulse--hot" r="5" data-sig="n-aud" data-sp=".5"/>
+          </g>
+        </svg>
+      </div>
+
+      <ol class="steps">
+        <li data-at="0"><b>1</b>Bạn gõ lệnh hoặc bấm nút, bot nhận được.</li>
+        <li data-at=".28"><b>2</b>Bot giữ hàng chờ và ra lệnh cho Lavalink.</li>
+        <li data-at=".52"><b>3</b>Lavalink lấy nhạc từ link, tên bài hoặc file, rồi giải mã.</li>
+        <li data-at=".72"><b>4</b>Âm thanh phát vào kênh thoại, cả kênh nghe cùng lúc.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- S-02: thư viện thông minh -->
+<section class="sheet" id="thu-vien" data-plot="reveal" data-sheet="S-02|Thư viện nhạc thông minh" aria-labelledby="h-thu-vien">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-thu-vien">Thư viện nhạc thông minh</h2>
+      <p class="sheet__scale">Sơ đồ tuyến, tỷ lệ 1:1<br>từ thư mục lộn xộn tới danh mục gọn gàng</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p>Bỏ nhạc vào thư mục <code>music/</code>, bot tự quét và dựng thư viện: đọc thẻ của từng file (tên bài, nghệ sĩ, album, thể loại, năm, ảnh bìa). File nào thiếu thẻ thì bot lấy tên từ tên file và tên thư mục, không bài nào bị bỏ sót.</p>
+        <p>Gõ tên bài, nghệ sĩ hay album vào <code>/local</code> là có gợi ý ngay khi bạn gõ. Muốn nghe trọn bộ thì dùng lệnh phát cả album hoặc cả nghệ sĩ.</p>
+        <dl class="cmdlist">
+          <div><dt><code>/local</code></dt><dd>Tìm thông minh và gợi ý khi gõ, rồi phát đúng bài bạn chọn.</dd></div>
+          <div><dt><code>/album</code></dt><dd>Phát nguyên một album, đúng thứ tự track.</dd></div>
+          <div><dt><code>/artist</code></dt><dd>Phát các bài của một nghệ sĩ trong thư viện.</dd></div>
+          <div><dt><code>/favorites</code></dt><dd>Danh sách yêu thích của riêng bạn: <code>add</code>, <code>remove</code>, <code>list</code>, <code>play</code>.</dd></div>
+          <div><dt><code>/nhaajt</code></dt><dd>Xáo trộn thông minh: không để cùng một nghệ sĩ phát liền nhau, và ưu tiên bài cả server hay thích.</dd></div>
+        </dl>
+        <p class="note">thêm file mới, không cần khởi động lại bot</p>
+      </div>
+      <figure class="fig plot lib-fig">
+        <svg viewBox="0 0 360 700" role="img" aria-label="Sơ đồ thư viện: thư mục music được quét, đầu đọc thẻ lấy tên bài, nghệ sĩ, album, thể loại, năm và ảnh bìa, file thiếu thẻ dùng tên file, kết quả thành mục lục dùng cho các lệnh local, album, artist, favorites và nhaajt">
+          <rect class="ln" data-draw="0,.12" x="10" y="10" width="340" height="156" rx="3"/>
+          <g data-show=".08">
+            <text class="t t-sm" x="26" y="36">music/</text>
+            <text class="t t-sm" x="26" y="58">  Ban nhạc A/</text>
+            <text class="t t-sm" x="26" y="78">    Album 1/</text>
+            <text class="t t-sm" x="26" y="98">      01 Bài mẫu.flac</text>
+            <text class="t t-sm" x="26" y="118">      02 Bài mẫu hai.mp3</text>
+            <text class="t t-sm" x="26" y="146">  remix cuối tuần.mp3</text>
+            <text class="t-hand" x="226" y="146" style="font-size:19px">không có thẻ</text>
+            <path class="ln-thin" d="M250 130Q244 120 228 144"/>
+          </g>
+
+          <path class="ln-heavy" data-draw=".12,.2" d="M180 170V204" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".2" x="196" y="192">quét tự động</text>
+
+          <rect class="ln" data-draw=".18,.3" x="10" y="208" width="340" height="150" rx="3"/>
+          <g data-show=".28">
+            <text class="t-d" x="26" y="238" style="font-size:26px">Đầu đọc thẻ</text>
+            <rect class="ln-thin" x="24" y="252" width="98" height="28"/><text class="t t-sm" x="73" y="271" text-anchor="middle">tên bài</text>
+            <rect class="ln-thin" x="131" y="252" width="98" height="28"/><text class="t t-sm" x="180" y="271" text-anchor="middle">nghệ sĩ</text>
+            <rect class="ln-thin" x="238" y="252" width="98" height="28"/><text class="t t-sm" x="287" y="271" text-anchor="middle">album</text>
+            <rect class="ln-thin" x="24" y="288" width="98" height="28"/><text class="t t-sm" x="73" y="307" text-anchor="middle">thể loại</text>
+            <rect class="ln-thin" x="131" y="288" width="98" height="28"/><text class="t t-sm" x="180" y="307" text-anchor="middle">năm</text>
+            <rect class="hatch-fill" x="238" y="288" width="98" height="28"/><rect class="ln-thin" x="238" y="288" width="98" height="28"/><text class="t t-sm" x="287" y="307" text-anchor="middle">ảnh bìa</text>
+          </g>
+          <g data-show=".36">
+            <path class="ln-thin dash" d="M24 330H336"/>
+            <text class="t t-sm t-dim" x="26" y="348" style="font-size:12px">thiếu thẻ: dùng tên file, tên thư mục</text>
+          </g>
+
+          <path class="ln-heavy" data-draw=".36,.44" d="M180 362V396" marker-end="url(#ah)"/>
+
+          <rect class="solid-fill" data-show=".5" x="11" y="401" width="338" height="76"/>
+          <rect class="ln" data-draw=".42,.54" x="10" y="400" width="340" height="78" rx="3"/>
+          <g data-show=".52">
+            <text class="t-d" x="26" y="432" style="font-size:26px">Mục lục thư viện</text>
+            <text class="t t-sm t-dim" x="26" y="456" style="font-size:12px">tìm nhanh, nhớ cả ảnh bìa</text>
+          </g>
+
+          <path class="ln-heavy" data-draw=".54,.6" d="M180 482V514" marker-end="url(#ah)"/>
+
+          <g data-show=".62"><rect class="ln" x="10" y="518" width="168" height="62" rx="3"/><text class="t-d" x="24" y="546" style="font-size:24px">/local</text><text class="t t-sm t-dim" x="24" y="568" style="font-size:11px">tìm và gợi ý khi gõ</text></g>
+          <g data-show=".68"><rect class="ln" x="182" y="518" width="168" height="62" rx="3"/><text class="t-d" x="196" y="546" style="font-size:24px">/album</text><text class="t t-sm t-dim" x="196" y="568" style="font-size:11px">trọn bộ, đúng thứ tự</text></g>
+          <g data-show=".74"><rect class="ln" x="10" y="588" width="168" height="62" rx="3"/><text class="t-d" x="24" y="616" style="font-size:24px">/artist</text><text class="t t-sm t-dim" x="24" y="638" style="font-size:11px">cả một nghệ sĩ</text></g>
+          <g data-show=".8"><rect class="ln" x="182" y="588" width="168" height="62" rx="3"/><text class="t-d" x="196" y="616" style="font-size:24px">/favorites</text><text class="t t-sm t-dim" x="196" y="638" style="font-size:11px">yêu thích của bạn</text></g>
+          <g data-show=".88"><rect class="ln-red dash" x="10" y="658" width="340" height="36" rx="3"/><text class="t-d t-red" x="24" y="683" style="font-size:22px">/nhaajt</text><text class="t t-sm" x="132" y="681" style="font-size:11px">xáo trộn có gu</text></g>
+        </svg>
+        <figcaption>Sáu loại thẻ, một mục lục, năm lối vào.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- S-03: Đang phát, thẻ mới -->
+<section class="sheet" id="dang-phat" data-plot="reveal" data-sheet="S-03|Chi tiết A, thẻ Đang phát" aria-labelledby="h-dang-phat">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
+      <h2 id="h-dang-phat">Chi tiết A: thẻ Đang phát</h2>
+      <p class="sheet__scale">Phóng to 4:1, tháo rời từng lớp<br>rê chuột vào hoặc bấm Tách bản vẽ</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p>Thẻ Đang phát làm lại bằng Discord Components V2: ảnh bìa, màu nhấn đổi theo từng bài, thanh tiến trình chạy trực tiếp khi nhạc đang phát, và hai hàng nút ngay bên dưới. Sang bài mới thì thẻ cũ tự gỡ nút, không để lại nút chết.</p>
+        <ol class="legend legend--keys">
+          <li><span class="key">1</span><span><strong>Tạm dừng, tiếp tục.</strong> Bấm một lần để dừng, bấm lại để phát tiếp.</span></li>
+          <li><span class="key">2</span><span><strong>Bỏ qua.</strong> Từ ba người nghe trở lên thì bỏ phiếu, đủ một nửa số người đồng ý mới chuyển bài. Người yêu cầu bài và DJ bỏ qua ngay.</span></li>
+          <li><span class="key">3</span><span><strong>Dừng.</strong> Dừng phát và xóa hàng chờ.</span></li>
+          <li><span class="key">4</span><span><strong>Lặp.</strong> Mỗi lần bấm đổi một vòng: tắt, lặp bài, lặp cả hàng chờ.</span></li>
+          <li><span class="key">5</span><span><strong>Xáo trộn.</strong> Đảo thứ tự các bài trong hàng chờ.</span></li>
+          <li><span class="key">6</span><span><strong>Thích (👍).</strong> Chấm điểm bài, bài được thích sẽ hay xuất hiện hơn trong <code>/nhaajt</code>.</span></li>
+          <li><span class="key">7</span><span><strong>Không thích (👎).</strong> Ngược lại: bài ít được chọn hơn.</span></li>
+          <li><span class="key">8</span><span><strong>Yêu thích (❤).</strong> Thêm hoặc bỏ bài khỏi <code>/favorites</code> của bạn.</span></li>
+          <li><span class="key">9</span><span><strong>Lời bài hát (📜).</strong> Mở lời chạy theo giọng, xem bản vẽ S-08.</span></li>
+        </ol>
+        <p class="cmd-note"><code>/queue</code> dùng cùng bố cục: ảnh bìa, tiêu đề và nút lật trang. Nút điều khiển chỉ dùng được khi bạn ở cùng kênh thoại với bot; server đã đặt role DJ thì chỉ DJ bấm được.</p>
+      </div>
+
+      <figure class="fig xvfig">
+        <div class="xv" id="xv" data-mode="now" style="--hue:200">
+          <div class="xv__tabs" role="group" aria-label="Chế độ xem thẻ mẫu">
+            <button type="button" class="chip is-on" data-xv-mode="now" aria-pressed="true">Đang phát</button>
+            <button type="button" class="chip" data-xv-mode="queue" aria-pressed="false">Hàng chờ</button>
+            <button type="button" class="chip" id="xv-explode" aria-pressed="false">Tách bản vẽ</button>
+          </div>
+          <div class="xv__scene">
+            <div class="xv__card">
+              <div class="xv__l xv__l--base" data-n="nền thẻ"></div>
+              <div class="xv__l xv__l--cover" data-n="ảnh bìa">
+                <svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" class="cv-bg"/><g class="cv-disc"><circle cx="60" cy="60" r="46" class="cv-a"/><circle cx="60" cy="60" r="34" class="cv-b"/><circle cx="60" cy="60" r="22" class="cv-b"/><circle cx="60" cy="60" r="8" class="cv-c"/><path d="M60 14V106M14 60H106" class="cv-b"/></g></svg>
+              </div>
+              <div class="xv__l xv__l--head" data-n="tiêu đề">
+                <small id="xv-kicker">Đang phát</small>
+                <strong id="xv-title">Giai điệu số 7</strong>
+                <span id="xv-artist">Nghệ sĩ mẫu, Album Một</span>
+              </div>
+              <div class="xv__l xv__l--bar" data-n="tiến trình">
+                <div class="bar"><i id="xv-fill"></i></div>
+                <span id="xv-time">0:00 / 3:42</span>
+              </div>
+              <div class="xv__l xv__l--r1" data-n="hàng nút 1">
+                <button type="button" class="xb" data-act="pp" aria-label="Tạm dừng, tiếp tục"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z"/><path class="i-play" d="M8 5l11 7-11 7z"/></svg></button>
+                <button type="button" class="xb" data-act="skip" aria-label="Bỏ qua"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l9 7-9 7zM16.5 5H19v14h-2.5z"/></svg></button>
+                <button type="button" class="xb" data-act="stop" aria-label="Dừng"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12"/></svg></button>
+                <button type="button" class="xb" data-act="loop" aria-label="Lặp"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg><em class="xb__tag" id="xv-loop"></em></button>
+                <button type="button" class="xb" data-act="shuffle" aria-label="Xáo trộn"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+              </div>
+              <div class="xv__l xv__l--r2" data-n="hàng nút 2">
+                <button type="button" class="xb xb--e" data-act="up" aria-label="Thích" aria-pressed="false">👍</button>
+                <button type="button" class="xb xb--e" data-act="down" aria-label="Không thích" aria-pressed="false">👎</button>
+                <button type="button" class="xb xb--e" data-act="fav" aria-label="Yêu thích" aria-pressed="false">❤</button>
+                <button type="button" class="xb xb--e" data-act="lyrics" aria-label="Lời bài hát">📜</button>
+              </div>
+              <div class="xv__l xv__l--q" data-n="danh sách">
+                <ol>
+                  <li><b>1</b><span>Đêm ở ga cuối</span><i>3:05</i></li>
+                  <li><b>2</b><span>Lúc cà phê nguội</span><i>4:12</i></li>
+                  <li><b>3</b><span>Giai điệu số 7</span><i>3:42</i></li>
+                  <li><b>4</b><span>Remix cuối tuần</span><i>5:01</i></li>
+                </ol>
+              </div>
+              <div class="xv__l xv__l--pg" data-n="lật trang">
+                <button type="button" class="xb" aria-label="Trang trước"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+                <span>1 / 3</span>
+                <button type="button" class="xb" aria-label="Trang sau"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <p class="xv__note note" id="xv-note" aria-live="polite">thử bấm các nút đi, đây là bản mẫu</p>
+        </div>
+        <figcaption>Bản mẫu chạy nhanh gấp tám lần để bạn thấy thanh tiến trình nhúc nhích. Tên bài trong mẫu là bài tự đặt.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- S-04: hàng chờ -->
+<section class="sheet" id="hang-cho" data-plot="reveal" data-sheet="S-04|Hàng chờ, mặt đứng" aria-labelledby="h-hang-cho">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-04</span>
+      <h2 id="h-hang-cho">Hàng chờ, nhìn từ mặt đứng</h2>
+      <p class="sheet__scale">Mặt đứng chính, tỷ lệ 1:20<br>bài đang phát nằm ở tầng trệt</p>
+    </header>
+    <div class="split split--flip">
+      <figure class="fig split__fig plot">
+        <svg viewBox="0 0 640 520" role="img" aria-label="Mặt đứng hàng chờ như một tòa nhà sáu tầng, mỗi tầng là một bài, bài đang phát ở tầng trệt, bên phải có kích thước trang 1 trên 3, mười bài mỗi trang">
+          <path class="ln-heavy" data-draw="0,.2" d="M40 428H600"/>
+          <rect class="hatch-fill" data-show=".1" x="40" y="431" width="560" height="22"/>
+          <path class="ln" data-draw=".15,.3" d="M130 58H550"/>
+
+          <!-- tầng 0..5, từ dưới lên -->
+          <g>
+            <rect class="ln" data-draw=".1,.24" x="140" y="374" width="400" height="54"/>
+            <rect class="hatch-fill" data-show=".26" x="141" y="375" width="398" height="52"/>
+            <path class="mk" data-show=".26" d="M158 393L172 401L158 409Z"/>
+            <text class="t" data-show=".26" x="184" y="406">Bài đang nghe lần thứ 7</text>
+            <text class="t t-dim" data-show=".26" x="524" y="406" text-anchor="end">3:42</text>
+            <path class="ln-thin dash" data-show=".26" d="M60 374H140"/><text class="t t-sm" data-show=".26" x="62" y="368">+0 phát</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".2,.34" x="140" y="312" width="400" height="54"/>
+            <text class="t" data-show=".34" x="158" y="344">Nhạc chill lúc 2 giờ sáng</text>
+            <text class="t t-dim" data-show=".34" x="524" y="344" text-anchor="end">4:05</text>
+            <path class="ln-thin dash" data-show=".34" d="M60 312H140"/><text class="t t-sm" data-show=".34" x="62" y="306">+1</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".3,.44" x="140" y="250" width="400" height="54"/>
+            <text class="t" data-show=".44" x="158" y="282">Nhạc học bài (khó tập trung)</text>
+            <text class="t t-dim" data-show=".44" x="524" y="282" text-anchor="end">2:58</text>
+            <path class="ln-thin dash" data-show=".44" d="M60 250H140"/><text class="t t-sm" data-show=".44" x="62" y="244">+2</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".4,.54" x="140" y="188" width="400" height="54"/>
+            <text class="t" data-show=".54" x="158" y="220">Intro dài hơn cả bài</text>
+            <text class="t t-dim" data-show=".54" x="524" y="220" text-anchor="end">5:31</text>
+            <path class="ln-thin dash" data-show=".54" d="M60 188H140"/><text class="t t-sm" data-show=".54" x="62" y="182">+3</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".5,.64" x="140" y="126" width="400" height="54"/>
+            <text class="t" data-show=".64" x="158" y="158">Bài ai cũng thuộc lời</text>
+            <text class="t t-dim" data-show=".64" x="524" y="158" text-anchor="end">3:20</text>
+            <path class="ln-thin dash" data-show=".64" d="M60 126H140"/><text class="t t-sm" data-show=".64" x="62" y="120">+4</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".6,.74" x="140" y="64" width="400" height="54"/>
+            <text class="t" data-show=".74" x="158" y="96">Remix của remix của remix</text>
+            <text class="t t-dim" data-show=".74" x="524" y="96" text-anchor="end">3:48</text>
+            <path class="ln-thin dash" data-show=".74" d="M60 64H140"/><text class="t t-sm" data-show=".74" x="62" y="58">+5</text>
+          </g>
+
+          <path class="ln-dim" data-draw=".7,.82" d="M544 64H592M544 428H592"/>
+          <path class="ln-thin" data-draw=".74,.9" d="M584 64V428"/>
+          <path class="ln-thin" data-draw=".74,.9" d="M572 64H596M572 428H596"/>
+          <g data-show=".86">
+            <rect class="paper-fill" x="598" y="140" width="30" height="210"/>
+            <text class="t t-sm" transform="translate(618 245) rotate(-90)" text-anchor="middle">trang 1/3: 10 bài mỗi trang</text>
+          </g>
+
+          <g data-show=".92">
+            <rect class="ln-thin" x="248" y="470" width="38" height="32"/>
+            <path class="ln-thin" d="M272 478L262 486L272 494"/>
+            <text class="t" x="320" y="492" text-anchor="middle">1/3</text>
+            <rect class="ln-thin" x="354" y="470" width="38" height="32"/>
+            <path class="ln-thin" d="M368 478L378 486L368 494"/>
+          </g>
+        </svg>
+        <figcaption>Bài ở tầng trệt đang vang lên, các tầng trên chờ tới lượt.</figcaption>
+      </figure>
+
+      <div class="copy">
+        <p>Thêm bao nhiêu bài tùy thích, bài nào tới lượt bài đó. <code>/queue</code> chia hàng chờ thành từng trang mười bài, có ảnh bìa và nút lật trang theo bố cục thẻ mới.</p>
+        <p>Cần dọn dẹp? <code>/remove</code> bỏ một bài, <code>/shuffle</code> xáo trộn, <code>/loop</code> cho cả hàng chờ lặp lại, <code>/seek</code> tua tới đoạn hay nhất, <code>/volume</code> chỉnh từ 1 đến 150.</p>
+        <p>Hai thứ mới cho đỡ cãi nhau: hàng chờ công bằng, và <code>/bump</code>.</p>
+        <p class="note">ghi chú: bài tầng 3 là bài ai đó xin "chỉ nghe thử một chút"</p>
+      </div>
+    </div>
+
+    <div class="fq" id="fq" aria-label="Minh họa hàng chờ công bằng và bump">
+      <div class="fq__col">
+        <h3>Hàng chờ công bằng</h3>
+        <p><code>/settings fair-queue</code>: mỗi người được một lượt xoay vòng, người xếp mười bài liền không chặn người xếp một bài.</p>
+        <div class="lane" data-lane="fair" style="--n:6">
+          <span class="lane__tag">trước</span>
+          <ul class="chips" aria-hidden="true">
+            <li class="chip3 c-a" data-from="0" data-to="0">A</li>
+            <li class="chip3 c-a" data-from="1" data-to="3">A</li>
+            <li class="chip3 c-a" data-from="2" data-to="5">A</li>
+            <li class="chip3 c-b" data-from="3" data-to="1">B</li>
+            <li class="chip3 c-b" data-from="4" data-to="4">B</li>
+            <li class="chip3 c-c" data-from="5" data-to="2">C</li>
+          </ul>
+        </div>
+        <p class="lane__cap" aria-live="polite">Trước: A, A, A, B, B, C. Sau khi bật: A, B, C, A, B, A.</p>
+      </div>
+      <div class="fq__col">
+        <h3>Bump: chen lên đầu</h3>
+        <p><code>/bump</code> mở một cuộc bỏ phiếu: đủ phiếu thì bài được chọn nhảy lên đầu hàng chờ. Bỏ qua bài đang phát vẫn là bỏ phiếu như trước.</p>
+        <div class="lane" data-lane="bump" style="--n:6">
+          <span class="lane__tag">phiếu <b class="votes">0</b>/3</span>
+          <ul class="chips" aria-hidden="true">
+            <li class="chip3 c-b" data-from="0" data-to="1">B</li>
+            <li class="chip3 c-a" data-from="1" data-to="2">A</li>
+            <li class="chip3 c-c" data-from="2" data-to="3">C</li>
+            <li class="chip3 c-a" data-from="3" data-to="4">A</li>
+            <li class="chip3 c-b" data-from="4" data-to="5">B</li>
+            <li class="chip3 c-c is-bump" data-from="5" data-to="0">C</li>
+          </ul>
+        </div>
+        <p class="lane__cap">Bài của C đủ ba phiếu nên chen lên đầu hàng.</p>
+      </div>
+      <button type="button" class="chip fq__replay" id="fq-replay">Chạy lại</button>
+    </div>
+  </div>
+</section>
+
+<!-- S-05: /nhaajt -->
+<section class="sheet" id="nhaajt" data-plot="reveal" data-sheet="S-05|Chế độ /nhaajt, vòng lặp" aria-labelledby="h-nhaajt">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-05</span>
+      <h2 id="h-nhaajt">Vòng lặp không đáy: /nhaajt</h2>
+      <p class="sheet__scale">Mặt bằng đồng hồ vòng, tỷ lệ 1:1<br>mỗi vòng xáo trộn một lần</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p>Gõ <code>/nhaajt</code> khi bạn muốn nghe cả thư mục nhạc mà không phải chọn từng bài.</p>
+        <p>Mỗi lần gõ, thứ tự được xáo trộn mới. Mỗi vòng phát đủ mọi bài, mỗi bài đúng một lần. Hết vòng, bot xáo trộn lại rồi phát tiếp, bài đầu vòng mới không trùng bài vừa phát. Nhạc không dừng cho tới khi bạn gõ <code>/stop</code> hoặc <code>/leave</code>.</p>
+        <p>Từ bản 2.0, việc xáo trộn có gu hơn: bot tránh để cùng một nghệ sĩ phát liền nhau, và cho bài được 👍 nhiều cơ hội hơn, bài bị 👎 ít cơ hội hơn. Nút 👍 👎 trên thẻ Đang phát chính là phiếu bầu đó, và cũng là thứ tính ra bảng "được yêu thích nhất" của server.</p>
+        <p class="note">đã kiểm tra: không bài nào bị bỏ rơi</p>
+        <p class="cmd-note">Thư mục music nằm trên máy chạy bot, nên lệnh này dùng nhạc của người host.</p>
+      </div>
+      <figure class="fig plot">
+        <svg viewBox="0 0 520 520" role="img" aria-label="Sơ đồ vòng: mười hai bài trên một vòng tròn, đường nối đi qua từng bài theo thứ tự xáo trộn, mũi tên bên ngoài chỉ vòng lặp vô hạn">
+          <path class="ln-dim dash" data-draw="0,.3" d="M47.6 182.7A226 226 0 1 1 47.6 337.3"/>
+          <path class="mk" data-show=".3" transform="translate(47.6 337.3) rotate(-155)" d="M-8 -9L10 0L-8 9Z"/>
+          <circle class="ln" data-draw=".05,.35" cx="260" cy="260" r="190"/>
+          <path class="ln-thin" data-draw=".15,.45" d="M260.0 70.0L260.0 56.0M309.2 76.5L311.2 68.7M355.0 95.5L362.0 83.3M394.4 125.6L400.0 120.0M424.5 165.0L436.7 158.0M443.5 210.8L451.3 208.8M450.0 260.0L464.0 260.0M443.5 309.2L451.3 311.2M424.5 355.0L436.7 362.0M394.4 394.4L400.0 400.0M355.0 424.5L362.0 436.7M309.2 443.5L311.2 451.3M260.0 450.0L260.0 464.0M210.8 443.5L208.8 451.3M165.0 424.5L158.0 436.7M125.6 394.4L120.0 400.0M95.5 355.0L83.3 362.0M76.5 309.2L68.7 311.2M70.0 260.0L56.0 260.0M76.5 210.8L68.7 208.8M95.5 165.0L83.3 158.0M125.6 125.6L120.0 120.0M165.0 95.5L158.0 83.3M210.8 76.5L208.8 68.7"/>
+          <circle class="ln-dim" data-draw=".3,.5" cx="260" cy="260" r="140"/>
+
+          <path class="ln" data-draw=".5,.9" d="M260.0 120.0L190.0 381.2L381.2 190.0L120.0 260.0L381.2 330.0L190.0 138.8L260.0 400.0L330.0 138.8L138.8 330.0L400.0 260.0L138.8 190.0L330.0 381.2Z"/>
+
+          <g data-show=".4">
+            <circle class="bubble" cx="260" cy="120" r="14"/><text class="t t-sm" x="260" y="125" text-anchor="middle">1</text>
+            <circle class="bubble" cx="330" cy="138.8" r="14"/><text class="t t-sm" x="330" y="143.8" text-anchor="middle">2</text>
+            <circle class="bubble" cx="381.2" cy="190" r="14"/><text class="t t-sm" x="381.2" y="195" text-anchor="middle">3</text>
+            <circle class="bubble" cx="400" cy="260" r="14"/><text class="t t-sm" x="400" y="265" text-anchor="middle">4</text>
+            <circle class="bubble" cx="381.2" cy="330" r="14"/><text class="t t-sm" x="381.2" y="335" text-anchor="middle">5</text>
+            <circle class="bubble" cx="330" cy="381.2" r="14"/><text class="t t-sm" x="330" y="386" text-anchor="middle">6</text>
+            <circle class="bubble" cx="260" cy="400" r="14"/><text class="t t-sm" x="260" y="405" text-anchor="middle">7</text>
+            <circle class="bubble" cx="190" cy="381.2" r="14"/><text class="t t-sm" x="190" y="386" text-anchor="middle">8</text>
+            <circle class="bubble" cx="138.8" cy="330" r="14"/><text class="t t-sm" x="138.8" y="335" text-anchor="middle">9</text>
+            <circle class="bubble" cx="120" cy="260" r="14"/><text class="t t-sm" x="120" y="265" text-anchor="middle">10</text>
+            <circle class="bubble" cx="138.8" cy="190" r="14"/><text class="t t-sm" x="138.8" y="195" text-anchor="middle">11</text>
+            <circle class="bubble" cx="190" cy="138.8" r="14"/><text class="t t-sm" x="190" y="143.8" text-anchor="middle">12</text>
+          </g>
+
+          <g data-show=".8">
+            <circle class="paper-fill" cx="260" cy="260" r="46"/>
+            <circle class="ln-thin" cx="260" cy="260" r="46"/>
+            <text class="t-d" x="260" y="268" text-anchor="middle" style="font-size:58px">∞</text>
+            <text class="t t-sm" x="260" y="292" text-anchor="middle">/nhaajt</text>
+          </g>
+          <g data-show=".92">
+            <text class="t-hand" x="10" y="36">hết vòng, xáo trộn lại</text>
+            <path class="ln-thin" d="M120 44Q160 70 188 100"/>
+            <text class="t-hand" x="318" y="500">mỗi bài đúng một lần</text>
+          </g>
+        </svg>
+        <figcaption>Mười hai bài, một vòng. Nét liền là thứ tự phát của vòng này.</figcaption>
+      </figure>
+    </div>
+
+    <div class="wt" id="wt">
+      <div class="wt__head">
+        <h3>Thử bốc bài thông minh</h3>
+        <p>Bấm 👍 hoặc 👎 để đổi trọng số, rồi bốc bài kế. Bài cùng nghệ sĩ với bài vừa phát sẽ bị loại ra.</p>
+      </div>
+      <ul class="wt__list" id="wt-list">
+        <li data-artist="Nghệ sĩ A" data-w="3"><span class="wt__name"><b>Giai điệu số 7</b><i>Nghệ sĩ A</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Thích Giai điệu số 7">👍</button><button type="button" data-d="-1" aria-label="Không thích Giai điệu số 7">👎</button></span></li>
+        <li data-artist="Nghệ sĩ A" data-w="2"><span class="wt__name"><b>Remix cuối tuần</b><i>Nghệ sĩ A</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Thích Remix cuối tuần">👍</button><button type="button" data-d="-1" aria-label="Không thích Remix cuối tuần">👎</button></span></li>
+        <li data-artist="Nghệ sĩ B" data-w="3"><span class="wt__name"><b>Đêm ở ga cuối</b><i>Nghệ sĩ B</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Thích Đêm ở ga cuối">👍</button><button type="button" data-d="-1" aria-label="Không thích Đêm ở ga cuối">👎</button></span></li>
+        <li data-artist="Nghệ sĩ C" data-w="4"><span class="wt__name"><b>Lúc cà phê nguội</b><i>Nghệ sĩ C</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Thích Lúc cà phê nguội">👍</button><button type="button" data-d="-1" aria-label="Không thích Lúc cà phê nguội">👎</button></span></li>
+        <li data-artist="Nghệ sĩ B" data-w="1"><span class="wt__name"><b>Bản nhạc chờ thang máy</b><i>Nghệ sĩ B</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Thích Bản nhạc chờ thang máy">👍</button><button type="button" data-d="-1" aria-label="Không thích Bản nhạc chờ thang máy">👎</button></span></li>
+      </ul>
+      <div class="wt__foot">
+        <button type="button" class="btn btn--solid" id="wt-pick">Bốc bài kế</button>
+        <p id="wt-out" aria-live="polite">Chưa bốc bài nào.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S-06: đố nhạc -->
+<section class="sheet" id="do-nhac" data-sheet="S-06|Đố nhạc, phòng thi" aria-labelledby="h-do-nhac">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-06</span>
+      <h2 id="h-do-nhac">Đố nhạc: phòng thi trong server</h2>
+      <p class="sheet__scale">Bài thi lấy từ thư viện của chính server<br>trả lời càng nhanh điểm càng cao</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p><code>/quiz start</code> mở một ván blind test: bot phát đoạn trích ngắn từ thư viện nhạc của server, ai nhận ra trước thì bấm nút trả lời.</p>
+        <ul class="ticks">
+          <li><strong>Trả lời bằng nút và cửa sổ nhỏ.</strong> Bot không cần quyền đọc tin nhắn, bạn không phải gõ vào kênh chat.</li>
+          <li><strong>Nhanh được điểm nhiều.</strong> Điểm giảm dần theo từng giây.</li>
+          <li><strong>Gợi ý có giá.</strong> Xin gợi ý thì trừ điểm của câu đó.</li>
+          <li><strong>Chuỗi đúng liên tiếp có thưởng.</strong></li>
+          <li><strong>Bảng xếp hạng của server</strong> xem bằng <code>/quiz top</code>; dừng ván bằng <code>/quiz stop</code>.</li>
+        </ul>
+        <p class="note">thử bên cạnh: đáp án là "Đêm ở ga cuối"</p>
+      </div>
+
+      <div class="qz" id="qz" aria-label="Bản mẫu phòng thi đố nhạc">
+        <div class="qz__top"><span>Câu 3 / 10</span><span>chuỗi đúng: <b id="qz-streak">0</b></span></div>
+        <div class="qz__clip" aria-hidden="true"><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>đoạn trích 8 giây</small></div>
+        <div class="qz__meter"><div class="meter"><i id="qz-fill"></i></div><span class="qz__pts"><b id="qz-pts">1000</b> điểm</span></div>
+        <p class="qz__hint" id="qz-hint" aria-live="polite">Chưa xin gợi ý. Mỗi gợi ý trừ 150 điểm.</p>
+        <div class="qz__btns">
+          <button type="button" class="btn btn--solid" id="qz-answer">Trả lời</button>
+          <button type="button" class="btn" id="qz-hbtn">Gợi ý</button>
+          <button type="button" class="btn" id="qz-reset">Chơi lại</button>
+        </div>
+        <form class="qz__pop" id="qz-pop" hidden autocomplete="off">
+          <label for="qz-in">Tên bài là gì?</label>
+          <input id="qz-in" type="text" placeholder="gõ đáp án của bạn" maxlength="60">
+          <div><button type="submit" class="btn btn--solid btn--sm">Gửi</button><button type="button" class="btn btn--sm" id="qz-cancel">Hủy</button></div>
+        </form>
+        <div class="qz__stamp" id="qz-stamp" aria-live="assertive"></div>
+        <ol class="qz__board" aria-label="Bảng điểm mẫu">
+          <li><span>Minh</span><b data-s="2300">2300</b></li>
+          <li><span>Lan</span><b data-s="1850">1850</b></li>
+          <li class="is-me"><span>Bạn</span><b id="qz-me" data-s="1200">1200</b></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S-07: thống kê và Wrapped -->
+<section class="sheet" id="wrapped" data-plot="reveal" data-sheet="S-07|Thống kê và Wrapped" aria-labelledby="h-wrapped">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-07</span>
+      <h2 id="h-wrapped">Thống kê và Wrapped</h2>
+      <p class="sheet__scale">Bản vẽ tổng kết một năm nghe nhạc<br>của bạn và của cả server</p>
+    </header>
+    <div class="split split--flip">
+      <div class="wcard-wrap">
+        <div class="wcard" id="wcard">
+          <svg viewBox="0 0 360 560" role="img" aria-label="Thẻ Wrapped mẫu: tổng 1.284 phút nghe, ba bài nghe nhiều nhất, nghệ sĩ hàng đầu và huy hiệu Cú đêm, vẽ như một tờ bản vẽ cyanotype">
+            <defs><pattern id="wg" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="#cdeeff" stroke-opacity=".09"/></pattern></defs>
+            <rect class="wc-bg" width="360" height="560" rx="4"/>
+            <rect width="360" height="560" fill="url(#wg)"/>
+            <rect class="wc-ln" data-draw="0,.2" x="10" y="10" width="340" height="540"/>
+            <rect class="wc-ln wc-thin" data-draw=".05,.25" x="15" y="15" width="330" height="530"/>
+            <g data-show=".1">
+              <text class="wc-d" x="28" y="76" font-size="54">WRAPPED</text>
+              <text class="wc-d" x="28" y="116" font-size="38">2026</text>
+              <text class="wc-t" x="28" y="140" font-size="11">Người nghe mẫu, một năm nghe nhạc</text>
+            </g>
+            <g data-show=".6" transform="rotate(8 276 92)">
+              <rect class="wc-red" x="214" y="62" width="124" height="52" rx="3"/>
+              <text class="wc-d wc-redt" x="276" y="92" font-size="26" text-anchor="middle">CÚ ĐÊM</text>
+              <text class="wc-t wc-redt" x="276" y="107" font-size="9" text-anchor="middle">nghe nhiều sau 0 giờ</text>
+            </g>
+
+            <g data-show=".25">
+              <circle class="wc-ln wc-thin" cx="180" cy="240" r="70" fill="none"/>
+              <circle cx="180" cy="240" r="84" fill="none" stroke="#cdeeff" stroke-opacity=".5" stroke-width="8" stroke-dasharray="1.5 19.8"/>
+              <path class="wc-needle" d="M180 240L180 184" />
+              <circle cx="180" cy="240" r="5" fill="#ff8a78"/>
+              <text class="wc-d" x="180" y="278" font-size="40" text-anchor="middle" data-count="1284" data-locale="vi">1.284</text>
+              <text class="wc-t" x="180" y="297" font-size="10" text-anchor="middle">phút nghe trong năm</text>
+            </g>
+
+            <g data-show=".5">
+              <text class="wc-t" x="28" y="352" font-size="10">BÀI NGHE NHIỀU NHẤT</text>
+              <path class="wc-ln wc-thin" d="M28 358H332"/>
+              <text class="wc-t" x="28" y="380" font-size="12">1 Giai điệu số 7</text><rect class="wc-bar" x="28" y="386" width="250" height="8"/><text class="wc-t" x="332" y="394" font-size="11" text-anchor="end">48</text>
+              <text class="wc-t" x="28" y="414" font-size="12">2 Đêm ở ga cuối</text><rect class="wc-bar" x="28" y="420" width="214" height="8"/><text class="wc-t" x="332" y="428" font-size="11" text-anchor="end">41</text>
+              <text class="wc-t" x="28" y="448" font-size="12">3 Lúc cà phê nguội</text><rect class="wc-bar" x="28" y="454" width="172" height="8"/><text class="wc-t" x="332" y="462" font-size="11" text-anchor="end">33</text>
+            </g>
+
+            <g data-show=".8">
+              <rect class="wc-ln" x="22" y="486" width="316" height="44"/>
+              <path class="wc-ln wc-thin" d="M130 486V530M236 486V530"/>
+              <text class="wc-t" x="30" y="502" font-size="8">DỰ ÁN</text><text class="wc-d" x="30" y="522" font-size="18">musiDISCORD</text>
+              <text class="wc-t" x="138" y="502" font-size="8">BẢN</text><text class="wc-d" x="138" y="522" font-size="18">D / 2.0</text>
+              <text class="wc-t" x="244" y="502" font-size="8">LỆNH</text><text class="wc-d" x="244" y="522" font-size="18">/wrapped</text>
+            </g>
+          </svg>
+          <i class="wcard__glare" aria-hidden="true"></i>
+        </div>
+        <p class="note wcard__cap">ảnh mẫu, số liệu minh họa</p>
+      </div>
+
+      <div class="copy">
+        <p>Bot nhớ bạn nghe gì, lúc nào, và biến thành con số vui vẻ.</p>
+        <dl class="cmdlist">
+          <div><dt><code>/mystats</code></dt><dd>Thời gian nghe, bài và nghệ sĩ nghe nhiều nhất, số lần bấm bỏ qua, và huy hiệu của bạn.</dd></div>
+          <div><dt><code>/leaderboard</code></dt><dd>Bảng xếp hạng của server, cùng những bài được cả phòng yêu thích nhất.</dd></div>
+          <div><dt><code>/wrapped</code></dt><dd>Ảnh tổng kết một năm của bạn, vẽ như tờ bản vẽ cyanotype, để khoe trong server.</dd></div>
+          <div><dt><code>/privacy</code></dt><dd><code>stats</code> để bật tắt việc ghi thống kê về bạn, <code>delete</code> để xóa dữ liệu của bạn.</dd></div>
+        </dl>
+        <ul class="badges" id="badges">
+          <li><span class="badge"><b>Cú đêm</b></span><i>nghe nhiều nhất sau nửa đêm</i></li>
+          <li><span class="badge"><b>Tàn nhẫn</b></span><i>bấm bỏ qua còn nhiều hơn nghe hết bài</i></li>
+          <li><span class="badge"><b>Bậc thầy hàng chờ</b></span><i>xếp nhiều bài vào hàng chờ nhất server</i></li>
+          <li><span class="badge"><b>Fan cứng</b></span><i>nghe đi nghe lại cùng một nghệ sĩ</i></li>
+        </ul>
+        <p class="cmd-note">Không muốn bị ghi? <code>/privacy stats</code> tắt việc ghi thống kê về bạn, <code>/privacy delete</code> xóa dữ liệu đã có. Xem thêm ở trang <a href="privacy.html">Quyền riêng tư</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S-08: lời bài hát -->
+<section class="sheet" id="loi-bai-hat" data-sheet="S-08|Lời bài hát chạy theo giọng" aria-labelledby="h-loi">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-08</span>
+      <h2 id="h-loi">Lời bài hát chạy theo giọng</h2>
+      <p class="sheet__scale">Kiểu karaoke, dòng đang hát sáng lên<br>bấm 📜 trên thẻ Đang phát</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p><code>/lyrics</code> hoặc nút 📜 mở lời bài đang phát, dòng đang hát được tô sáng theo thời gian thật, như karaoke.</p>
+        <p>Lời lấy từ ba nơi, theo thứ tự bot tìm:</p>
+        <ol class="legend legend--keys">
+          <li><span class="key">1</span><span><strong>File .lrc</strong> đặt cạnh file nhạc, cùng tên.</span></li>
+          <li><span class="key">2</span><span><strong>Lời nhúng trong thẻ</strong> của chính file nhạc.</span></li>
+          <li><span class="key">3</span><span><strong>Tra cứu online (tùy chọn)</strong> từ LRCLIB. Việc này gửi tên bài, nghệ sĩ và thời lượng tới dịch vụ công khai đó; người host có thể tắt.</span></li>
+        </ol>
+        <p class="note">dòng đang hát sáng lên, dòng sau chuẩn bị</p>
+      </div>
+      <div class="lyr" id="lyr" aria-label="Lời mẫu chạy theo giọng">
+        <div class="lyr__bar"><span>📜 Giai điệu số 7</span><i class="lyr__tm" id="lyr-tm">00:00</i></div>
+        <div class="lyr__win">
+          <ol class="lyr__lines" id="lyr-lines">
+            <li data-t="0"><em>[00:00.00]</em><span>Đèn đường nhấp nháy theo nhịp trống</span></li>
+            <li data-t="3"><em>[00:03.00]</em><span>Tôi gõ một lệnh, cả phòng cùng nghe</span></li>
+            <li data-t="6"><em>[00:06.00]</em><span>Hàng chờ dài như bản vẽ chưa xong</span></li>
+            <li data-t="9"><em>[00:09.00]</em><span>Nốt cuối chưa tắt, nút bỏ qua đã kề</span></li>
+            <li data-t="12"><em>[00:12.00]</em><span>Ai bấm trước thì được tha một lần</span></li>
+            <li data-t="15"><em>[00:15.00]</em><span>Rồi bài kế tiếp lại bắt đầu</span></li>
+          </ol>
+        </div>
+        <p class="lyr__cap">Lời minh họa tự đặt, không phải lời bài hát thật.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S-09: ở lại kênh -->
+<section class="sheet" id="o-lai" data-sheet="S-09|Kênh thoại: trạng thái và 24/7" aria-labelledby="h-o-lai">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-09</span>
+      <h2 id="h-o-lai">Tên bài trên kênh, và ở lại 24/7</h2>
+      <p class="sheet__scale">Mặt bằng kênh thoại<br>bấm công tắc để xem bot phản ứng</p>
+    </header>
+    <div class="split split--flip">
+      <div class="vc" id="vc">
+        <div class="vc__room">
+          <div class="vc__ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg><b>Phòng nhạc</b></div>
+          <p class="vc__status" id="vc-status"><span id="vc-status-text"></span><i class="caret" aria-hidden="true"></i></p>
+          <ul class="vc__people" id="vc-people">
+            <li class="vc__p" data-p><i>M</i><span>Mai</span></li>
+            <li class="vc__p" data-p><i>N</i><span>Nam</span></li>
+            <li class="vc__p" data-p><i>B</i><span>Bảo</span></li>
+            <li class="vc__p vc__bot" id="vc-bot"><i>♪</i><span>musiDISCORD</span></li>
+          </ul>
+        </div>
+        <div class="vc__ctl">
+          <label class="sw"><input type="checkbox" id="vc-st" checked><span class="sw__t" aria-hidden="true"></span><span><code>/settings vc-status</code></span></label>
+          <label class="sw"><input type="checkbox" id="vc-247"><span class="sw__t" aria-hidden="true"></span><span><code>/247 on</code></span></label>
+          <label class="sw"><input type="checkbox" id="vc-radio" disabled><span class="sw__t" aria-hidden="true"></span><span>radio: phát cả thư mục</span></label>
+          <div class="vc__btns">
+            <button type="button" class="btn btn--sm" id="vc-leave">Mọi người rời kênh</button>
+            <button type="button" class="btn btn--sm" id="vc-restart">Khởi động lại bot</button>
+          </div>
+          <ul class="vc__log" id="vc-log" aria-live="polite"><li>bot đang phát, ba người nghe</li></ul>
+        </div>
+      </div>
+      <div class="copy">
+        <p><strong>Tên bài trên kênh thoại.</strong> Bot ghi dòng "Đang phát: tên bài" thẳng vào trạng thái của kênh thoại, ai lướt qua danh sách kênh cũng thấy. Không thích thì tắt bằng <code>/settings vc-status</code>.</p>
+        <p><strong>Chế độ 24/7 miễn phí.</strong> <code>/247 on</code> giữ bot ở lại kênh thoại kể cả khi không còn ai, và bot tự vào lại kênh sau khi khởi động lại. Tắt bằng <code>/247 off</code>, lúc đó bot quay về thói quen cũ: vắng người hoặc hết bài thì rời sau 60 giây.</p>
+        <p>Bật thêm tùy chọn radio thì bot phát cả thư mục nhạc không ngừng, theo kiểu <code>/nhaajt</code>, nên kênh luôn có tiếng dù chẳng ai thêm bài.</p>
+        <p class="note">kênh vắng mà đèn vẫn sáng</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S-10: mô hình khối -->
+<section class="sheet" id="kien-truc" data-sheet="S-10|Mô hình khối, hình chiếu đẳng cự" aria-labelledby="h-kien-truc">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-10</span>
+      <h2 id="h-kien-truc">Mô hình khối của cả hệ thống</h2>
+      <p class="sheet__scale">Hình chiếu đẳng cự, mâm xoay<br>kéo để xoay, hoặc dùng phím mũi tên</p>
+    </header>
+    <div class="turn">
+      <canvas id="turn" tabindex="0" role="img" aria-label="Mô hình ba chiều xoay được: bot ở giữa, nối với Lavalink, thư viện music, thư mục data, kênh thoại Discord, và LRCLIB vẽ bằng nét đứt vì chỉ là tùy chọn"></canvas>
+      <p class="turn__hint" id="turn-hint">Kéo để xoay</p>
+    </div>
+    <ol class="legend legend--cols">
+      <li><span class="key">1</span><span><strong>Bot.</strong> Nhận lệnh, giữ hàng chờ, dựng thư viện, ghi thống kê.</span></li>
+      <li><span class="key">2</span><span><strong>Lavalink.</strong> Máy chủ âm thanh riêng: lấy nhạc, giải mã, phát đi.</span></li>
+      <li><span class="key">3</span><span><strong>Thư viện music/.</strong> File nhạc, ảnh bìa và file .lrc của bạn.</span></li>
+      <li><span class="key">4</span><span><strong>Thư mục data/.</strong> Cài đặt, hàng chờ đã lưu, thống kê, yêu thích.</span></li>
+      <li><span class="key">5</span><span><strong>Kênh thoại Discord.</strong> Nơi cả phòng nghe và thấy tên bài.</span></li>
+      <li><span class="key">6</span><span><strong>LRCLIB (tùy chọn).</strong> Tra lời bài hát online, nét đứt vì bật hay tắt là do host.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- S-11: bảng hạng mục -->
+<section class="sheet" id="hang-muc" data-sheet="S-11|Bảng thống kê hạng mục" aria-labelledby="h-hang-muc">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-11</span>
+      <h2 id="h-hang-muc">Bảng thống kê hạng mục</h2>
+      <p class="sheet__scale">Những thứ nhỏ làm bot đỡ phiền<br>cho cả server</p>
+    </header>
+    <div class="table-wrap">
+      <table class="sched">
+        <caption>Mỗi hạng mục có một ký hiệu, như bảng thống kê cửa trong bản vẽ nhà</caption>
+        <thead><tr><th scope="col">Ký hiệu</th><th scope="col">Hạng mục</th><th scope="col">Lệnh</th><th scope="col">Cách hoạt động</th></tr></thead>
+        <tbody>
+          <tr><td>D-01</td><td>Role DJ</td><td><code>/settings dj-role</code></td><td>Chỉ role này (và người có quyền Manage Server) điều khiển được nhạc. Bỏ trống thì ai cũng dùng được.</td></tr>
+          <tr><td>D-02</td><td>Âm lượng mặc định</td><td><code>/settings volume</code></td><td>Từ 1 đến 150, áp dụng mỗi lần bot vào kênh thoại.</td></tr>
+          <tr><td>D-03</td><td>Bỏ phiếu bỏ qua</td><td>nút ⏭ hoặc <code>/skip</code></td><td>Từ ba người nghe trở lên, bài chỉ chuyển khi đủ một nửa số người đồng ý. Người yêu cầu bài và DJ bỏ qua ngay.</td></tr>
+          <tr><td>D-04</td><td>Hàng chờ công bằng</td><td><code>/settings fair-queue</code></td><td>Mỗi người được một lượt xoay vòng, không ai chiếm cả hàng chờ.</td></tr>
+          <tr><td>D-05</td><td>Chen lên đầu</td><td><code>/bump</code></td><td>Bỏ phiếu để đưa một bài trong hàng chờ lên phát sớm nhất.</td></tr>
+          <tr><td>D-06</td><td>Tên bài trên kênh thoại</td><td><code>/settings vc-status</code></td><td>Bot ghi "Đang phát: ..." vào trạng thái kênh thoại. Bật hoặc tắt theo từng server.</td></tr>
+          <tr><td>D-07</td><td>Chế độ 24/7</td><td><code>/247</code></td><td>Bot ở lại kênh cả khi vắng người và tự vào lại sau khi khởi động lại. Có tùy chọn radio phát cả thư mục.</td></tr>
+          <tr><td>D-08</td><td>Nhớ hàng chờ</td><td>tự động</td><td>Bot khởi động lại thì hàng chờ được nạp lại, bạn nghe tiếp mà không phải thêm bài từ đầu.</td></tr>
+          <tr><td>D-09</td><td>Tự rời kênh</td><td>tự động</td><td>Kênh không còn ai, hoặc hết bài, bot rời sau 60 giây cho đỡ chiếm chỗ. Bật <code>/247</code> thì bot không rời.</td></tr>
+          <tr><td>D-10</td><td>Quyền riêng tư</td><td><code>/privacy</code></td><td>Mỗi người tự tắt việc ghi thống kê về mình hoặc xóa dữ liệu của mình.</td></tr>
+          <tr><td>D-11</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- S-12: bảng lệnh -->
+<section class="sheet" id="lenh" data-sheet="S-12|Bảng lệnh" aria-labelledby="h-lenh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-12</span>
+      <h2 id="h-lenh">Bảng lệnh</h2>
+      <p class="sheet__scale">29 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
+    </header>
+    <div class="table-wrap">
+      <table class="cmds">
+        <caption>Tham số trong ngoặc là tùy chọn</caption>
+        <thead><tr><th scope="col">Lệnh</th><th scope="col">Việc làm</th></tr></thead>
+        <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">Phát nhạc</th></tr>
+          <tr><th scope="row"><code>/play</code> tên bài hoặc link (nguồn)</th><td>Phát theo tên bài hoặc link YouTube, SoundCloud, Spotify; có playlist. Chọn nguồn tìm kiếm khi gõ tên bài.</td></tr>
+          <tr><th scope="row"><code>/local</code> tìm</th><td>Tìm trong thư viện nhạc của bot theo tên bài, nghệ sĩ, album; có gợi ý khi gõ.</td></tr>
+          <tr><th scope="row"><code>/album</code> tên album</th><td>Phát cả một album trong thư viện, đúng thứ tự track.</td></tr>
+          <tr><th scope="row"><code>/artist</code> tên nghệ sĩ</th><td>Phát các bài của một nghệ sĩ trong thư viện.</td></tr>
+          <tr><th scope="row"><code>/nhaajt</code></th><td>Xáo trộn cả thư mục music, tránh cùng nghệ sĩ phát liền nhau, ưu tiên bài được thích; hết vòng thì xáo trộn lại, không dừng tới khi <code>/stop</code> hoặc <code>/leave</code>.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Yêu thích</th></tr>
+          <tr><th scope="row"><code>/favorites</code> add, remove, list, play</th><td>Quản lý danh sách yêu thích của riêng bạn: thêm, bỏ, xem, và phát cả danh sách.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Điều khiển</th></tr>
+          <tr><th scope="row"><code>/pause</code>, <code>/resume</code></th><td>Tạm dừng, tiếp tục.</td></tr>
+          <tr><th scope="row"><code>/skip</code></th><td>Bỏ qua bài đang phát; đông người nghe thì bỏ phiếu.</td></tr>
+          <tr><th scope="row"><code>/stop</code></th><td>Dừng phát và xóa hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/leave</code></th><td>Cho bot rời kênh thoại.</td></tr>
+          <tr><th scope="row"><code>/seek</code> giây</th><td>Tua tới một thời điểm trong bài.</td></tr>
+          <tr><th scope="row"><code>/volume</code> mức</th><td>Âm lượng từ 1 đến 150.</td></tr>
+          <tr><th scope="row"><code>/loop</code> chế độ</th><td>Tắt lặp, lặp bài hiện tại, hoặc lặp cả hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/shuffle</code></th><td>Xáo trộn hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/remove</code> vị trí</th><td>Bỏ một bài khỏi hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/bump</code></th><td>Bỏ phiếu đưa một bài trong hàng chờ lên đầu.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Thông tin</th></tr>
+          <tr><th scope="row"><code>/queue</code></th><td>Xem hàng chờ theo thẻ mới, chia trang, có nút lật trang.</td></tr>
+          <tr><th scope="row"><code>/nowplaying</code></th><td>Xem thẻ Đang phát với thanh tiến trình chạy trực tiếp.</td></tr>
+          <tr><th scope="row"><code>/lyrics</code></th><td>Lời bài hát chạy theo giọng, dòng đang hát được tô sáng.</td></tr>
+          <tr><th scope="row"><code>/stats</code></th><td>Tình trạng bot: thời gian chạy, ping, số server, Lavalink.</td></tr>
+          <tr><th scope="row"><code>/help</code></th><td>Danh sách lệnh chia nhóm.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Đố nhạc</th></tr>
+          <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Bắt đầu hoặc dừng một ván đố nhạc từ thư viện của server, xem bảng xếp hạng.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Thống kê và riêng tư</th></tr>
+          <tr><th scope="row"><code>/mystats</code></th><td>Thống kê nghe nhạc của bạn: thời gian, top bài, top nghệ sĩ, số lần bỏ qua, huy hiệu.</td></tr>
+          <tr><th scope="row"><code>/leaderboard</code></th><td>Bảng xếp hạng của server và những bài được yêu thích nhất.</td></tr>
+          <tr><th scope="row"><code>/wrapped</code></th><td>Ảnh tổng kết một năm của bạn, vẽ như bản vẽ cyanotype.</td></tr>
+          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Tắt việc ghi thống kê về bạn, hoặc xóa dữ liệu của bạn.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Quản trị</th></tr>
+          <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status</th><td>Xem và đổi cài đặt của server: role DJ, âm lượng mặc định, hàng chờ công bằng, hiện tên bài trên kênh thoại. Cần quyền Manage Server.</td></tr>
+          <tr><th scope="row"><code>/247</code> on, off (radio)</th><td>Bật hoặc tắt chế độ ở lại kênh thoại 24/7; tùy chọn radio phát cả thư mục không ngừng.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- S-13: tự host -->
+<section class="sheet" id="tu-host" data-sheet="S-13|Trình tự thi công, tự host" aria-labelledby="h-tu-host">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-13</span>
+      <h2 id="h-tu-host">Tự host: trình tự thi công</h2>
+      <p class="sheet__scale">Cần Docker và một chỗ chạy 24/7<br>làm lần lượt từ bước 1</p>
+    </header>
+    <ol class="build">
+      <li>
+        <h3>Lấy Token và Application ID</h3>
+        <p>Vào Developer Portal của Discord, tạo application, thêm Bot. Token nằm ở tab Bot, Application ID nằm ở General Information. Bot chỉ dùng lệnh gạch chéo, nút bấm và kênh thoại nên không cần intent đặc quyền.</p>
+      </li>
+      <li>
+        <h3>Tạo file .env</h3>
+        <p>Sao chép file mẫu rồi điền <code>DISCORD_TOKEN</code> và <code>CLIENT_ID</code>. Đặt thêm <code>LAVALINK_PASSWORD</code>; điền khóa Spotify nếu muốn dán link Spotify.</p>
+        <div class="code"><pre><code>cp .env.example .env</code></pre><button type="button" data-copy>Chép</button></div>
+        <p class="sub">Tra lời bài hát online qua LRCLIB là tùy chọn, bạn bật hoặc tắt trong cấu hình; xem file .env.example để biết tên biến.</p>
+      </li>
+      <li>
+        <h3>Dựng bot và Lavalink</h3>
+        <p>Một lệnh dựng cả hai. Lần đầu Lavalink tải plugin nên mất khoảng một phút, bot sẽ tự thử kết nối lại trong lúc chờ. Docker tự kiểm tra sức khỏe của từng dịch vụ, xem bằng <code>docker compose ps</code>.</p>
+        <div class="code"><pre><code>docker compose up -d --build</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Đăng ký lệnh gạch chéo</h3>
+        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.0 thêm nhiều lệnh mới). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
+        <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Mời bot và thêm nhạc</h3>
+        <p>Mời bot bằng link ở đầu trang (đổi <code>client_id</code> thành ID của bạn, giữ nguyên phần <code>permissions=281474979908608</code>). Bỏ file nhạc vào thư mục <code>music/</code>, đặt file <code>.lrc</code> cạnh file nhạc nếu có lời; thêm file mới không cần khởi động lại bot.</p>
+        <p class="sub">Cài đặt, hàng chờ, thống kê và danh sách yêu thích lưu trong thư mục data/ cạnh docker-compose.yml, giữ thư mục này để không mất khi dựng lại container.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- S-14: hỏi đáp -->
+<section class="sheet" id="hoi-dap" data-sheet="S-14|Ghi chú chung" aria-labelledby="h-hoi-dap">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-14</span>
+      <h2 id="h-hoi-dap">Ghi chú chung</h2>
+      <p class="sheet__scale">Những câu hay được hỏi<br>trước khi mời bot</p>
+    </header>
+    <div class="faq">
+      <details>
+        <summary>YouTube có ổn định không?</summary>
+        <div class="ans"><p>Bot phát được link và tên bài từ YouTube, nhưng YouTube hay đổi cách chặn công cụ phát nhạc nên có lúc một số bài không phát được. Gặp bài lỗi, thử nguồn SoundCloud, link Spotify hoặc file nhạc của bạn.</p></div>
+      </details>
+      <details>
+        <summary>Bot cần những quyền gì?</summary>
+        <div class="ans"><p>Link mời xin bảy quyền: Xem kênh (View Channel), Gửi tin nhắn (Send Messages), Nhúng liên kết (Embed Links), Đính kèm file (Attach Files), Kết nối (Connect), Nói (Speak) và Đặt trạng thái kênh thoại (Set Voice Channel Status). Gửi tin nhắn, Nhúng liên kết và Đính kèm file dùng cho thẻ Đang phát và ảnh <code>/wrapped</code>; Đặt trạng thái kênh thoại dùng cho dòng "Đang phát" trên kênh. Bot không đọc nội dung tin nhắn của ai.</p></div>
+      </details>
+      <details>
+        <summary>Làm sao giới hạn ai được điều khiển nhạc?</summary>
+        <div class="ans"><p>Quản trị viên gõ <code>/settings dj-role</code> và chọn một role. Từ đó chỉ role đó (và người có quyền Manage Server) dùng được các lệnh và nút điều khiển. Bỏ trống role thì ai cũng dùng được.</p></div>
+      </details>
+      <details>
+        <summary>Phát file nhạc của tôi được không?</summary>
+        <div class="ans"><p>Được, nếu bạn tự host bot: bỏ file vào thư mục music, bot đọc thẻ để dựng thư viện rồi bạn dùng <code>/local</code>, <code>/album</code>, <code>/artist</code> hoặc <code>/nhaajt</code>. Bản bot mà người khác host thì chỉ phát được nhạc nằm trong thư mục của họ. Bạn tự chịu trách nhiệm về việc có quyền dùng các file nhạc đó.</p></div>
+      </details>
+      <details>
+        <summary>Đố nhạc có cần quyền đọc tin nhắn không?</summary>
+        <div class="ans"><p>Không. Người chơi bấm nút trả lời rồi gõ đáp án trong một cửa sổ nhỏ, nên bot không cần đọc nội dung kênh chat. Bài thi lấy từ thư viện nhạc của chính server.</p></div>
+      </details>
+      <details>
+        <summary>Lời bài hát lấy từ đâu?</summary>
+        <div class="ans"><p>Từ file .lrc cạnh file nhạc, hoặc lời nhúng trong thẻ của file. Nếu không có, bot có thể tra online ở LRCLIB và việc đó gửi tên bài, nghệ sĩ, thời lượng tới dịch vụ ấy. Người host tắt được tính năng này.</p></div>
+      </details>
+      <details>
+        <summary>Bot nhớ gì về server và về tôi?</summary>
+        <div class="ans"><p>Cài đặt của server, hàng chờ đã lưu, và từ bản 2.0 có thêm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu theo ID Discord. Bạn tắt việc ghi thống kê bằng <code>/privacy stats</code> và xóa dữ liệu của mình bằng <code>/privacy delete</code>. Chi tiết ở trang <a href="privacy.html">Quyền riêng tư</a>.</p></div>
+      </details>
+      <details>
+        <summary>Bot có tự rời kênh không?</summary>
+        <div class="ans"><p>Có, mặc định kênh không còn ai, hoặc hết bài, bot rời sau 60 giây. Bật <code>/247 on</code> thì bot ở lại kể cả khi vắng người và sau khi khởi động lại. Chế độ <code>/nhaajt</code> thì không hết bài nên bot ở lại tới khi kênh trống hoặc bạn gõ <code>/stop</code>.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- S-15: nhật ký bản vẽ. Sửa bảng này khi ra bản mới: thêm một dòng <tr> ở cuối và đổi class="now" sang dòng mới nhất. -->
+<section class="sheet" id="nhat-ky" data-sheet="S-15|Nhật ký bản vẽ" aria-labelledby="h-nhat-ky">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-15</span>
+      <h2 id="h-nhat-ky">Nhật ký bản vẽ</h2>
+      <p class="sheet__scale">Bảng sửa đổi, như khung bản vẽ thật<br>dòng mới nhất nằm cuối</p>
+    </header>
+    <div class="table-wrap revwrap">
+      <table class="rev">
+        <caption>Mỗi lần ra bản mới là một dòng</caption>
+        <thead><tr><th scope="col">REV</th><th scope="col">Phiên bản</th><th scope="col">Ngày</th><th scope="col">Nội dung sửa đổi</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">A</th><td>1.0</td><td>đã phát hành</td><td>Bản đầu: trình phát nhạc cơ bản.</td></tr>
+          <tr><th scope="row">B</th><td>1.1</td><td>đã phát hành</td><td>Nút điều khiển dưới bài đang phát, lệnh <code>/settings</code>, role DJ.</td></tr>
+          <tr><th scope="row">C</th><td>1.2</td><td>đã phát hành</td><td>Khôi phục hàng chờ sau khi khởi động lại, bỏ phiếu bỏ qua, kiểm tra sức khỏe dịch vụ.</td></tr>
+          <tr class="now"><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Thư viện nhạc thông minh, thẻ Đang phát mới, tên bài trên kênh thoại, đố nhạc, hàng chờ công bằng và <code>/bump</code>, thống kê, Wrapped và đánh giá bài hát, lời bài hát chạy theo giọng, chế độ 24/7.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="S-16|Khung tên bản vẽ">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Bot nhạc cho Discord</span></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>S-16</strong></div>
+      <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Ngày</small><strong>2026-10-01</strong></div>
+      <div class="w2"><small>Bản</small><strong>D / 2.0</strong></div>
+      <div class="w6">
+        <small>Tài liệu kèm theo</small>
+        <span><a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">đã được chiếc loa ở góc phòng duyệt</span>
+      <span>Made by nhaajt. musiDISCORD là dự án độc lập, không liên kết với Discord Inc.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>
