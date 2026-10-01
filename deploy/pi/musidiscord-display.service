@@ -1,0 +1,16 @@
+[Unit]
+Description=musiDISCORD: man hinh trang thai TFT
+After=docker.service
+Wants=docker.service
+
+[Service]
+User=__USER__
+WorkingDirectory=__DIR__
+Environment=DISPLAY_URL=http://127.0.0.1:8787
+EnvironmentFile=-__DIR__/pi/display.env
+ExecStart=/usr/bin/python3 __DIR__/pi/display.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

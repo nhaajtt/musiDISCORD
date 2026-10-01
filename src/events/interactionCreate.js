@@ -1,5 +1,6 @@
 import { Events, MessageFlags } from "discord.js";
 import { handleContribButton, handleContribModal } from "../contrib/handlers.js";
+import { handleLibraryButton } from "../library/handlers.js";
 import { handleQuizButton, handleQuizModal } from "../quiz/handlers.js";
 import { handleControl } from "../utils/controls.js";
 import { errorEmbed } from "../utils/embeds.js";
@@ -37,6 +38,11 @@ export default {
     }
     if (interaction.isModalSubmit() && interaction.customId.startsWith("ct:rmodal:")) {
       return safely("Từ chối đóng góp", interaction, handleContribModal);
+    }
+
+    // Gắn thẻ tự động: chủ bot áp dụng hoặc bỏ qua gợi ý
+    if (interaction.isButton() && interaction.customId.startsWith("lb:")) {
+      return safely("Nút thư viện", interaction, handleLibraryButton);
     }
 
     const command = client.commands.get(interaction.commandName);

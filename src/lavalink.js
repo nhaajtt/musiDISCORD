@@ -27,7 +27,7 @@ export function createLavalink(client) {
     ],
     sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
     autoSkip: true,
-    client: { id: config.clientId, username: "musiDISCORD" },
+    client: { id: config.clientId, username: config.botName },
     playerOptions: {
       defaultSearchPlatform: "ytsearch",
       volumeDecrementer: 1,

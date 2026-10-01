@@ -1,13 +1,25 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+# Cấu hình chung của mọi bot. Bot chính là "bot"; bot2, bot3 chỉ chạy khi bật --profile multi
+x-bot: &bot
+  build: .
+  image: musidiscord-bot:local
+  restart: unless-stopped
+  logging: *logging
+  depends_on:
+    lavalink:
+      condition: service_healthy
+
 services:
   lavalink:
     image: ghcr.io/lavalink-devs/lavalink:4
     container_name: musidiscord-lavalink
     restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "5m"
-        max-file: "2"
+    logging: *logging
     environment:
       - _JAVA_OPTIONS=-Xmx512M
       - LAVALINK_PASSWORD=${LAVALINK_PASSWORD}
@@ -20,21 +32,73 @@ services:
       - ./music:/music:ro
     expose:
       - "2333"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf -H \"Authorization: $$LAVALINK_PASSWORD\" http://localhost:2333/version >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
 
   bot:
-    build: .
+    <<: *bot
     container_name: musidiscord-bot
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "5m"
-        max-file: "2"
     env_file: .env
     environment:
       - LAVALINK_HOST=lavalink
+      - SHARED_DIR=/app/shared
+      - DISPLAY_BIND=0.0.0.0
+    ports:
+      # Trang trạng thái /display chỉ mở trên máy chạy bot (bật bằng DISPLAY_PORT=8787 trong .env)
+      - "127.0.0.1:8787:8787"
     volumes:
       - ./music:/music
       - ./data:/app/data
-    depends_on:
-      - lavalink
+      - ./data/shared:/app/shared
+
+  # --- Nhiều bot cùng lúc: docker compose --profile multi up -d --build ---
+  # Mỗi bot một token riêng (.env.bot2), chung Lavalink và thư mục nhạc; dữ liệu riêng, thẻ/đặc trưng âm thanh dùng chung.
+  bot2:
+    <<: *bot
+    profiles: ["multi"]
+    container_name: musidiscord-bot2
+    env_file: .env.bot2
+    environment:
+      - LAVALINK_HOST=lavalink
+      - SHARED_DIR=/app/shared
+      - LIBRARY_WORKER=off
+      - DISPLAY_BIND=0.0.0.0
+    ports:
+      - "127.0.0.1:8788:8787"
+    volumes:
+      - ./music:/music
+      - ./data/bot2:/app/data
+      - ./data/shared:/app/shared
+
+  bot3:
+    <<: *bot
+    profiles: ["multi"]
+    container_name: musidiscord-bot3
+    env_file: .env.bot3
+    environment:
+      - LAVALINK_HOST=lavalink
+      - SHARED_DIR=/app/shared
+      - LIBRARY_WORKER=off
+      - DISPLAY_BIND=0.0.0.0
+    ports:
+      - "127.0.0.1:8789:8787"
+    volumes:
+      - ./music:/music
+      - ./data/bot3:/app/data
+      - ./data/shared:/app/shared
+
+  # --- Giám sát: docker compose --profile ops up -d (mở http://localhost:3001) ---
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    profiles: ["ops"]
+    container_name: musidiscord-kuma
+    restart: unless-stopped
+    logging: *logging
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ./data/kuma:/app/data

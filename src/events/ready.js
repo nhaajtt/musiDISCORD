@@ -4,7 +4,9 @@ import { createNotifier, getOwnerIds } from "../contrib/notify.js";
 import { fulfilMatches, notifyFulfilled } from "../contrib/requests.js";
 import { startHeartbeat } from "../health.js";
 import * as library from "../library/index.js";
+import { startWorker } from "../library/worker.js";
 import { startAutosave } from "../persistence.js";
+import { startDisplayServer } from "../web/server.js";
 
 const PRESENCE_REFRESH_MS = 60_000;
 const LIBRARY_REFRESH_MS = 5 * 60_000;
@@ -28,6 +30,9 @@ export default {
       const pairs = fulfilMatches(entries);
       if (pairs.length) notifyFulfilled(notify, pairs).catch((error) => console.error("Báo đề xuất lỗi:", error));
     });
+
+    startWorker();
+    startDisplayServer(client);
 
     library.scan().catch((error) => console.error("Quét thư viện lỗi:", error));
     getOwnerIds(client).catch(() => {});

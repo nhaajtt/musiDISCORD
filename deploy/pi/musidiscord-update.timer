@@ -1,0 +1,10 @@
+[Unit]
+Description=musiDISCORD: kiem tra ban moi hang ngay
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

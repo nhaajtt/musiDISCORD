@@ -36,4 +36,23 @@ export const config = {
     folder: "Đóng góp",
   },
   idleLeaveMs: 60_000,
+  // Tên bot (hiện trong cảnh báo, API trạng thái) và thư mục dữ liệu dùng chung giữa nhiều bot (thẻ, đặc trưng âm thanh, bìa)
+  botName: process.env.BOT_NAME || "musiDISCORD",
+  sharedDir: process.env.SHARED_DIR || process.env.DATA_DIR || "data",
+  // Chỉ một bot làm việc nền (gắn thẻ, phân tích); các bot khác chỉ đọc kết quả
+  libraryWorker: process.env.LIBRARY_WORKER !== "off",
+  // Tự gắn thẻ bằng dấu vân âm thanh (AcoustID/MusicBrainz): tắt mặc định
+  autotag: {
+    enabled: process.env.AUTOTAG === "on",
+    acoustidKey: process.env.ACOUSTID_KEY || null,
+    autoApply: 0.85,
+  },
+  // Phân tích nhịp độ, năng lượng, độ sáng cục bộ bằng ffmpeg: tắt mặc định
+  analysis: { enabled: process.env.ANALYSIS === "on" },
+  // API trạng thái + trang /display cho màn hình nhỏ (0 = tắt)
+  display: {
+    port: Number(process.env.DISPLAY_PORT) > 0 ? Number(process.env.DISPLAY_PORT) : 0,
+    bind: process.env.DISPLAY_BIND || "127.0.0.1",
+    token: process.env.DISPLAY_TOKEN || null,
+  },
 };

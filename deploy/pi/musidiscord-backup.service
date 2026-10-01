@@ -1,0 +1,10 @@
+[Unit]
+Description=musiDISCORD: sao luu du lieu
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=__USER__
+WorkingDirectory=__DIR__
+ExecStart=/bin/sh __DIR__/scripts/backup.sh

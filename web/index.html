@@ -90,7 +90,7 @@
       <h1 data-split>musiDISCORD</h1>
       <div class="dim hero__dim" aria-hidden="true"><i></i><b>một bot, cả kênh thoại cùng nghe</b><i></i></div>
       <p class="lead">Bot nhạc tự host cho Discord. Dán link hoặc gõ tên bài, cả kênh thoại nghe cùng một lúc.</p>
-      <p class="lead">Bản 2.1 có thêm cổng nhận file đóng góp, và thư viện nhạc thông minh, thẻ Đang phát mới, đố nhạc, lời bài hát chạy theo giọng, Wrapped cuối năm và <code>/nhaajt</code> biết xáo trộn có gu.</p>
+      <p class="lead">Bản 2.2 có thêm tự gắn thẻ cho thư viện, radio theo tâm trạng, nhiều bot cùng lúc, màn hình trạng thái cho Raspberry Pi, cổng nhận file đóng góp, và thư viện nhạc thông minh, thẻ Đang phát mới, đố nhạc, lời bài hát chạy theo giọng, Wrapped cuối năm và <code>/nhaajt</code> biết xáo trộn có gu.</p>
       <div class="hero__cta">
         <a class="btn btn--solid" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
         <a class="btn" href="#so-do">Xem bản vẽ</a>
@@ -98,7 +98,7 @@
       </div>
       <dl class="spec">
         <div><dt>Nguồn nhạc</dt><dd>Link hoặc tên bài từ YouTube, SoundCloud, Spotify, và thư viện file nhạc của riêng bạn</dd></div>
-        <div><dt>Điều khiển</dt><dd>Thẻ Đang phát với hai hàng nút và 31 lệnh gạch chéo</dd></div>
+        <div><dt>Điều khiển</dt><dd>Thẻ Đang phát với hai hàng nút và 34 lệnh gạch chéo</dd></div>
         <div><dt>Chế độ riêng</dt><dd><code>/nhaajt</code> xáo trộn thông minh, <code>/247</code> ở lại kênh cả khi vắng người</dd></div>
       </dl>
     </div>
@@ -172,7 +172,7 @@
 <!-- đồng hồ số -->
 <section class="gauges" aria-label="Vài con số của bản 2.0">
   <div class="wrap gauges__row">
-    <figure class="gauge" data-gauge="31" data-max="34"><div class="gauge__dial"></div><figcaption><b data-num>31</b><span>lệnh gạch chéo</span></figcaption></figure>
+    <figure class="gauge" data-gauge="34" data-max="40"><div class="gauge__dial"></div><figcaption><b data-num>34</b><span>lệnh gạch chéo</span></figcaption></figure>
     <figure class="gauge" data-gauge="9" data-max="10"><div class="gauge__dial"></div><figcaption><b data-num>9</b><span>nút trên thẻ Đang phát</span></figcaption></figure>
     <figure class="gauge" data-gauge="5" data-max="6"><div class="gauge__dial"></div><figcaption><b data-num>5</b><span>mục trong <code>/settings</code></span></figcaption></figure>
     <figure class="gauge" data-gauge="24" data-max="24"><div class="gauge__dial"></div><figcaption><b data-num>24</b><span>giờ mỗi ngày với <code>/247</code></span></figcaption></figure>
@@ -785,7 +785,7 @@
               <rect class="wc-ln" x="22" y="486" width="316" height="44"/>
               <path class="wc-ln wc-thin" d="M130 486V530M236 486V530"/>
               <text class="wc-t" x="30" y="502" font-size="8">DỰ ÁN</text><text class="wc-d" x="30" y="522" font-size="18">musiDISCORD</text>
-              <text class="wc-t" x="138" y="502" font-size="8">BẢN</text><text class="wc-d" x="138" y="522" font-size="18">E / 2.1</text>
+              <text class="wc-t" x="138" y="502" font-size="8">BẢN</text><text class="wc-d" x="138" y="522" font-size="18">F / 2.2</text>
               <text class="wc-t" x="244" y="502" font-size="8">LỆNH</text><text class="wc-d" x="244" y="522" font-size="18">/wrapped</text>
             </g>
           </svg>
@@ -983,7 +983,12 @@
           <tr><td>D-10</td><td>Quyền riêng tư</td><td><code>/privacy</code></td><td>Mỗi người tự tắt việc ghi thống kê về mình hoặc xóa dữ liệu của mình.</td></tr>
           <tr><td>D-11</td><td>Đóng góp file</td><td><code>/contribute</code>, <code>/settings contributions</code></td><td>Tắt sẵn. Chủ bot duyệt từng file trước khi vào kho nhạc.</td></tr>
           <tr><td>D-12</td><td>Danh sách mong muốn</td><td><code>/request</code></td><td>Ghi tên bài kèm phiếu bầu, không tải gì. Có file khớp thì báo người đề xuất.</td></tr>
-          <tr><td>D-13</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
+          <tr><td>D-13</td><td>Tự gắn thẻ</td><td><code>/library</code></td><td>Tắt sẵn. Nhận diện bài thiếu thẻ bằng dấu vân âm thanh (AcoustID, MusicBrainz) rồi điền tên, nghệ sĩ, album, bìa. Thẻ lưu riêng, file nhạc gốc không bị sửa; độ tin cậy thấp thì chủ bot duyệt tay.</td></tr>
+          <tr><td>D-14</td><td>Phân tích âm thanh</td><td><code>/vibe</code>, <code>/similar</code></td><td>Tắt sẵn. Chạy nền trên máy của bạn: ước lượng nhịp độ, năng lượng, độ sáng của từng bài để phát radio theo tâm trạng hoặc tìm bài giống.</td></tr>
+          <tr><td>D-15</td><td>Nhiều bot cùng lúc</td><td>docker compose <code>--profile multi</code></td><td>Mỗi bot một token riêng, chung Lavalink và thư mục nhạc; thẻ và đặc trưng âm thanh dùng chung, dữ liệu thống kê riêng.</td></tr>
+          <tr><td>D-16</td><td>Màn hình trạng thái</td><td>trang <code>/display</code></td><td>Tắt sẵn. Trang 480×320 hiện bài đang phát, có nút cảm ứng; hợp màn TFT 3.5 inch gắn Raspberry Pi hoặc điện thoại trong mạng nhà. Điều khiển cần token.</td></tr>
+          <tr><td>D-17</td><td>Sao lưu, tự cập nhật, giám sát</td><td>script trong <code>scripts/</code></td><td>Sao lưu dữ liệu định kỳ, tự cập nhật từ GitHub và quay về bản cũ nếu bot không khỏe, Uptime Kuma theo dõi.</td></tr>
+          <tr><td>D-18</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
         </tbody>
       </table>
     </div>
@@ -996,7 +1001,7 @@
     <header class="sheet__head">
       <span class="sheet__no">S-13</span>
       <h2 id="h-lenh">Bảng lệnh</h2>
-      <p class="sheet__scale">31 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
+      <p class="sheet__scale">34 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
     </header>
     <div class="table-wrap">
       <table class="cmds">
@@ -1031,6 +1036,10 @@
           <tr class="group"><th colspan="2" scope="colgroup">Đóng góp và đề xuất</th></tr>
           <tr><th scope="row"><code>/contribute</code> submit, pending, stats</th><td>Gửi file nhạc của chính bạn (kèm xác nhận bạn có quyền chia sẻ) để chủ bot duyệt, xem file đang chờ, xem thống kê. Tắt sẵn.</td></tr>
           <tr><th scope="row"><code>/request</code> add, list, vote, mine, remove, done, dismiss</th><td>Đề xuất bài theo tên hoặc link, bầu cho đề xuất của người khác, quản lý đề xuất của bạn. Bot không tải gì từ link.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Thư viện thông minh</th></tr>
+          <tr><th scope="row"><code>/vibe</code> tâm trạng</th><td>Radio theo tâm trạng (chill, vừa phải, sôi động, hừng hực) từ các bài đã được phân tích nhịp độ và năng lượng. Tắt sẵn, cần <code>ANALYSIS=on</code>.</td></tr>
+          <tr><th scope="row"><code>/similar</code> (số bài)</th><td>Thêm vào hàng chờ các bài trong thư viện giống bài đang phát nhất.</td></tr>
+          <tr><th scope="row"><code>/library</code> status, run, stop, review, forget</th><td>Dành cho chủ bot: xem tiến độ gắn thẻ và phân tích, chạy hoặc dừng, duyệt gợi ý thẻ, bỏ thẻ tự động của một bài.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Đố nhạc</th></tr>
           <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Bắt đầu hoặc dừng một ván đố nhạc từ thư viện của server, xem bảng xếp hạng.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Thống kê và riêng tư</th></tr>
@@ -1073,7 +1082,7 @@
       </li>
       <li>
         <h3>Đăng ký lệnh gạch chéo</h3>
-        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.1 thêm nhiều lệnh mới). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
+        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.2 thêm <code>/library</code>, <code>/vibe</code>, <code>/similar</code>). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
         <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Chép</button></div>
       </li>
       <li>
@@ -1155,7 +1164,8 @@
           <tr><th scope="row">B</th><td>1.1</td><td>đã phát hành</td><td>Nút điều khiển dưới bài đang phát, lệnh <code>/settings</code>, role DJ.</td></tr>
           <tr><th scope="row">C</th><td>1.2</td><td>đã phát hành</td><td>Khôi phục hàng chờ sau khi khởi động lại, bỏ phiếu bỏ qua, kiểm tra sức khỏe dịch vụ.</td></tr>
           <tr><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Thư viện nhạc thông minh, thẻ Đang phát mới, tên bài trên kênh thoại, đố nhạc, hàng chờ công bằng và <code>/bump</code>, thống kê, Wrapped và đánh giá bài hát, lời bài hát chạy theo giọng, chế độ 24/7.</td></tr>
-        <tr class="now"><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Đóng góp file có chủ bot duyệt (<code>/contribute</code>, <code>/settings contributions</code>) và danh sách mong muốn (<code>/request</code>), bot không tải gì từ YouTube.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+          <tr><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Đóng góp file có chủ bot duyệt (<code>/contribute</code>, <code>/settings contributions</code>) và danh sách mong muốn (<code>/request</code>), bot không tải gì từ YouTube.</td></tr>
+        <tr class="now"><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Tự gắn thẻ bằng dấu vân âm thanh (<code>/library</code>), radio theo tâm trạng và bài giống nhau (<code>/vibe</code>, <code>/similar</code>), nhiều bot cùng lúc, trang trạng thái cho màn hình nhỏ, sao lưu, tự cập nhật và giám sát cho Raspberry Pi.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -1172,7 +1182,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>S-17</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-01</strong></div>
-      <div class="w2"><small>Bản</small><strong>E / 2.1</strong></div>
+      <div class="w2"><small>Bản</small><strong>F / 2.2</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

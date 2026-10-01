@@ -14,6 +14,6 @@ export async function alertOwner(key, message) {
   await fetch(config.alertWebhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "musiDISCORD", content: message.slice(0, 1900) }),
+    body: JSON.stringify({ username: config.botName, content: `[${config.botName}] ${message}`.slice(0, 1900) }),
   }).catch(() => {});
 }

@@ -1,13 +1,13 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 const GROUPS = [
-  ["🎵 Phát nhạc", ["play", "local", "album", "artist", "favorites", "nhaajt"]],
+  ["🎵 Phát nhạc", ["play", "local", "album", "artist", "favorites", "nhaajt", "vibe", "similar"]],
   ["🎛️ Điều khiển", ["pause", "resume", "skip", "stop", "leave", "seek", "volume", "loop", "shuffle", "remove", "bump", "247"]],
   ["📜 Thông tin", ["queue", "nowplaying", "lyrics", "stats", "help"]],
   ["🎮 Giải trí", ["quiz"]],
   ["🎁 Đóng góp", ["contribute", "request"]],
   ["📊 Thống kê", ["mystats", "leaderboard", "wrapped", "privacy"]],
-  ["⚙️ Quản trị", ["settings"]],
+  ["⚙️ Quản trị", ["settings", "library"]],
 ];
 
 export default {

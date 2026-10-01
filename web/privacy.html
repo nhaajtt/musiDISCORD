@@ -89,6 +89,7 @@
           <li>Hồ sơ đóng góp (nếu tính năng được bật): ID Discord của người gửi, tên file, dung lượng, mã băm SHA-256, thẻ của file, trạng thái duyệt và lý do từ chối.</li>
           <li>File âm thanh đang chờ duyệt, giữ tạm cho tới khi được duyệt hoặc bị từ chối (xóa khi bị từ chối, hoặc sau 14 ngày không ai duyệt).</li>
           <li>Nội dung đề xuất bài hát (<code>/request</code>) cùng danh sách người bầu. Bot chỉ ghi chữ, không mở hay tải link bạn đưa.</li>
+          <li>Thẻ gắn tự động và đặc trưng âm thanh (nhịp độ, năng lượng, độ sáng) của từng bài trong kho nhạc, nếu chủ bot bật. Đây là dữ liệu về file nhạc, không gắn với người dùng.</li>
           <li>Tất cả các mục trên gắn với ID người dùng và ID server của Discord.</li>
           <li>Nhật ký vận hành: khi có lỗi, nhật ký trên máy chủ chạy bot có thể ghi ID server, ID kênh và tên bài.</li>
         </ul>
@@ -112,6 +113,11 @@
       <section class="clause">
         <h2>Tin nhắn riêng từ bot</h2>
         <p>Bot gửi tin nhắn riêng (DM) để báo kết quả duyệt file đóng góp, báo khi có file khớp với bài bạn đề xuất hoặc bầu, và gửi chủ bot yêu cầu duyệt kèm tên file.</p>
+      </section>
+      <section class="clause">
+        <h2>Dịch vụ bên ngoài (chỉ khi chủ bot bật)</h2>
+        <p>Tính năng tự gắn thẻ (<code>AUTOTAG=on</code>) gửi <strong>dấu vân âm thanh</strong> (một chuỗi số rút gọn, không phải file nhạc) kèm thời lượng của bài thiếu thẻ tới AcoustID, và tên file tới MusicBrainz, rồi tải ảnh bìa từ Cover Art Archive. Không có thông tin người dùng Discord nào được gửi đi. Phân tích nhịp độ chạy hoàn toàn trên máy chạy bot.</p>
+        <p>Trang trạng thái <code>/display</code> (nếu chủ bot bật) hiện bài đang phát ngay trên máy hoặc mạng nhà của chủ bot; trang không hiện ID hay tên người yêu cầu và tự ẩn khi đang đố nhạc.</p>
       </section>
       <section class="clause">
         <h2>Quyền của bạn: tắt và xóa</h2>
@@ -150,7 +156,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>P-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-01</strong></div>
-      <div class="w2"><small>Bản</small><strong>E / 2.1</strong></div>
+      <div class="w2"><small>Bản</small><strong>F / 2.2</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="index.html">Trang chủ</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

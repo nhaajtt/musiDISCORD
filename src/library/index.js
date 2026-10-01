@@ -3,6 +3,7 @@ import path from "node:path";
 import { parseFile, selectCover } from "music-metadata";
 import { config } from "../config.js";
 import { listAudioFiles } from "../utils/library.js";
+import { coverKey, coversDir, refreshOverlay, tags } from "./overlay.js";
 
 const CACHE_FILE = path.join(config.dataDir, "library-cache.json");
 const READ_CONCURRENCY = 8;
@@ -88,6 +89,30 @@ export function buildEntry(rel, tags) {
   };
 }
 
+/**
+ * Phủ thẻ gắn tự động lên một mục thư viện (chỉ khi đã duyệt/áp dụng). Không đổi file gốc;
+ * chạy sau khi lấy từ bộ nhớ đệm nên sửa tags.json có hiệu lực ngay ở lần quét sau.
+ */
+export function applyOverlay(entry, overlay) {
+  if (!overlay || overlay.status !== "applied") return entry;
+  const title = clean(overlay.title) ?? entry.title;
+  const artist = clean(overlay.artist) ?? entry.artist;
+  const album = clean(overlay.album) ?? entry.album;
+  const parts = entry.file.split("/");
+  const name = parts.at(-1).replace(/\.[^.]+$/, "");
+  return {
+    ...entry,
+    title,
+    artist,
+    album,
+    year: overlay.year ?? entry.year,
+    trackNo: overlay.trackNo ?? entry.trackNo,
+    hasTags: true,
+    tagged: true,
+    searchText: normalizeText([title, artist, album, entry.genre, name, parts.slice(0, -1).join(" ")].join(" ")),
+  };
+}
+
 async function readTags(abs) {
   try {
     return await parseFile(abs, { duration: true, skipCovers: true });
@@ -107,7 +132,7 @@ async function loadCache() {
 async function saveCache(cache) {
   try {
     await mkdir(config.dataDir, { recursive: true });
-    const tmp = `${CACHE_FILE}.tmp`;
+    const tmp = `${CACHE_FILE}.${process.pid}.tmp`;
     await writeFile(tmp, JSON.stringify(cache));
     await rename(tmp, CACHE_FILE);
   } catch (error) {
@@ -130,6 +155,7 @@ async function doScan() {
   const nextEntries = new Map();
   const nextCache = {};
   let changed = Object.keys(cache).length !== files.length;
+  refreshOverlay();
 
   await pool(files, READ_CONCURRENCY, async (rel) => {
     let info;
@@ -141,13 +167,13 @@ async function doScan() {
     const cached = cache[rel];
     if (cached && cached.mtimeMs === info.mtimeMs && cached.size === info.size) {
       nextCache[rel] = cached;
-      nextEntries.set(rel, cached.entry);
+      nextEntries.set(rel, applyOverlay(cached.entry, tags.get(rel)));
       return;
     }
     changed = true;
     const entry = buildEntry(rel, await readTags(path.join(config.musicDir, rel)));
     nextCache[rel] = { mtimeMs: info.mtimeMs, size: info.size, entry };
-    nextEntries.set(rel, entry);
+    nextEntries.set(rel, applyOverlay(entry, tags.get(rel)));
   });
 
   entries = nextEntries;
@@ -266,6 +292,16 @@ async function folderCover(rel) {
   return null;
 }
 
+/** Bìa tải tự động (Cover Art Archive), lưu ngoài thư mục nhạc trong SHARED_DIR/covers. */
+async function sharedCover(rel) {
+  try {
+    const buffer = await readFile(path.join(coversDir(), `${coverKey(rel)}.jpg`));
+    return buffer.length <= MAX_COVER_BYTES ? { buffer, mime: "image/jpeg" } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Ảnh bìa: ảnh nhúng trong file, nếu không có thì ảnh cover/folder trong thư mục. */
 export async function getCover(rel) {
   if (covers.has(rel)) return covers.get(rel);
@@ -279,6 +315,7 @@ export async function getCover(rel) {
     // bỏ qua, thử ảnh trong thư mục
   }
   result ??= await folderCover(rel);
+  result ??= await sharedCover(rel);
 
   if (covers.size >= 40) covers.delete(covers.keys().next().value);
   covers.set(rel, result);
