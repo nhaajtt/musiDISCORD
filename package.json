@@ -18,5 +18,11 @@
     "dotenv": "^16.4.5",
     "lavalink-client": "^2.4.0",
     "music-metadata": "^11.16.1"
-  }
+  },
+  "author": "nhaajt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nhaajtt/musiDISCORD.git"
+  },
+  "homepage": "https://musidiscord.vercel.app"
 }

@@ -100,3 +100,7 @@ YouTube thường chặn IP của VPS và thay đổi cách phát liên tục, n
 ## Trang web
 
 Thư mục `web/` là trang giới thiệu tĩnh (không cần build) kèm trang quyền riêng tư và điều khoản. Xem thử bằng `python -m http.server` trong thư mục `web/`.
+
+## Tác giả
+
+Làm bởi nhaajt: [GitHub](https://github.com/nhaajtt) • [Instagram](https://www.instagram.com/nhaajt_hehee/). Góp ý hoặc báo lỗi bằng cách mở issue tại repo này.
