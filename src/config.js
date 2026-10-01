@@ -26,5 +26,7 @@ export const config = {
   timezone: process.env.TIMEZONE || "Asia/Ho_Chi_Minh",
   // Tra lời bài hát từ LRCLIB khi file không có lời (đặt LYRICS_LOOKUP=off để tắt)
   lyricsLookup: process.env.LYRICS_LOOKUP !== "off",
+  // Chu kỳ tự lưu hàng chờ (giây). 0 = tắt lưu định kỳ, chỉ lưu khi bắt đầu bài mới và khi tắt bot (đỡ ghi đĩa trên Raspberry Pi)
+  autosaveSeconds: Number.isFinite(Number(process.env.AUTOSAVE_SECONDS)) && process.env.AUTOSAVE_SECONDS !== undefined && process.env.AUTOSAVE_SECONDS !== "" ? Number(process.env.AUTOSAVE_SECONDS) : 15,
   idleLeaveMs: 60_000,
 };

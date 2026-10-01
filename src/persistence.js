@@ -5,7 +5,6 @@ import { normalizeLocalTrack } from "./library/normalize.js";
 import { is247 } from "./utils/idle.js";
 
 const file = path.join(config.dataDir, "queues.json");
-const AUTOSAVE_MS = 15_000;
 const DECODE_CHUNK = 50;
 
 let lastWritten = "";
@@ -68,7 +67,8 @@ export function saveAndFreeze(manager) {
 }
 
 export function startAutosave(client) {
-  setInterval(() => saveAll(client.lavalink), AUTOSAVE_MS).unref();
+  if (config.autosaveSeconds <= 0) return;
+  setInterval(() => saveAll(client.lavalink), config.autosaveSeconds * 1000).unref();
 }
 
 function load() {

@@ -80,6 +80,7 @@ Cần Node.js 22 trở lên (dùng `node:sqlite` có sẵn, không cần thêm d
 ## Vận hành
 
 - **Dữ liệu:** thư mục `data/` (mount ra ngoài container) chứa cài đặt từng server, hàng chờ đã lưu, cơ sở dữ liệu thống kê (`musidiscord.db`) và bộ nhớ đệm thư viện. Sao lưu thư mục này nếu muốn giữ dữ liệu.
+- **Giảm ghi đĩa (Raspberry Pi):** nhịp tim ghi vào RAM, Lavalink chỉ ghi log cảnh báo, log Docker được giới hạn dung lượng. Đặt `AUTOSAVE_SECONDS=0` trong `.env` để tắt việc lưu hàng chờ định kỳ (bot vẫn lưu khi bắt đầu mỗi bài mới và khi tắt). Nên dùng SSD/USB thay cho thẻ SD.
 - **Khôi phục hàng chờ:** trạng thái phát được lưu mỗi 15 giây và khi tắt bot; sau khi khởi động lại bot tự vào lại kênh và phát tiếp nếu còn người nghe.
 - **24/7:** `/247 on` giữ bot ở lại kênh; thêm `radio` để phát thư viện mãi mãi, kể cả sau khi khởi động lại.
 - **Kiểm tra sức khoẻ:** container bot có healthcheck (`docker compose ps` hiện `healthy`/`unhealthy`). Nếu điền `ALERT_WEBHOOK_URL` (webhook của một kênh Discord riêng), bạn nhận cảnh báo khi Lavalink mất kết nối.

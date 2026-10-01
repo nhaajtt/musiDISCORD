@@ -3,6 +3,11 @@ services:
     image: ghcr.io/lavalink-devs/lavalink:4
     container_name: musidiscord-lavalink
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
     environment:
       - _JAVA_OPTIONS=-Xmx512M
       - LAVALINK_PASSWORD=${LAVALINK_PASSWORD}
@@ -20,6 +25,11 @@ services:
     build: .
     container_name: musidiscord-bot
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
     env_file: .env
     environment:
       - LAVALINK_HOST=lavalink

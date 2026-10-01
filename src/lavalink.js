@@ -86,6 +86,7 @@ export function createLavalink(client) {
     if (player.getData("quiz")) return;
 
     beginPlay(player, track);
+    saveAll(manager);
     announceTrack(client, player, track);
 
     // Chế độ /nhaajt: giữ hàng chờ không bao giờ cạn bằng cách nạp vòng mới khi bắt đầu bài cuối
