@@ -13,3 +13,4 @@ lavalink/logs/
 .vercel
 backups/
 pi/display.env
+pi/.venv/
