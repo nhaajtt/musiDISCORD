@@ -42,15 +42,46 @@ function matches(guess, target, { subset = false } = {}) {
   return false;
 }
 
-/** Judge an answer: "title" (correct title), "artist" (artist only) or "wrong". */
-export function judgeAnswer(guess, { title, artist }) {
+export const MODES = {
+  title: { label: "Guess the song", answerLabel: "Song title (or artist)" },
+  artist: { label: "Guess the artist", answerLabel: "Artist (or song title)" },
+  year: { label: "Guess the year", answerLabel: "Release year, e.g. 1998" },
+  lyrics: { label: "Guess from the lyrics", answerLabel: "Song title (or artist)" },
+};
+
+const YEAR_RE = /\b(19\d\d|20\d\d)\b/;
+const YEAR_CLOSE = 2; // within this many years still earns partial points
+
+export const validYear = (year) => Number.isInteger(year) && year >= 1900 && year <= 2100;
+
+/**
+ * Judge an answer. Returns "title" for a full answer, "artist" for a partial one (the other half of the pair: the artist
+ * when guessing the title, the title when guessing the artist, a year within two years of the real one) or "wrong".
+ */
+export function judgeAnswer(guess, { title, artist, year }, mode = "title") {
+  if (mode === "year") {
+    const given = Number(YEAR_RE.exec(String(guess ?? ""))?.[1]);
+    if (!validYear(given) || !validYear(year)) return "wrong";
+    const diff = Math.abs(given - year);
+    return diff === 0 ? "title" : diff <= YEAR_CLOSE ? "artist" : "wrong";
+  }
+
   const g = normalizeText(guess);
   if (!g) return "wrong";
   const t = normalizeText(stripNoise(title)) || normalizeText(title);
-  if (matches(g, t)) return "title";
   const a = normalizeText(artist ?? "");
-  if (a && matches(g, a, { subset: true })) return "artist";
-  return "wrong";
+  const titleHit = () => matches(g, t);
+  const artistHit = () => Boolean(a) && matches(g, a, { subset: true });
+
+  if (mode === "artist") return artistHit() ? "title" : titleHit() ? "artist" : "wrong";
+  return titleHit() ? "title" : artistHit() ? "artist" : "wrong";
+}
+
+/** Which tracks can be asked in a mode: year needs a release year, artist needs an artist, the rest need a title. */
+export function eligibleFor(entries, mode) {
+  if (mode === "year") return entries.filter((e) => e.title && validYear(e.year));
+  if (mode === "artist") return entries.filter((e) => e.title && e.artist);
+  return entries.filter((e) => e.title);
 }
 
 /**
@@ -70,6 +101,30 @@ export function buildHint(title, level) {
   const words = clean.split(/\s+/).filter(Boolean);
   if (level <= 1) return `${words.length} ${words.length === 1 ? "word" : "words"} • ${clean.replace(/\s/g, "").length} characters`;
   return words.map((w) => [...w][0] + "▫".repeat(Math.max(0, [...w].length - 1))).join("  ");
+}
+
+/** Tiered hints for a round in any mode. */
+export function hintFor(mode, entry, level) {
+  if (mode === "year") {
+    return level <= 1 ? `the ${Math.floor(entry.year / 10) * 10}s` : `between ${entry.year - 2} and ${entry.year + 2}`;
+  }
+  return buildHint(mode === "artist" ? entry.artist : entry.title, level);
+}
+
+/**
+ * Picks a lyric line to show: long enough to be recognizable, away from the very start and end of the song.
+ * Returns { text, timeMs } (timeMs is null for lyrics without timestamps) or null if nothing fits.
+ */
+export function pickLyricLine(parsed, rng = Math.random) {
+  const lines = parsed?.lines ?? [];
+  const from = Math.floor(lines.length * 0.1);
+  const to = Math.ceil(lines.length * 0.9);
+  const usable = lines
+    .slice(from, to)
+    .filter((l) => l.text && l.text.length >= 18 && l.text.length <= 90 && l.text.split(/\s+/).length >= 4);
+  if (!usable.length) return null;
+  const line = usable[Math.floor(rng() * usable.length)];
+  return { text: line.text, timeMs: parsed.synced && Number.isFinite(line.timeMs) ? line.timeMs : null };
 }
 
 /** Pick the snippet start: skip the intro and make sure the snippet ends before the track does. */

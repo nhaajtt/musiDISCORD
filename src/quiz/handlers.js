@@ -30,7 +30,7 @@ export async function handleQuizButton(interaction) {
         new ActionRowBuilder().addComponents(
           new TextInputBuilder()
             .setCustomId("answer")
-            .setLabel("Song title (or artist)")
+            .setLabel(session.answerLabel.slice(0, 45))
             .setStyle(TextInputStyle.Short)
             .setMinLength(1)
             .setMaxLength(100)

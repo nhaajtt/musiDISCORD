@@ -1,13 +1,20 @@
 import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
 import * as library from "../library/index.js";
+import { MODES, eligibleFor } from "../quiz/engine.js";
 import { startQuiz } from "../quiz/session.js";
-import { quizLeaderboard } from "../stats.js";
+import { quizLeaderboard, seasonLeaderboard, seasonOf } from "../stats.js";
 import { errorEmbed, infoEmbed } from "../utils/embeds.js";
 import { canControl, denyDj, isDj } from "../utils/guards.js";
 import { cancelIdleLeave } from "../utils/idle.js";
 import { ensurePlayer } from "../utils/playback.js";
 
 const MIN_SONGS = 4;
+/** The month before the current one, as "YYYY-MM". */
+function previousSeason() {
+  const [year, month] = seasonOf().split("-").map(Number);
+  return month === 1 ? `${year - 1}-12` : `${year}-${String(month - 1).padStart(2, "0")}`;
+}
+
 const medal = (i) => ["🥇", "🥈", "🥉"][i] ?? `**${i + 1}.**`;
 const ephemeral = (embed) => ({ embeds: [embed], flags: MessageFlags.Ephemeral });
 
@@ -20,22 +27,49 @@ export default {
       s
         .setName("start")
         .setDescription("Start a music quiz in the voice channel you are in")
+        .addStringOption((o) =>
+          o
+            .setName("mode")
+            .setDescription("What to guess (default: the song)")
+            .addChoices(...Object.entries(MODES).map(([value, { label }]) => ({ name: label, value }))),
+        )
         .addIntegerOption((o) => o.setName("rounds").setDescription("Number of rounds (default 8)").setMinValue(3).setMaxValue(20))
         .addIntegerOption((o) => o.setName("seconds").setDescription("Clip length in seconds (default 20)").setMinValue(10).setMaxValue(40)),
     )
     .addSubcommand((s) => s.setName("stop").setDescription("Stop the running music quiz"))
-    .addSubcommand((s) => s.setName("top").setDescription("Music quiz leaderboard for this server")),
+    .addSubcommand((s) =>
+      s
+        .setName("top")
+        .setDescription("Music quiz leaderboard for this server")
+        .addStringOption((o) =>
+          o
+            .setName("period")
+            .setDescription("Which ranking (default: this month)")
+            .addChoices(
+              { name: "This month", value: "month" },
+              { name: "Last month", value: "last" },
+              { name: "All time", value: "all" },
+            ),
+        ),
+    ),
 
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId;
 
     if (sub === "top") {
-      const rows = quizLeaderboard(guildId, 10);
-      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("Nobody has played the music quiz on this server yet. Try `/quiz start`.")));
+      const period = interaction.options.getString("period") ?? "month";
+      const season = period === "last" ? previousSeason() : seasonOf();
+      const rows = period === "all" ? quizLeaderboard(guildId, 10) : seasonLeaderboard(guildId, season, 10);
+      if (!rows.length) {
+        const where = period === "all" ? "yet" : period === "last" ? "last month" : "this month";
+        return interaction.reply(ephemeral(infoEmbed(`Nobody has played the music quiz on this server ${where}. Try \`/quiz start\`.`)));
+      }
+      const title = period === "all" ? "All time" : period === "last" ? `Season ${season}` : `This month (${season})`;
       const embed = new EmbedBuilder()
         .setColor(0xf5a524)
-        .setTitle("🧠 Music quiz leaderboard")
+        .setTitle(`🧠 Music quiz leaderboard: ${title}`)
+        .setFooter({ text: period === "all" ? "A new season starts every month. The top player of each month earns the Season Champion badge." : "Seasons reset on the 1st of each month." })
         .setDescription(rows.map((r, i) => `${medal(i)} <@${r.user_id}> • **${r.points}** pts • ${r.correct} correct • ${r.games} games`).join("\n"));
       return interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
     }
@@ -54,8 +88,10 @@ export default {
     if (!canControl(interaction.member, guildId)) return denyDj(interaction);
 
     if (library.size() === 0) await library.scan();
-    if (library.size() < MIN_SONGS) {
-      return interaction.reply(ephemeral(errorEmbed(`The music library needs at least ${MIN_SONGS} tracks to play the music quiz.`)));
+    const mode = interaction.options.getString("mode") ?? "title";
+    if (eligibleFor(library.all(), mode).length < MIN_SONGS) {
+      const need = { year: "with a release year tag", artist: "with an artist", title: "", lyrics: "" }[mode];
+      return interaction.reply(ephemeral(errorEmbed(`The music library needs at least ${MIN_SONGS} tracks ${need ? need + " " : ""}to play this mode.`)));
     }
 
     const existing = interaction.client.lavalink.getPlayer(guildId);
@@ -68,7 +104,7 @@ export default {
     if (!player) return;
     cancelIdleLeave(player);
 
-    const rounds = Math.min(interaction.options.getInteger("rounds") ?? 8, library.size());
+    const rounds = Math.min(interaction.options.getInteger("rounds") ?? 8, eligibleFor(library.all(), mode).length);
     const seconds = interaction.options.getInteger("seconds") ?? 20;
 
     startQuiz({
@@ -78,13 +114,14 @@ export default {
       starter: interaction.user,
       entries: library.all(),
       rounds,
+      mode,
       clipMs: seconds * 1000,
     });
 
     await interaction.editReply({
       embeds: [
         infoEmbed(
-          `🎧 **Music quiz started!** ${rounds} rounds, ${seconds} seconds per clip. Listen to the clip, then press 🎯 to guess the track (or artist). The faster you answer, the more points you get.`,
+          `🎧 **Music quiz started: ${MODES[mode].label}!** ${rounds} rounds, ${seconds} seconds per clip. Listen to the clip, then press 🎯 to answer. The faster you answer, the more points you get.`,
         ),
       ],
     });

@@ -157,7 +157,7 @@ const GLYPHS = {
 };
 
 const GLYPH_KEYS = [
-  ["quiz", ["do nhac", "quiz", "dap an"]],
+  ["quiz", ["do nhac", "quiz", "dap an", "sharp"]],
   ["heart", ["fan cung", "fan", "yeu thich", "favorite", "favourite"]],
   ["phones", ["thinh phong", "audiophile", "concert"]],
   ["star", ["phe binh", "critic"]],
@@ -168,7 +168,7 @@ const GLYPH_KEYS = [
   ["flame", ["chuoi", "streak", "lua"]],
   ["sun", ["som", "dawn", "sang"]],
   ["phones", ["tai nghe", "nghe nhieu", "ham", "marathon", "headphone", "listener"]],
-  ["crown", ["vua", "king", "chua", "top 1"]],
+  ["crown", ["vua", "king", "chua", "top 1", "champion", "season"]],
   ["clock", ["gio", "time", "hour"]],
   ["note", ["nhac", "track", "bai", "music"]],
   ["star", ["sao", "star", "dau tien", "first"]],

@@ -8,6 +8,8 @@ export const BADGES = [
   { id: "audiophile", icon: "🎧", name: "Audiophile", hint: "Listen for 10 hours in total", test: (s) => s.totalListenMs >= 10 * 3_600_000 },
   { id: "critic", icon: "⭐", name: "Critic", hint: "Rate 50 tracks", test: (s) => s.ratingsCount >= 50 },
   { id: "quiz_master", icon: "🧠", name: "Quiz Master", hint: "Earn 500 quiz points", test: (s) => s.quizPoints >= 500 },
+  { id: "sharp_ear", icon: "👂", name: "Sharp Ear", hint: "Get 50 quiz answers right", test: (s) => s.quizCorrect >= 50 },
+  { id: "season_champion", icon: "🏆", name: "Season Champion", hint: "Finish a month as the top quiz player on a server", test: (s) => s.seasonWins >= 1 },
   { id: "streak7", icon: "🔥", name: "7-Day Streak", hint: "Listen to music 7 days in a row", test: (s) => s.streakDays >= 7 },
 ];
 

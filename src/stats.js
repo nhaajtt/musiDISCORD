@@ -1,6 +1,9 @@
 import { db } from "./db.js";
 import { localDay, localHour, yearRange } from "./utils/time.js";
 
+/** The quiz season is the calendar month, in the configured time zone ("2026-10"). */
+export const seasonOf = (ms = Date.now()) => localDay(ms).slice(0, 7);
+
 const stmt = {
   optedOut: db.prepare("SELECT 1 FROM optout WHERE user_id = ?"),
   insertPlay: db.prepare(
@@ -42,6 +45,19 @@ const stmt = {
   ),
   quizTop: db.prepare(
     "SELECT user_id, points, games, correct, best_streak FROM quiz_scores WHERE guild_id = ? ORDER BY points DESC LIMIT ?",
+  ),
+  seasonUpsert: db.prepare(
+    `INSERT INTO quiz_season (guild_id, season, user_id, points, games, correct) VALUES (?, ?, ?, ?, 1, ?)
+     ON CONFLICT (guild_id, season, user_id) DO UPDATE SET
+       points = points + excluded.points, games = games + 1, correct = correct + excluded.correct`,
+  ),
+  seasonTop: db.prepare(
+    "SELECT user_id, points, games, correct FROM quiz_season WHERE guild_id = ? AND season = ? AND points > 0 ORDER BY points DESC LIMIT ?",
+  ),
+  seasonWins: db.prepare(
+    `SELECT COUNT(*) AS n FROM quiz_season q
+     WHERE q.guild_id = ? AND q.user_id = ? AND q.season < ? AND q.points > 0
+       AND q.points = (SELECT MAX(points) FROM quiz_season WHERE guild_id = q.guild_id AND season = q.season)`,
   ),
   quizOne: db.prepare("SELECT points, games, correct, best_streak FROM quiz_scores WHERE guild_id = ? AND user_id = ?"),
 
@@ -85,7 +101,7 @@ export function deleteUserData(userId) {
     db.prepare("DELETE FROM listeners WHERE user_id = ?").run(userId);
     db.prepare("UPDATE plays SET requester_id = NULL WHERE requester_id = ?").run(userId);
     db.prepare("UPDATE plays SET skipped_by = NULL WHERE skipped_by = ?").run(userId);
-    for (const table of ["ratings", "favorites", "quiz_scores", "badges", "request_votes"]) {
+    for (const table of ["ratings", "favorites", "quiz_scores", "quiz_season", "badges", "request_votes"]) {
       db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
     }
     // Personal playlists belong to the user; server playlists stay but forget who created them
@@ -133,9 +149,16 @@ export const isFavorite = (userId, key) => Boolean(stmt.isFavorite.get(userId, k
 
 // ---------- Music quiz
 
-export function addQuizResult(guildId, userId, { points, correct, bestStreak }) {
+export function addQuizResult(guildId, userId, { points, correct, bestStreak }, at = Date.now()) {
   stmt.quizUpsert.run(guildId, userId, points, correct, bestStreak);
+  stmt.seasonUpsert.run(guildId, seasonOf(at), userId, points, correct);
 }
+
+/** Top players of one month ("2026-10"). */
+export const seasonLeaderboard = (guildId, season = seasonOf(), limit = 10) => stmt.seasonTop.all(guildId, season, limit);
+
+/** How many finished months this player topped the server's quiz (ties count for everyone tied). */
+export const seasonWins = (guildId, userId, now = Date.now()) => Number(stmt.seasonWins.get(guildId, userId, seasonOf(now)).n);
 export const quizLeaderboard = (guildId, limit = 10) => stmt.quizTop.all(guildId, limit);
 export const quizScore = (guildId, userId) => stmt.quizOne.get(guildId, userId) ?? { points: 0, games: 0, correct: 0, best_streak: 0 };
 
@@ -225,6 +248,8 @@ export function userStats(guildId, userId, { year } = {}) {
     maxSameTrack: topTracks[0]?.plays ?? 0,
     ratingsCount: Number(stmt.ratingCount.get(guildId, userId).n),
     quizPoints: quizScore(guildId, userId).points,
+    quizCorrect: quizScore(guildId, userId).correct,
+    seasonWins: seasonWins(guildId, userId),
   };
 }
 

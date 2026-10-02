@@ -62,6 +62,16 @@ db.exec(`
     PRIMARY KEY (guild_id, user_id)
   );
 
+  CREATE TABLE IF NOT EXISTS quiz_season (
+    guild_id TEXT NOT NULL,
+    season   TEXT NOT NULL,
+    user_id  TEXT NOT NULL,
+    points   INTEGER NOT NULL DEFAULT 0,
+    games    INTEGER NOT NULL DEFAULT 0,
+    correct  INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (guild_id, season, user_id)
+  );
+
   CREATE TABLE IF NOT EXISTS badges (
     guild_id  TEXT NOT NULL,
     user_id   TEXT NOT NULL,
