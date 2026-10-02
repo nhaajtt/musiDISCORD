@@ -148,7 +148,7 @@ INK = (255, 246, 236)
 MARGIN = 28
 RIGHT = W - 20
 AVATAR_W = int(os.environ.get("AVATAR_W", "212"))  # ảnh đại diện: khung chữ nhật bo góc, gần nửa màn, nằm bên phải
-AVATAR_H = int(os.environ.get("AVATAR_H", "214"))
+AVATAR_H = int(os.environ.get("AVATAR_H", "208"))
 AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "10"))  # 0 = góc vuông
 AVATAR_POS = (W - 18 - AVATAR_W, 14)
 TEXT_TOP, TEXT_BOTTOM = 40, 228  # vùng chữ (giữa dòng tên server và thanh tiến trình)
@@ -301,15 +301,21 @@ def load_avatar():
     return _avatar["img"]
 
 
-def draw_avatar(img, d, accent):
-    """Ảnh đại diện lớn bên phải, viền mảnh màu nhấn. Trả về mép phải của cột chữ (không có ảnh thì chiếm hết bề ngang)."""
+def draw_avatar(img, d, bg):
+    """Ảnh đại diện lớn bên phải, không viền màu: chỉ có bốn dấu góc mảnh kiểu khung ngắm, màu trung tính.
+    Trả về mép phải của cột chữ (không có ảnh thì chiếm hết bề ngang)."""
     av = load_avatar()
     if av is None:
         return RIGHT
     x, y = AVATAR_POS
-    d.rounded_rectangle((x - 4, y - 4, x + AVATAR_W + 3, y + AVATAR_H + 3), radius=AVATAR_RADIUS + 4, outline=accent, width=3)
     img.paste(av[0], (x, y), av[1])
-    return x - 22
+    mark = mix(bg, INK, 0.62)
+    gap, ln, lw = 7, 16, 2  # cách ảnh, độ dài mỗi nhánh, độ dày nét
+    left, top, right, bottom = x - gap, y - gap, x + AVATAR_W + gap - 1, y + AVATAR_H + gap - 1
+    for cx, cy, sx, sy in ((left, top, 1, 1), (right, top, -1, 1), (left, bottom, 1, -1), (right, bottom, -1, -1)):
+        d.line((cx, cy, cx + sx * ln, cy), fill=mark, width=lw)
+        d.line((cx, cy, cx, cy + sy * ln), fill=mark, width=lw)
+    return x - 14
 
 
 def fmt(ms):
@@ -352,7 +358,7 @@ def render(state, w=W, h=H):
     dim = mix(bg, INK, 0.55)
     d.rectangle((0, 0, 5, h), fill=accent)  # vạch mép trái: dấu hiệu duy nhất của màu bài
 
-    col_right = draw_avatar(img, d, accent)
+    col_right = draw_avatar(img, d, bg)
     if not np.get("title"):
         render_idle(d, np, bg, accent, col_right)
         return img
