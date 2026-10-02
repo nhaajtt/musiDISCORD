@@ -252,7 +252,8 @@
     const lines = [];
     if (n.album) lines.push(n.album);
     if (n.mood) lines.push(`${MOODS[n.mood] || n.mood}${n.energy != null ? `, năng lượng ${Math.round(n.energy * 100)}%` : ""}`);
-    if (n.queueLength) lines.push(`Còn ${n.queueLength} bài trong hàng chờ`);
+    if (n.next) lines.push(`Tiếp theo: ${n.next}`);
+    else if (n.queueLength) lines.push(`Còn ${n.queueLength} bài trong hàng chờ`);
     if (n.repeat === "track") lines.push("Đang lặp bài này");
     if (n.repeat === "queue") lines.push("Đang lặp cả hàng chờ");
     el.meta.textContent = lines.join("\n");

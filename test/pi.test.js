@@ -530,3 +530,13 @@ test("điều khiển: tua kiểm tra giới hạn, lặp đổi vòng, báo l�
   player.queue.current.info.isStream = true;
   assert.equal((await control({ action: "seek", value: 1000 })).status, 400, "không tua được luồng trực tiếp");
 });
+
+test("trạng thái có tên bài kế tiếp; hàng chờ rỗng hay phần tử lạ thì là null", () => {
+  const p = fakePlayer();
+  p.queue.tracks = [{ info: { title: "Bài sau" } }, {}];
+  assert.equal(nowPlayingState(fakeClient(p), p).next, "Bài sau");
+  p.queue.tracks = [{}];
+  assert.equal(nowPlayingState(fakeClient(p), p).next, null);
+  p.queue.tracks = [];
+  assert.equal(nowPlayingState(fakeClient(p), p).next, null);
+});

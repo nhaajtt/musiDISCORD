@@ -78,6 +78,7 @@ export function nowPlayingState(client, player, botName = config.botName, canCon
     duration: Number.isFinite(info.duration) ? info.duration : null,
     volume: player.volume,
     queueLength: player.queue.tracks.length,
+    next: player.queue.tracks[0]?.info?.title ?? null,
     accent: hex(accentFor(`${info.title}${info.author ?? ""}`)),
     cover: rel !== null || /^https?:\/\//i.test(info.artworkUrl ?? ""),
     repeat: player.repeatMode,

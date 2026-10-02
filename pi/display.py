@@ -151,6 +151,7 @@ AVATAR_W = int(os.environ.get("AVATAR_W", "212"))  # ảnh đại diện: khung 
 AVATAR_H = int(os.environ.get("AVATAR_H", "208"))
 AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "10"))  # 0 = góc vuông
 AVATAR_POS = (W - 18 - AVATAR_W, 14)
+NEXT_Y = 190  # dòng "Tiếp theo" ở đáy cột chữ
 TEXT_TOP, TEXT_BOTTOM = 40, 228  # vùng chữ (giữa dòng tên server và thanh tiến trình)
 BAR_Y = 236
 BTN_Y = 282
@@ -318,6 +319,25 @@ def draw_avatar(img, d, bg):
     return x - 14
 
 
+def pi_status():
+    """Nhiệt độ và thời gian đã bật của chính chiếc Pi (hiện ở màn chờ)."""
+    parts = []
+    try:
+        with open("/sys/class/thermal/thermal_zone0/temp") as f:
+            parts.append(f"{int(f.read()) / 1000:.0f}°C")
+    except (OSError, ValueError):
+        pass
+    try:
+        with open("/proc/uptime") as f:
+            secs = int(float(f.read().split()[0]))
+        days, rem = divmod(secs, 86400)
+        hours, rem = divmod(rem, 3600)
+        parts.append(f"bật {days} ngày {hours} giờ" if days else f"bật {hours} giờ {rem // 60} phút")
+    except (OSError, ValueError, IndexError):
+        pass
+    return "  ".join(parts)
+
+
 def fmt(ms):
     t = max(0, int(ms // 1000))
     return f"{t // 60}:{t % 60:02d}"
@@ -347,6 +367,11 @@ def render_idle(d, np, bg, accent, col_right):
     for part in wrap(d, hint, face("mono", 11), width):
         d.text((MARGIN, y), part, fill=mix(bg, INK, 0.55), font=face("mono", 11))
         y += 17
+    if not (np.get("hidden") or np.get("offline") or np.get("error")):
+        status = pi_status()
+        if status:  # một dòng nhỏ ở đáy: Raspberry Pi vẫn đang chạy ổn
+            d.line((MARGIN, 286, col_right, 286), fill=mix(bg, INK, 0.16), width=1)
+            d.text((MARGIN, 294), ellipsize(d, "Pi  " + status, face("mono", 11), width), fill=mix(bg, INK, 0.5), font=face("mono", 11))
 
 
 def render(state, w=W, h=H):
@@ -372,9 +397,17 @@ def render(state, w=W, h=H):
     if np.get("bpm"):
         info.append(f"{round(np['bpm'])} nhịp/phút")
     reserve = (30 if artist else 0) + (20 if info else 0)
-    size, lines, lh = fit_title(d, np["title"].upper(), width, TEXT_BOTTOM - TEXT_TOP - reserve)
+    nxt = np.get("next")
+    title_up = np["title"].upper()
+    # có bài kế tiếp: thử xếp tên bài vào phần trên (chừa chỗ cho "Tiếp theo"); chữ vẫn đủ to thì giữ, không thì bỏ dòng đó
+    area_end = TEXT_BOTTOM
+    size, lines, lh = fit_title(d, title_up, width, TEXT_BOTTOM - TEXT_TOP - reserve)
+    if nxt:
+        s2, l2, h2 = fit_title(d, title_up, width, NEXT_Y - 12 - TEXT_TOP - reserve)
+        if s2 >= 44:
+            size, lines, lh, area_end = s2, l2, h2, NEXT_Y - 12
     block = len(lines) * lh + reserve
-    y = TEXT_TOP + max(0, (TEXT_BOTTOM - TEXT_TOP - block) // 2) - int(size * 0.12)
+    y = TEXT_TOP + max(0, (area_end - TEXT_TOP - block) // 2) - int(size * 0.12)
     f = face("display", size)
     for line in lines:
         d.text((MARGIN - 2, y), line, fill=INK, font=f)
@@ -389,6 +422,13 @@ def render(state, w=W, h=H):
             color = accent if part == "Tạm dừng" else dim
             d.text((x, y), part, fill=color, font=face("mono", 11))
             x += int(d.textlength(part, font=face("mono", 11))) + 16
+        y += 20
+
+    # bài kế tiếp ở đáy cột chữ, chỉ vẽ khi còn chỗ (tên bài dài thì bỏ qua)
+    if nxt and area_end != TEXT_BOTTOM:
+        d.line((MARGIN, NEXT_Y - 8, col_right, NEXT_Y - 8), fill=mix(bg, INK, 0.16), width=1)
+        d.text((MARGIN, NEXT_Y), "Tiếp theo", fill=dim, font=face("mono", 10))
+        d.text((MARGIN, NEXT_Y + 14), ellipsize(d, nxt, face("mono", 11), width), fill=mix(bg, INK, 0.82), font=face("mono", 11))
 
     # thanh tiến trình: một đường mảnh
     pos = np.get("position", 0) + ((time.time() - at) * 1000 if np.get("playing") else 0)
