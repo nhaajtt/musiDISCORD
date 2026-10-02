@@ -14,3 +14,4 @@ lavalink/logs/
 backups/
 pi/display.env
 pi/.venv/
+__pycache__/
