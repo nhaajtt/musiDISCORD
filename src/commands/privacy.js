@@ -14,7 +14,7 @@ export default {
         .setDescription("Turn recording of your listening stats on or off")
         .addBooleanOption((o) => o.setName("enabled").setDescription("true = record stats, false = don't record").setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("delete").setDescription("Delete all your data (stats, ratings, favorites, points, badges)")),
+    .addSubcommand((s) => s.setName("delete").setDescription("Delete all your data (stats, ratings, favorites, playlists, points, badges)")),
 
   async execute(interaction) {
     const userId = interaction.user.id;
@@ -40,7 +40,7 @@ export default {
     const message = await interaction.reply(
       ephemeral(
         infoEmbed(
-          `This permanently deletes your listening stats, ratings, favorites, quiz points and badges. This can't be undone.${isOptedOut(userId) ? "" : "\nAfter deleting, the bot will keep recording new stats unless you turn it off with `/privacy stats`."}`,
+          `This permanently deletes your listening stats, ratings, favorites, personal playlists, quiz points and badges. This can't be undone.${isOptedOut(userId) ? "" : "\nAfter deleting, the bot will keep recording new stats unless you turn it off with `/privacy stats`."}`,
         ),
         { components: [row], withResponse: true },
       ),

@@ -88,6 +88,9 @@ export function deleteUserData(userId) {
     for (const table of ["ratings", "favorites", "quiz_scores", "badges", "request_votes"]) {
       db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
     }
+    // Personal playlists belong to the user; server playlists stay but forget who created them
+    db.prepare("DELETE FROM playlists WHERE scope = 'user' AND owner_id = ?").run(userId);
+    db.prepare("UPDATE playlists SET created_by = NULL WHERE created_by = ?").run(userId);
     // Suggestions and contributions are kept but anonymized
     db.prepare("UPDATE song_requests SET created_by = NULL WHERE created_by = ?").run(userId);
     db.prepare("UPDATE contributions SET user_id = NULL WHERE user_id = ?").run(userId);

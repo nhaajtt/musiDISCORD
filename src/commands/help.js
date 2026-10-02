@@ -1,7 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 const GROUPS = [
-  ["🎵 Playback", ["play", "search", "local", "album", "artist", "favorites", "nhaajt", "vibe", "similar"]],
+  ["🎵 Playback", ["play", "search", "local", "album", "artist", "favorites", "playlist", "nhaajt", "vibe", "similar"]],
   ["🎛️ Controls", ["pause", "resume", "skip", "stop", "leave", "seek", "volume", "loop", "shuffle", "filter", "remove", "bump", "247"]],
   ["📜 Info", ["queue", "nowplaying", "lyrics", "stats", "help"]],
   ["🎮 Fun", ["quiz"]],

@@ -114,6 +114,27 @@ db.exec(`
     PRIMARY KEY (request_id, user_id)
   );
 
+  CREATE TABLE IF NOT EXISTS playlists (
+    id         INTEGER PRIMARY KEY,
+    scope      TEXT NOT NULL CHECK (scope IN ('user', 'guild')),
+    owner_id   TEXT NOT NULL,
+    name       TEXT NOT NULL COLLATE NOCASE,
+    created_by TEXT,
+    created_at INTEGER NOT NULL,
+    UNIQUE (scope, owner_id, name)
+  );
+
+  CREATE TABLE IF NOT EXISTS playlist_tracks (
+    playlist_id INTEGER NOT NULL REFERENCES playlists (id) ON DELETE CASCADE,
+    position    INTEGER NOT NULL,
+    track_key   TEXT NOT NULL,
+    title       TEXT NOT NULL,
+    artist      TEXT,
+    uri         TEXT,
+    duration_ms INTEGER,
+    PRIMARY KEY (playlist_id, position)
+  );
+
   CREATE TABLE IF NOT EXISTS lyrics_cache (
     track_key  TEXT PRIMARY KEY,
     synced     TEXT,
