@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cài đặt và hỏi đáp, musiDISCORD</title>
+<meta name="description" content="Cách tự host musiDISCORD bằng Docker từng bước và các câu hỏi thường gặp.">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/motion.css">
+<link rel="stylesheet" href="assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Bỏ qua tới nội dung</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Dự án</b>musiDISCORD</span>
+  <span><b>C-01</b></span>
+  <span class="strip__name">Cài đặt</span>
+  <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
+  <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
+  <span class="hide-sm"><b>Bản</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, về trang chủ">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Các trang">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="tinh-nang.html">Tính năng</a>
+    <a href="lenh.html">Lệnh</a>
+    <a href="cai-dat.html" aria-current="page">Cài đặt</a>
+    <a href="nhat-ky.html">Nhật ký</a>
+  </nav>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+</header>
+
+<main id="noi-dung">
+<h1 class="sr">Cài đặt và hỏi đáp</h1>
+
+<section class="sheet" id="tu-host" data-sheet="S-01|Trình tự thi công, tự host" aria-labelledby="h-tu-host">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-tu-host">Tự host: trình tự thi công</h2>
+      <p class="sheet__scale">Cần Docker và một chỗ chạy 24/7<br>làm lần lượt từ bước 1</p>
+    </header>
+    <ol class="build">
+      <li>
+        <h3>Lấy Token và Application ID</h3>
+        <p>Vào Developer Portal của Discord, tạo application, thêm Bot. Token nằm ở tab Bot, Application ID nằm ở General Information. Bot chỉ dùng lệnh gạch chéo, nút bấm và kênh thoại nên không cần intent đặc quyền.</p>
+      </li>
+      <li>
+        <h3>Tạo file .env</h3>
+        <p>Sao chép file mẫu rồi điền <code>DISCORD_TOKEN</code> và <code>CLIENT_ID</code>. Đặt thêm <code>LAVALINK_PASSWORD</code>; muốn nhận file đóng góp thì thêm <code>CONTRIBUTIONS=on</code>; điền khóa Spotify nếu muốn dán link Spotify.</p>
+        <div class="code"><pre><code>cp .env.example .env</code></pre><button type="button" data-copy>Chép</button></div>
+        <p class="sub">Tra lời bài hát online qua LRCLIB là tùy chọn, bạn bật hoặc tắt trong cấu hình; xem file .env.example để biết tên biến.</p>
+      </li>
+      <li>
+        <h3>Dựng bot và Lavalink</h3>
+        <p>Một lệnh dựng cả hai. Lần đầu Lavalink tải plugin nên mất khoảng một phút, bot sẽ tự thử kết nối lại trong lúc chờ. Docker tự kiểm tra sức khỏe của từng dịch vụ, xem bằng <code>docker compose ps</code>.</p>
+        <div class="code"><pre><code>docker compose up -d --build</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Đăng ký lệnh gạch chéo</h3>
+        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.2 thêm <code>/library</code>, <code>/vibe</code>, <code>/similar</code>). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
+        <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Mời bot và thêm nhạc</h3>
+        <p>Mời bot bằng link ở đầu trang (đổi <code>client_id</code> thành ID của bạn, giữ nguyên phần <code>permissions=281474979908608</code>). Bỏ file nhạc vào thư mục <code>music/</code>, đặt file <code>.lrc</code> cạnh file nhạc nếu có lời; thêm file mới không cần khởi động lại bot.</p>
+        <p class="sub">Cài đặt, hàng chờ, thống kê và danh sách yêu thích lưu trong thư mục data/ cạnh docker-compose.yml, giữ thư mục này để không mất khi dựng lại container.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="sheet" id="hoi-dap" data-sheet="S-02|Ghi chú chung" aria-labelledby="h-hoi-dap">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-hoi-dap">Ghi chú chung</h2>
+      <p class="sheet__scale">Những câu hay được hỏi<br>trước khi mời bot</p>
+    </header>
+    <div class="faq">
+      <details>
+        <summary>YouTube có ổn định không?</summary>
+        <div class="ans"><p>Bot phát được link và tên bài từ YouTube, nhưng YouTube hay đổi cách chặn công cụ phát nhạc nên có lúc một số bài không phát được. Gặp bài lỗi, thử nguồn SoundCloud, link Spotify hoặc file nhạc của bạn.</p></div>
+      </details>
+      <details>
+        <summary>Bot cần những quyền gì?</summary>
+        <div class="ans"><p>Link mời xin bảy quyền: Xem kênh (View Channel), Gửi tin nhắn (Send Messages), Nhúng liên kết (Embed Links), Đính kèm file (Attach Files), Kết nối (Connect), Nói (Speak) và Đặt trạng thái kênh thoại (Set Voice Channel Status). Gửi tin nhắn, Nhúng liên kết và Đính kèm file dùng cho thẻ Đang phát và ảnh <code>/wrapped</code>; Đặt trạng thái kênh thoại dùng cho dòng "Đang phát" trên kênh. Bot không đọc nội dung tin nhắn của ai.</p></div>
+      </details>
+      <details>
+        <summary>Làm sao giới hạn ai được điều khiển nhạc?</summary>
+        <div class="ans"><p>Quản trị viên gõ <code>/settings dj-role</code> và chọn một role. Từ đó chỉ role đó (và người có quyền Manage Server) dùng được các lệnh và nút điều khiển. Bỏ trống role thì ai cũng dùng được.</p></div>
+      </details>
+      <details>
+        <summary>Phát file nhạc của tôi được không?</summary>
+        <div class="ans"><p>Được, nếu bạn tự host bot: bỏ file vào thư mục music, bot đọc thẻ để dựng thư viện rồi bạn dùng <code>/local</code>, <code>/album</code>, <code>/artist</code> hoặc <code>/nhaajt</code>. Bản bot mà người khác host thì chỉ phát được nhạc nằm trong thư mục của họ. Bạn tự chịu trách nhiệm về việc có quyền dùng các file nhạc đó.</p></div>
+      </details>
+      <details>
+        <summary>Đố nhạc có cần quyền đọc tin nhắn không?</summary>
+        <div class="ans"><p>Không. Người chơi bấm nút trả lời rồi gõ đáp án trong một cửa sổ nhỏ, nên bot không cần đọc nội dung kênh chat. Bài thi lấy từ thư viện nhạc của chính server.</p></div>
+      </details>
+      <details>
+        <summary>Lời bài hát lấy từ đâu?</summary>
+        <div class="ans"><p>Từ file .lrc cạnh file nhạc, hoặc lời nhúng trong thẻ của file. Nếu không có, bot có thể tra online ở LRCLIB và việc đó gửi tên bài, nghệ sĩ, thời lượng tới dịch vụ ấy. Người host tắt được tính năng này.</p></div>
+      </details>
+      <details>
+        <summary>Bot có tải nhạc từ YouTube về không?</summary>
+        <div class="ans"><p>Không. Bot không tải gì từ YouTube, Spotify hay SoundCloud về kho. Với <code>/request</code>, bot chỉ ghi tên hoặc link vào danh sách mong muốn và không mở link đó. Chỉ file hợp lệ được đưa vào kho.</p></div>
+      </details>
+      <details>
+        <summary>Làm sao thêm bài vào kho nhạc?</summary>
+        <div class="ans"><p>Gửi file của bạn qua <code>/contribute</code> (tick xác nhận bạn sở hữu hoặc được phép chia sẻ, chủ bot sẽ duyệt) hoặc đề xuất bằng <code>/request</code>. Tính năng đóng góp tắt sẵn, cần chủ bot bật <code>CONTRIBUTIONS=on</code> và quản trị server bật <code>/settings contributions</code>.</p></div>
+      </details>
+      <details>
+        <summary>Bot nhớ gì về server và về tôi?</summary>
+        <div class="ans"><p>Cài đặt của server, hàng chờ đã lưu, và từ bản 2.0 có thêm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu theo ID Discord. Từ bản 2.1 còn có hồ sơ đóng góp và đề xuất của bạn. Bạn tắt việc ghi thống kê bằng <code>/privacy stats</code> và xóa dữ liệu của mình bằng <code>/privacy delete</code>. Chi tiết ở trang <a href="privacy.html">Quyền riêng tư</a>.</p></div>
+      </details>
+      <details>
+        <summary>Bot có tự rời kênh không?</summary>
+        <div class="ans"><p>Có, mặc định kênh không còn ai, hoặc hết bài, bot rời sau 60 giây. Bật <code>/247 on</code> thì bot ở lại kể cả khi vắng người và sau khi khởi động lại. Chế độ <code>/nhaajt</code> thì không hết bài nên bot ở lại tới khi kênh trống hoặc bạn gõ <code>/stop</code>.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="C-01|Khung tên bản vẽ">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Bot nhạc cho Discord, chạy trên Raspberry Pi 5</span></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>C-01</strong></div>
+      <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Tài liệu kèm theo</small>
+        <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">đã được chiếc loa ở góc phòng duyệt</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">mã nguồn</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

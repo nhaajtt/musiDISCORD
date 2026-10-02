@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhật ký làm dự án, musiDISCORD</title>
+<meta name="description" content="Nhật ký làm bot nhạc Discord chạy trên Raspberry Pi 5: những chỗ tôi vấp, cách tìm nguyên nhân, các quyết định và điều học được.">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/motion.css">
+<link rel="stylesheet" href="assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Bỏ qua tới nội dung</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Dự án</b>musiDISCORD</span>
+  <span><b>N-01</b></span>
+  <span class="strip__name">Nhật ký</span>
+  <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
+  <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
+  <span class="hide-sm"><b>Bản</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, về trang chủ">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Các trang">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="tinh-nang.html">Tính năng</a>
+    <a href="lenh.html">Lệnh</a>
+    <a href="cai-dat.html">Cài đặt</a>
+    <a href="nhat-ky.html" aria-current="page">Nhật ký</a>
+  </nav>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+</header>
+
+<main id="noi-dung" class="legal legal--wide">
+  <div class="wrap">
+    <h1>Nhật ký làm dự án</h1>
+    <p class="lead">Đây là nhật ký thật của tôi khi làm musiDISCORD, từ lúc chọn công nghệ cho tới khi nó chạy 24/7 trên một chiếc Raspberry Pi 5 ở nhà. Tôi ghi cả những lúc làm sai và cách tôi tìm ra nguyên nhân, vì phần lớn thứ tôi học được nằm ở đó.</p>
+    <div class="legal__meta">
+      <span>30/09 đến 02/10/2026</span>
+      <span class="stamp" style="font-size:18px">bản G</span>
+    </div>
+
+    <div class="legal__body">
+    <section class="clause">
+      <p class="when">30/09</p>
+      <h2>Chọn công nghệ và dựng khung</h2>
+      <p>Tôi muốn một bot nhạc tự host, không phụ thuộc dịch vụ của ai. Tôi chọn <strong>Node.js và discord.js</strong> cho bot, <strong>Lavalink v4</strong> làm máy chủ âm thanh riêng (bot chỉ ra lệnh, Lavalink lo giải mã và đẩy âm thanh vào kênh thoại), và <strong>Docker Compose</strong> để đóng gói cả hai.</p>
+      <p>Câu hỏi đầu tiên làm tôi khựng là dán gì vào <code>DISCORD_TOKEN</code>. Tôi tưởng đó là Public Key. Đọc lại Developer Portal tôi mới hiểu: Token là mật khẩu của bot (không bao giờ được đưa lên GitHub), còn Application ID là mã công khai dùng để mời bot và đăng ký lệnh. Từ đó file <code>.env</code> nằm trong <code>.gitignore</code> ngay từ commit đầu.</p>
+      <p>Một chi tiết nhỏ tốn thời gian: lệnh gạch chéo đăng ký "toàn cầu" hiện rất chậm, còn đăng ký theo từng server bằng <code>GUILD_ID</code> thì hiện ngay. Khi thử tôi dùng cách thứ hai.</p>
+    </section>
+    <section class="clause">
+      <p class="when">30/09</p>
+      <h2>YouTube không chịu phát</h2>
+      <p>Phát link YouTube thì báo <code>This video requires login</code>, rồi tới lỗi giải mã chữ ký (signature function).</p>
+      <p>Tôi đã thử lần lượt:</p>
+      <ul>
+        <li>cập nhật plugin YouTube của Lavalink lên 1.18.2;</li>
+        <li>đăng nhập OAuth bằng tài khoản phụ để lấy refresh token;</li>
+        <li>bật thêm các client dự phòng;</li>
+        <li>tắt VPN, chạy từ IP nhà.</li>
+      </ul>
+      <p>Kết quả là lúc được lúc không. YouTube chủ động chặn kiểu truy cập này, và về điều khoản dịch vụ thì đây cũng không phải thứ nên xây sản phẩm lên trên.</p>
+      <div class="note-box"><p><strong>Quyết định:</strong> không cố thắng cuộc chơi với YouTube. Chuyển trọng tâm sang <strong>thư viện nhạc riêng</strong> (file của chính mình) cộng SoundCloud; YouTube chỉ giữ như tuỳ chọn. Bài học đầu tiên: khi một hướng phụ thuộc vào thứ mình không kiểm soát, đổi hướng sớm rẻ hơn là gồng.</p></div>
+    </section>
+    <section class="clause">
+      <p class="when">30/09</p>
+      <h2>Nhạc local và cái tên “Unknown title”</h2>
+      <p>File nhạc của tôi không có thẻ, nên ô gợi ý của <code>/local</code> toàn "Unknown title", chọn bài rất khó.</p>
+      <p>Tôi viết bộ quét thư viện: đọc thẻ bằng <code>music-metadata</code>; nếu thiếu thì đoán nghệ sĩ và tên bài từ tên file (kiểu <code>01-ten-bai</code>, <code>Nghệ sĩ - Tên bài</code>) và từ thư mục; tìm kiếm bỏ dấu tiếng Việt; lưu bộ nhớ đệm theo ngày sửa và dung lượng file để lần quét sau chỉ đọc file mới.</p>
+      <p>Từ đó ra <code>/nhaajt</code>: phát ngẫu nhiên cả thư mục, hết vòng thì xáo lại, không dừng cho tới khi bấm dừng. Tôi dùng xáo trộn có trọng số (bài được 👍 lên sớm hơn) và giãn các bài cùng nghệ sĩ ra xa nhau, vì xáo ngẫu nhiên thuần thường cho hai bài của cùng một người hát đứng liền nhau.</p>
+    </section>
+    <section class="clause">
+      <p class="when">01/10</p>
+      <h2>Từ chạy được sang dùng được</h2>
+      <p>Bot phát được rồi nhưng chưa phải thứ người khác dùng được. Danh sách tôi tự đặt ra: role DJ và âm lượng mặc định cho từng server, bỏ phiếu bỏ qua bài khi đông người, hàng chờ công bằng (mỗi người một lượt), <code>/bump</code>, chế độ 24/7, thẻ "Đang phát" bằng Components V2, đố nhạc, thống kê và Wrapped, lời bài hát chạy theo giọng.</p>
+      <p>Những chỗ tôi bị kẹt:</p>
+      <ul>
+        <li><strong>Khởi động lại bot thì mất hàng chờ.</strong> Tôi lưu ảnh chụp hàng chờ khi bắt đầu bài mới và khi tắt bot. Lỗi tôi gặp: khôi phục vị trí vượt quá độ dài bài làm Lavalink từ chối, nên phải kẹp vị trí về trong khoảng cho phép.</li>
+        <li><strong>Kiểm tra sức khoẻ.</strong> Tôi ghi tín hiệu "còn sống" vào RAM (<code>/dev/shm</code>) thay vì ổ đĩa, để sau này đưa lên thẻ SD không bị mòn.</li>
+        <li><strong>Thẻ Wrapped.</strong> Vẽ SVG rồi đổi sang PNG bằng <code>@resvg/resvg-js</code>; container không có phông nên tôi đóng gói kèm phông mã nguồn mở.</li>
+      </ul>
+      <p>Từ đây mỗi tính năng đi kèm test (<code>node:test</code>). Tới lúc này đã có 131 bài test.</p>
+    </section>
+    <section class="clause">
+      <p class="when">01/10</p>
+      <h2>Dữ liệu từ người khác không bao giờ vô hại</h2>
+      <p>Tên bài lấy từ thẻ file, mà thẻ có thể do ai đó đặt. Một tên bài như <code>[bấm vào đây](http://…)</code> hoặc <code>&lt;@id&gt;</code> sẽ dựng thành liên kết giả hay nhắc tên người trong tin nhắn của bot.</p>
+      <p>Khi thử, tôi phát hiện hàm <code>escapeMarkdown</code> của discord.js không thoát các ký tự <code>[ ] ( ) &lt; &gt;</code>. Tôi viết thêm <code>safeText</code> và <code>cleanMeta</code> (bỏ ký tự điều khiển, ký tự đổi chiều chữ, link dạng markdown) và thêm test cho từng trường hợp. Bài học: mọi chuỗi đi từ ngoài vào (thẻ file, tên người dùng, nội dung đề xuất) đều phải được làm sạch trước khi hiển thị.</p>
+    </section>
+    <section class="clause">
+      <p class="when">01/10</p>
+      <h2>Một ý tưởng tôi quyết định không làm</h2>
+      <p>Tôi từng nghĩ ra việc để thành viên gửi link YouTube, bot dùng một trang chuyển đổi mp3 để tải về kho nhạc, cho kho lớn lên nhờ người dùng. Nghe hay.</p>
+      <p>Nhưng càng nghĩ càng thấy ba vấn đề: sao chép nhạc có bản quyền rồi phát cho cả server là vi phạm; repo và website của tôi công khai nên rất dễ bị gỡ; và về kỹ thuật cũng không ổn định (những trang đó không có API, YouTube chặn y như lỗi hôm 30/09).</p>
+      <p>Cách làm thay thế mà tôi chọn:</p>
+      <ul>
+        <li><code>/contribute</code>: người dùng gửi <strong>file của chính họ</strong>, chủ bot duyệt từng file trước khi vào kho. Tắt mặc định; chỉ nhận đường dẫn từ CDN của Discord; giới hạn dung lượng, thời lượng; chặn trùng bằng mã băm; tên file lưu do bot đặt, không dùng tên của người dùng (tránh đường dẫn kiểu <code>../</code>).</li>
+        <li><code>/request</code>: chỉ ghi tên bài hoặc link vào danh sách mong muốn, <strong>không mở, không tải</strong> link. Khi bài xuất hiện trong thư viện, bot nhắn người đề xuất.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <p class="when">01/10</p>
+      <h2>Website, Vercel và lỗi 404 đầu tiên</h2>
+      <p>Tôi làm website giới thiệu theo phong cách bản vẽ kỹ thuật (giấy xanh cyanotype), đẩy repo lên GitHub (công khai) và deploy lên Vercel.</p>
+      <p>Trang báo <code>404: NOT_FOUND</code>. Nguyên nhân: Vercel build ở thư mục gốc của repo, còn trang nằm trong <code>web/</code>. Tôi sửa bằng một file <code>vercel.json</code> ở gốc, chỉ định thư mục xuất là <code>web</code>. Vì repo công khai, tôi cũng rà lại những gì không được commit: <code>.env</code>, <code>data/</code>, <code>music/</code>, plugin Lavalink.</p>
+    </section>
+    <section class="clause">
+      <p class="when">01/10</p>
+      <h2>Đưa lên Raspberry Pi 5: mỗi bước một vấp</h2>
+      <p>Tôi có một chiếc Pi 5 (8 GB, chạy Kali Linux) nên quyết định chuyển bot lên đó cho chạy 24/7.</p>
+      <ul>
+        <li><strong>SSH bằng khoá.</strong> Chạy <code>ssh</code> qua công cụ không có terminal thì không nhập được mật khẩu, báo <code>Permission denied</code>. Tôi tạo khoá ed25519 và chép sang Pi nhưng vẫn bị từ chối. Chế độ <code>-v</code> cho thấy server đã chấp nhận khoá nhưng client không ký được. Nguyên nhân: hai dấu nháy <code>""</code> tôi gõ khi tạo khoá bị Windows hiểu thành <strong>passphrase thật</strong>. Tôi gỡ nó bằng <code>ssh-keygen -p</code>.</li>
+        <li><strong>Quyền Docker.</strong> Docker có sẵn nhưng tài khoản chưa thuộc nhóm <code>docker</code>, còn <code>sudo</code> cần mật khẩu. Tôi tách việc cần quyền root (cài gói, thêm nhóm) ra tự chạy, phần còn lại làm qua SSH.</li>
+        <li><strong>Plugin Lavalink báo 404.</strong> Trên Pi, Lavalink không tải được plugin YouTube vì Maven trả 404 cho đúng phiên bản đó (trên PC chạy được vì đã tải từ trước). Plugin là file Java nên chạy được trên mọi kiến trúc: tôi chép thẳng file <code>.jar</code> từ PC sang. Thư mục plugins lại thuộc <code>root</code> do Docker tạo ra, nên phải đổi chủ qua một container tạm.</li>
+        <li><strong>Một dòng bị dính.</strong> File <code>.env</code> không có dấu xuống dòng cuối, nên dòng tôi thêm vào dính luôn vào <code>ANALYSIS=on</code> thành <code>ANALYSIS=onAUTOSAVE_SECONDS=0</code>. Từ đó mỗi lần sửa <code>.env</code> tôi đều kiểm tra lại.</li>
+      </ul>
+      <p>Vì Pi dùng <strong>thẻ SD</strong> (dễ mòn khi ghi nhiều), tôi giảm ghi đĩa: tín hiệu "còn sống" trong RAM, <code>AUTOSAVE_SECONDS=0</code>, log Docker xoay vòng.</p>
+    </section>
+    <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Tận dụng Pi: gắn thẻ, phân tích âm thanh, nhiều bot</h2>
+      <p>Tôi muốn Pi làm được những việc mà trước giờ máy tính cá nhân không để chạy nền được.</p>
+      <ul>
+        <li><strong>Tự gắn thẻ</strong> bằng dấu vân âm thanh: <code>fpcalc</code> tạo dấu vân, hỏi AcoustID, nếu không có thì tìm MusicBrainz theo tên file. Thẻ được lưu <strong>ngoài</strong> file nhạc (file gốc không bị sửa). Chạy thử trên 10 bài thật của tôi thì AcoustID không nhận ra bài nào (đều là bản rip), nên chỉ còn đường tìm theo tên file, độ tin cậy tối đa 80%, dưới ngưỡng tự áp dụng 85% và thành hàng đợi chờ tôi duyệt. Tôi cố ý đặt ngưỡng như vậy để máy không tự ghi đè bằng một phỏng đoán sai.</li>
+        <li><strong>Phân tích âm thanh</strong> để có <code>/vibe</code> (radio theo tâm trạng) và <code>/similar</code>: giải mã 40 giây giữa bài bằng ffmpeg rồi tính năng lượng, độ sáng và BPM bằng FFT và tự tương quan, viết bằng JavaScript thuần. Tôi kiểm bằng nhịp tổng hợp từ 80 đến 170 BPM. Bản đầu nhận 140 BPM thành 70 (nhầm sang nhịp một nửa); làm mượt đường bao onset thì sai số còn dưới 1 BPM. Chạy trên kho thật, tôi thấy năng lượng bị "bão hoà" ở 1,0 với các bài master to, nên đo âm lượng thực của kho (khoảng từ −18 đến −5 dB) rồi hiệu chỉnh lại thang.</li>
+        <li><strong>Nhiều bot cùng lúc.</strong> Thêm profile <code>multi</code> trong Docker Compose. Vì hai tiến trình dùng chung thư mục dữ liệu sẽ đè file của nhau, tôi tách dữ liệu riêng từng bot và chỉ cho một bot "worker" ghi vào thư mục dùng chung.</li>
+        <li><strong>Vận hành.</strong> Sao lưu bằng <code>VACUUM INTO</code> (bản sao nhất quán dù bot đang ghi; tôi kiểm bằng cách giải nén và đọc lại). Script tự cập nhật từ GitHub có <strong>quay về bản cũ</strong> nếu bot không khoẻ sau cập nhật. Uptime Kuma để giám sát. Tailscale để vào từ xa mà không phải mở cổng router.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Trang trạng thái <code>/display</code> và chuyện “tên bài biến mất”</h2>
+      <p>Tôi làm một trang web nhỏ hiện bài đang phát cho điện thoại và màn hình lớn, có nút điều khiển bảo vệ bằng token. Thiết kế lại nhiều vòng: chiếc đĩa quay và đập theo BPM thật của bài, màu cả trang đổi theo bài, thước dưới chân là các vạch nhịp, bấm vào thước để tua.</p>
+      <p>Khi kiểm bằng Chrome không giao diện, ảnh chụp luôn <strong>thiếu tên bài</strong>. Tôi mất một lúc nghi ngờ code, cho tới khi nhận ra chế độ "thời gian ảo" của Chrome không chạy hoạt ảnh CSS, nên chữ vẫn ở trạng thái ẩn của đầu hoạt ảnh. Tôi viết script điều khiển Chrome qua DevTools, chờ thời gian thật rồi mới chụp. Bài học: khi công cụ kiểm tra cho kết quả lạ, hãy kiểm tra công cụ trước khi sửa code.</p>
+      <p>Về bảo mật của trang: chỉ mở trên <code>127.0.0.1</code> ở máy chạy bot; điều khiển cần <code>DISPLAY_TOKEN</code>; không lộ ID Discord hay tên người yêu cầu; tự ẩn khi đang đố nhạc (kẻo lộ đáp án); chính sách CSP chặt (không script nhúng, không tài nguyên ngoài). Test cũng bắt được một lỗi: giá trị <code>null</code> từng bị coi là số 0 nên một yêu cầu tua có thể đưa bài về đầu; tôi sửa để API chỉ nhận số thật.</p>
+    </section>
+    <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Màn TFT 3.5 inch: câu chuyện dài nhất</h2>
+      <p>Tôi có một màn TFT cảm ứng 3.5 inch cắm thẳng lên chân GPIO của Pi. Mục tiêu: hiện bài đang phát ngay trên Pi.</p>
+      <h3>1. Màn trắng</h3>
+      <p>Driver nạp bình thường, <code>dmesg</code> sạch, nhưng màn trắng. Tôi đọc cây thiết bị để kiểm các chân điều khiển: DC là GPIO24 và RESET là GPIO25, đúng bộ điều khiển RP1 của Pi 5. Tô thẳng màu đỏ vào framebuffer vẫn trắng.</p>
+      <h3>2. Tìm nguyên nhân</h3>
+      <p>Tra tài liệu: hãng chỉ hỗ trợ Pi 3B và 4B. Overlay <code>tft35a</code> mà Pi đang dùng không thuộc nhân Raspberry Pi mà do script của hãng cài, dựa trên driver <code>fbtft</code> cũ. Overlay chính thức <code>piscreen</code> có thêm tuỳ chọn <code>drm</code> để dùng driver hiện đại. Tôi đổi sang <code>dtoverlay=piscreen,drm,rotate=90</code>: màn chuyển từ trắng sang đen. Đen cũng là tiến bộ, vì nó chứng tỏ panel đã nhận lệnh khởi tạo.</p>
+      <h3>3. Chứng minh dữ liệu có đi</h3>
+      <p>Màn vẫn đen khi vẽ. Thay vì đoán, tôi đọc bộ đếm byte của bus SPI trong <code>sysfs</code> trước và sau khi ghi một khung: tăng đúng 307.222 byte (480×320×2 byte cộng lệnh). Vậy Pi gửi đủ, lỗi nằm chỗ khác. Giả thuyết kế tiếp là tốc độ SPI: driver mới mặc định 24 MHz, trong khi hãng thiết kế cho 16 MHz. Tôi hạ xuống 8 MHz thì ảnh hiện ra.</p>
+      <h3>4. Hướng xoay</h3>
+      <p>Tôi vẽ một ảnh thử có bốn ô màu ở bốn góc và chữ để nhìn ra màn đang bị xoay bao nhiêu độ. Kết quả: cần xoay 90°.</p>
+      <h3>5. Cảm ứng</h3>
+      <p>Hiệu chỉnh lần đầu sai: tôi chỉ ghi được 3 trên 4 lần chạm góc nên đoán sai thứ tự và đặt nhầm trục. Khi thử bấm nút, nhật ký chạm cho thấy mọi lần bấm đều bị tính ở góc dưới trái. Đối chiếu lại toàn bộ dữ liệu thì suy ra đúng: không hoán đổi trục, chỉ đảo trục ngang. Sau đó tôi mới nhận ra màn này là <strong>cảm ứng điện trở</strong>, phải dùng bút, ngón tay bấm không ổn định.</p>
+      <h3>6. Lag</h3>
+      <p>Bản đầu gửi cả khung hình 2 lần mỗi giây (khoảng 614 KB mỗi giây, trong khi bus 8 MHz chỉ chịu được khoảng 1 MB). Tôi thử chỉ gửi vùng thay đổi và thấy còn giật hơn. Đo lại thì phần vẽ chỉ mất 12 ms, điểm nghẽn là bus SPI, và chiếc đĩa quay đòi quá nhiều băng thông. Tôi đổi thiết kế: <strong>bỏ chuyển động trên màn nhỏ</strong>, chỉ vẽ lại mỗi giây một lần (thanh tiến trình chạy) và ngay khi chạm. Lưu lượng còn khoảng 307 KB mỗi giây. Bài học: phần cứng quyết định thiết kế. Cùng một ý tưởng trên điện thoại thì mượt, trên màn SPI thì không.</p>
+      <h3>7. Giao diện</h3>
+      <p>Tôi lặp lại nhiều lần theo cảm nhận của mình: áp phích chữ, đồng hồ lớn khi nhàn rỗi, ảnh đại diện cỡ lớn, rồi bìa tạp chí với phông có chân. Viền quanh ảnh bị tôi loại bốn lần (viền màu, dấu góc, thước chia vạch, khung chữ nhật) cho tới khi chọn bỏ hẳn viền và để ảnh tràn mép như một bìa tạp chí thật.</p>
+    </section>
+    <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Những lỗi vặt tốn thời gian</h2>
+      <ul>
+        <li><code>pkill -f</code> tự giết chính phiên SSH của mình, vì chuỗi cần tìm cũng nằm ngay trong lệnh đang chạy. Cách tránh: tách thành lệnh riêng hoặc dùng mẹo <code>[p]attern</code>.</li>
+        <li>Dịch vụ Tailscale ở trạng thái <code>disabled</code>, nên sau khi khởi động lại Pi, trang điều khiển và Kuma qua Tailscale biến mất. Tôi kiểm <code>systemctl is-enabled</code> thay vì chỉ <code>is-active</code>, rồi bật tự chạy.</li>
+        <li><code>git pull</code> trên Pi bị từ chối vì trước đó tôi đã chép tay file lên. Từ đó tôi luôn commit rồi mới đồng bộ.</li>
+        <li>Ảnh chân dung để trong thư mục dự án suýt bị <code>git add -A</code> đưa lên repo công khai; tôi thêm nó vào <code>.gitignore</code> trước khi commit.</li>
+        <li>Nhiều lệnh dài trong shell Windows hỏng vì dấu nháy và dấu gạch chéo ngược; tôi chuyển sang ghi script ra file rồi chạy.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Dọn dẹp và viết lại tài liệu</h2>
+      <p>Cuối cùng tôi dọn cả hai máy. Trên PC: dừng và xoá container, image và cache Docker của dự án (đã chuyển hết sang Pi), xoá dữ liệu cũ sau khi lấy về một bản sao lưu mới từ Pi (để có một bản nằm ngoài thẻ SD). Trên Pi: xoá file tạm và image dư. Những thứ không thuộc dự án này tôi giữ nguyên. Sau đó tôi tách website thành nhiều trang cho dễ đọc và viết nhật ký này.</p>
+    </section>
+    <section class="clause">
+      <h2>Những gì tôi học được</h2>
+      <ul>
+        <li>Khi một hướng phụ thuộc vào thứ mình không kiểm soát (YouTube), đổi hướng sớm.</li>
+        <li>Đo trước khi tối ưu: bộ đếm byte của bus SPI, thời gian vẽ, lưu lượng. Đoán sai tốn nhiều thời gian hơn đo.</li>
+        <li>Chia vấn đề phần cứng thành các giả thuyết kiểm chứng được: chân nào, dữ liệu có đi không, tốc độ, hướng xoay.</li>
+        <li>Dữ liệu từ bên ngoài luôn phải được làm sạch trước khi hiển thị hay ghi ra đĩa.</li>
+        <li>Thiết kế phải nằm trong giới hạn của phần cứng, không phải ngược lại.</li>
+        <li>Với tính năng có thể gây hại (tải nhạc có bản quyền), cân nhắc rủi ro rồi chọn phương án an toàn hơn thay vì làm cho bằng được.</li>
+        <li>Vận hành quan trọng ngang viết code: sao lưu, tự cập nhật có quay lui, giám sát, tự khởi động lại.</li>
+        <li>Viết test cho phần có logic (BPM, chặn đường dẫn, API, làm sạch chuỗi) và ghi rõ chỗ chưa có test.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <h2>Còn dở</h2>
+      <ul>
+        <li>Chưa thử SPI 16 MHz (có thể cho phép bật lại chuyển động trên màn TFT).</li>
+        <li>Chưa kiểm chứng màn TFT tự bật lại sau khi Pi khởi động lại: dòng <code>@reboot</code> trong crontab chưa qua một lần thử thật.</li>
+        <li>Code Python của màn TFT chưa có test tự động; hiện chỉ kiểm bằng ảnh xuất ra và chạy trên thiết bị.</li>
+        <li>Phần quay về bản cũ của script tự cập nhật mới được viết và kiểm với trường hợp "không có bản mới"; chưa thử bằng một bản hỏng thật.</li>
+        <li>Profile nhiều bot (<code>multi</code>) chưa được chạy thử với token thứ hai.</li>
+        <li>Thẻ SD vẫn là điểm yếu; nên chuyển sang SSD USB để chạy lâu dài.</li>
+      </ul>
+    </section>
+    </div>
+  </div>
+<section class="sheet" id="nhat-ky" data-sheet="S-01|Bảng phiên bản" aria-labelledby="h-nhat-ky">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-nhat-ky">Bảng phiên bản</h2>
+      <p class="sheet__scale">Bảng sửa đổi, như khung bản vẽ thật<br>dòng mới nhất nằm cuối</p>
+    </header>
+    <div class="table-wrap revwrap">
+      <table class="rev">
+        <caption>Mỗi lần ra bản mới là một dòng</caption>
+        <thead><tr><th scope="col">REV</th><th scope="col">Phiên bản</th><th scope="col">Ngày</th><th scope="col">Nội dung sửa đổi</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">A</th><td>1.0</td><td>đã phát hành</td><td>Bản đầu: trình phát nhạc cơ bản.</td></tr>
+          <tr><th scope="row">B</th><td>1.1</td><td>đã phát hành</td><td>Nút điều khiển dưới bài đang phát, lệnh <code>/settings</code>, role DJ.</td></tr>
+          <tr><th scope="row">C</th><td>1.2</td><td>đã phát hành</td><td>Khôi phục hàng chờ sau khi khởi động lại, bỏ phiếu bỏ qua, kiểm tra sức khỏe dịch vụ.</td></tr>
+          <tr><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Thư viện nhạc thông minh, thẻ Đang phát mới, tên bài trên kênh thoại, đố nhạc, hàng chờ công bằng và <code>/bump</code>, thống kê, Wrapped và đánh giá bài hát, lời bài hát chạy theo giọng, chế độ 24/7.</td></tr>
+          <tr><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Đóng góp file có chủ bot duyệt (<code>/contribute</code>, <code>/settings contributions</code>) và danh sách mong muốn (<code>/request</code>), bot không tải gì từ YouTube.</td></tr>
+        <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Tự gắn thẻ bằng dấu vân âm thanh (<code>/library</code>), radio theo tâm trạng và bài giống nhau (<code>/vibe</code>, <code>/similar</code>), nhiều bot cùng lúc, trang trạng thái cho màn hình nhỏ, sao lưu, tự cập nhật và giám sát cho Raspberry Pi.</td></tr>
+        <tr class="now"><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>Màn TFT 3.5 inch trên Raspberry Pi 5 (giao diện bìa tạp chí, cảm ứng bằng bút), trang <code>/display</code> mới, sao lưu, tự cập nhật, giám sát và truy cập từ xa qua Tailscale, website tách nhiều trang.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot" data-sheet="N-01|Khung tên bản vẽ">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Bot nhạc cho Discord, chạy trên Raspberry Pi 5</span></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>N-01</strong></div>
+      <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Tài liệu kèm theo</small>
+        <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">đã được chiếc loa ở góc phòng duyệt</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">mã nguồn</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

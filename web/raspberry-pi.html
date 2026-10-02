@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triển khai trên Raspberry Pi 5, musiDISCORD</title>
+<meta name="description" content="Cách tôi triển khai và vận hành bot nhạc Discord trên Raspberry Pi 5: Docker, sao lưu, tự cập nhật có quay lui, Uptime Kuma, Tailscale và màn TFT 3.5 inch cắm trên chân GPIO.">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/motion.css">
+<link rel="stylesheet" href="assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Bỏ qua tới nội dung</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Dự án</b>musiDISCORD</span>
+  <span><b>P-01</b></span>
+  <span class="strip__name">Raspberry Pi 5</span>
+  <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
+  <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
+  <span class="hide-sm"><b>Bản</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, về trang chủ">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Các trang">
+    <a href="raspberry-pi.html" aria-current="page">Pi 5</a>
+    <a href="tinh-nang.html">Tính năng</a>
+    <a href="lenh.html">Lệnh</a>
+    <a href="cai-dat.html">Cài đặt</a>
+    <a href="nhat-ky.html">Nhật ký</a>
+  </nav>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+</header>
+
+<main id="noi-dung">
+<h1 class="sr">Triển khai musiDISCORD trên Raspberry Pi 5</h1>
+
+<section class="sheet sheet--short" id="phan-cung" data-sheet="S-01|Phần cứng và phần mềm" aria-labelledby="h-phan-cung">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-phan-cung">Chạy trên cái gì</h2>
+      <p class="sheet__scale">Một chiếc Pi 5 ở nhà<br>không thuê máy chủ</p>
+    </header>
+    <div class="table-wrap">
+      <table class="plain">
+        <caption class="sr">Cấu hình phần cứng và phần mềm</caption>
+        <thead><tr><th scope="col">Thành phần</th><th scope="col">Chi tiết</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Máy</th><td>Raspberry Pi 5, 8 GB RAM, Kali Linux (aarch64), nhân 6.12 của Raspberry Pi</td></tr>
+          <tr><th scope="row">Lưu trữ</th><td>Thẻ SD 117 GB. Đây là điểm yếu: nên chuyển sang SSD USB để chạy lâu dài</td></tr>
+          <tr><th scope="row">Dịch vụ</th><td>Docker 28 và Compose 2.40, ba container: bot (Node.js 22), Lavalink v4, Uptime Kuma</td></tr>
+          <tr><th scope="row">Màn hình phụ</th><td>TFT 3.5 inch 480×320 cảm ứng điện trở, nối bus SPI, bộ điều khiển ILI9486, cắm thẳng lên 40 chân GPIO</td></tr>
+          <tr><th scope="row">Mạng</th><td>LAN nhà; Tailscale để vào từ xa mà không mở cổng router</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="luong" data-sheet="S-02|Luồng dữ liệu" aria-labelledby="h-luong">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-luong">Các phần nói chuyện với nhau thế nào</h2>
+      <p class="sheet__scale">Bot chỉ ra lệnh<br>Lavalink lo âm thanh</p>
+    </header>
+    <div class="code"><pre><code>Discord  &lt;--&gt;  bot (Node.js)  &lt;--&gt;  Lavalink  &lt;--  thư mục music/
+                |
+                +-- data/        SQLite và JSON (cài đặt, thống kê, hàng chờ)
+                +-- API :8787    chỉ mở ở 127.0.0.1, có token
+                |      +-- Tailscale serve  -->  điện thoại, máy tính
+                |      +-- display.py       -->  màn TFT (framebuffer, cảm ứng)
+                +-- cron         sao lưu 4:30, tự cập nhật 5:00</code></pre></div>
+    <p>Bot không phát âm thanh trực tiếp: nó ra lệnh cho Lavalink, Lavalink giải mã file trong <code>music/</code> và gửi vào kênh thoại. Tách như vậy để bot nhẹ, còn phần nặng nằm riêng và khởi động lại độc lập.</p>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="trien-khai" data-sheet="S-03|Trình tự triển khai" aria-labelledby="h-trien-khai">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
+      <h2 id="h-trien-khai">Triển khai từng bước</h2>
+      <p class="sheet__scale">Từ chiếc Pi trắng<br>tới bot chạy 24/7</p>
+    </header>
+    <ol class="build">
+      <li>
+        <h3>SSH bằng khoá, không dùng mật khẩu</h3>
+        <p>Tạo khoá trên máy chính rồi chép sang Pi. Lưu ý: nếu đặt passphrase thì chế độ không tương tác sẽ im lặng bị từ chối, nên khoá dùng cho tự động hoá không đặt passphrase.</p>
+        <div class="code"><pre><code>ssh-keygen -t ed25519
+ssh-copy-id nhaajt@&lt;địa chỉ Pi&gt;</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Cài Docker và quyền</h3>
+        <p>Cài Docker và Compose v2, thêm tài khoản vào nhóm <code>docker</code> để không cần <code>sudo</code> mỗi lần. Việc nào cần quyền root thì tôi tự chạy riêng.</p>
+        <div class="code"><pre><code>sudo apt install -y docker.io git
+sudo usermod -aG docker $USER</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Lấy mã, nhạc, cấu hình</h3>
+        <p>Clone repo, chép thư mục <code>music/</code> và file <code>.env</code> (chứa token, không nằm trong git). Plugin Lavalink là file Java nên chép thẳng từ máy chính nếu máy chủ Maven không có.</p>
+        <div class="code"><pre><code>git clone https://github.com/nhaajtt/musiDISCORD.git</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Dựng và chạy</h3>
+        <p>Một lệnh dựng cả ba container. Bot chỉ khởi động sau khi Lavalink báo khoẻ, nhờ <code>depends_on</code> kèm healthcheck.</p>
+        <div class="code"><pre><code>docker compose up -d --build</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Truy cập từ xa bằng Tailscale</h3>
+        <p>Cài Tailscale, bật dịch vụ tự chạy khi khởi động (bước tôi từng quên), rồi dùng <code>serve</code> để có địa chỉ HTTPS riêng tư cho trang trạng thái và Kuma.</p>
+        <div class="code"><pre><code>sudo systemctl enable --now tailscaled
+tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Lịch chạy và màn hình</h3>
+        <p>Thêm dòng cron cho sao lưu, tự cập nhật, và <code>@reboot</code> để bật màn TFT khi Pi khởi động.</p>
+      </li>
+    </ol>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="van-hanh" data-sheet="S-04|Vận hành" aria-labelledby="h-van-hanh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-04</span>
+      <h2 id="h-van-hanh">Giữ cho nó sống</h2>
+      <p class="sheet__scale">Chạy được chưa đủ<br>phải tự phục hồi được</p>
+    </header>
+    <div class="table-wrap">
+      <table class="plain">
+        <caption class="sr">Các việc vận hành tự động</caption>
+        <thead><tr><th scope="col">Việc</th><th scope="col">Cách làm</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Sao lưu</th><td>Mỗi ngày 4:30. Dùng <code>VACUUM INTO</code> để có bản sao SQLite nhất quán dù bot đang ghi, nén lại, giữ 14 bản, tuỳ chọn đẩy lên cloud bằng rclone.</td></tr>
+          <tr><th scope="row">Tự cập nhật</th><td>Mỗi ngày 5:00: lấy commit mới, chỉ chấp nhận fast-forward, dựng lại, chờ bot khoẻ; nếu hỏng thì quay về bản trước và báo qua Discord.</td></tr>
+          <tr><th scope="row">Giám sát</th><td>Uptime Kuma kiểm tra bot và Lavalink, báo về kênh Discord qua webhook.</td></tr>
+          <tr><th scope="row">Truy cập từ xa</th><td>Tailscale kèm <code>serve</code>: địa chỉ HTTPS chỉ thiết bị trong tài khoản mới vào được.</td></tr>
+          <tr><th scope="row">Giảm mòn thẻ SD</th><td>Tín hiệu "còn sống" ghi vào RAM, tắt lưu hàng chờ định kỳ, log Docker xoay vòng.</td></tr>
+          <tr><th scope="row">Tự khởi động lại</th><td>Chính sách <code>restart</code> của Docker, các dịch vụ hệ thống đã <code>enable</code>, <code>@reboot</code> cho màn TFT.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="man-tft" data-sheet="S-05|Màn TFT" aria-labelledby="h-man-tft">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-05</span>
+      <h2 id="h-man-tft">Màn hình cắm trên chân GPIO</h2>
+      <p class="sheet__scale">Phần khó nhất của dự án<br>câu chuyện đầy đủ nằm trong nhật ký</p>
+    </header>
+    <p>Màn TFT 3.5 inch cảm ứng điện trở hiện bài đang phát: tên bài cỡ lớn, nghệ sĩ, thanh tiến trình, các nút điều khiển bằng bút và ảnh đại diện của tôi tràn mép như bìa tạp chí. Chương trình <code>display.py</code> đọc API trạng thái của bot rồi vẽ thẳng lên framebuffer, đọc cảm ứng qua <code>evdev</code>.</p>
+    <p>Điều tôi học nhiều nhất là cách chia nhỏ vấn đề phần cứng thành giả thuyết kiểm chứng được, thay vì thử bừa:</p>
+    <div class="table-wrap">
+      <table class="plain">
+        <caption class="sr">Các thử nghiệm với màn TFT và kết quả</caption>
+        <thead><tr><th scope="col">Thử gì</th><th scope="col">Thấy gì</th><th scope="col">Rút ra</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Overlay của hãng (<code>tft35a</code>, driver fbtft cũ)</th><td>Màn trắng, dù tô thẳng màu vào framebuffer</td><td>Hãng chỉ hỗ trợ Pi 3B và 4B</td></tr>
+          <tr><th scope="row">Overlay chính thức <code>piscreen,drm</code> ở 24 MHz</th><td>Màn đen</td><td>Panel đã nhận lệnh khởi tạo nhưng không hiện điểm ảnh</td></tr>
+          <tr><th scope="row">Đọc bộ đếm byte SPI</th><td>Mỗi khung tăng đúng 307.222 byte</td><td>Pi gửi đủ dữ liệu, nghi tốc độ</td></tr>
+          <tr><th scope="row">Hạ SPI xuống 8 MHz</th><td>Ảnh hiện ra</td><td>24 MHz quá cao với thẻ này</td></tr>
+          <tr><th scope="row">Gửi cả khung 2 lần mỗi giây</th><td>Khoảng 614 KB mỗi giây, bị lag</td><td>Bus 8 MHz chịu được khoảng 1 MB mỗi giây</td></tr>
+          <tr><th scope="row">Chỉ gửi vùng thay đổi</th><td>Giật hơn</td><td>Nhiều lần ghi nhỏ tốn hơn một lần ghi lớn</td></tr>
+          <tr><th scope="row">Vẽ lại mỗi giây một lần, bỏ chuyển động</th><td>Khoảng 307 KB mỗi giây, mượt</td><td>Thiết kế phải theo giới hạn phần cứng</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="display" data-sheet="S-06|Trang /display" aria-labelledby="h-display">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-06</span>
+      <h2 id="h-display">Trang trạng thái cho điện thoại và màn lớn</h2>
+      <p class="sheet__scale">Cùng dữ liệu<br>hai giao diện</p>
+    </header>
+    <p>Bot có một API trạng thái nhỏ và một trang <code>/display</code>: chiếc đĩa quay và đập theo BPM thật của bài (do bot tự đo), màu cả trang đổi theo bài, thước dưới chân là các vạch nhịp để chạm tua. Trang chạy trên điện thoại, máy tính bảng hoặc màn hình lớn.</p>
+    <ul>
+      <li>Chỉ mở ở <code>127.0.0.1</code> trên máy chạy bot; ra ngoài bằng Tailscale.</li>
+      <li>Điều khiển cần <code>DISPLAY_TOKEN</code>; không có token thì chỉ xem được.</li>
+      <li>Không lộ ID Discord hay tên người yêu cầu; tự ẩn khi đang đố nhạc.</li>
+      <li>Chính sách CSP chặt: không script nhúng, không tài nguyên ngoài.</li>
+    </ul>
+    <p><a class="link" href="nhat-ky.html">Đọc nhật ký để biết tôi đã vấp những gì khi làm các phần này</a></p>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="P-01|Khung tên bản vẽ">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Bot nhạc cho Discord, chạy trên Raspberry Pi 5</span></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>P-01</strong></div>
+      <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Tài liệu kèm theo</small>
+        <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">đã được chiếc loa ở góc phòng duyệt</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">mã nguồn</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

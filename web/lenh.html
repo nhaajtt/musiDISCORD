@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danh sách lệnh, musiDISCORD</title>
+<meta name="description" content="Toàn bộ 34 lệnh gạch chéo của musiDISCORD chia theo nhóm, cùng bảng các hạng mục cấu hình.">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/motion.css">
+<link rel="stylesheet" href="assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Bỏ qua tới nội dung</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Dự án</b>musiDISCORD</span>
+  <span><b>L-01</b></span>
+  <span class="strip__name">Lệnh</span>
+  <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
+  <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
+  <span class="hide-sm"><b>Bản</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, về trang chủ">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Các trang">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="tinh-nang.html">Tính năng</a>
+    <a href="lenh.html" aria-current="page">Lệnh</a>
+    <a href="cai-dat.html">Cài đặt</a>
+    <a href="nhat-ky.html">Nhật ký</a>
+  </nav>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Mời bot</a>
+</header>
+
+<main id="noi-dung">
+<h1 class="sr">Danh sách lệnh</h1>
+
+<section class="sheet" id="lenh" data-sheet="S-01|Bảng lệnh" aria-labelledby="h-lenh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-lenh">Bảng lệnh</h2>
+      <p class="sheet__scale">34 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
+    </header>
+    <div class="table-wrap">
+      <table class="cmds">
+        <caption>Tham số trong ngoặc là tùy chọn</caption>
+        <thead><tr><th scope="col">Lệnh</th><th scope="col">Việc làm</th></tr></thead>
+        <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">Phát nhạc</th></tr>
+          <tr><th scope="row"><code>/play</code> tên bài hoặc link (nguồn)</th><td>Phát theo tên bài hoặc link YouTube, SoundCloud, Spotify; có playlist. Chọn nguồn tìm kiếm khi gõ tên bài.</td></tr>
+          <tr><th scope="row"><code>/local</code> tìm</th><td>Tìm trong thư viện nhạc của bot theo tên bài, nghệ sĩ, album; có gợi ý khi gõ.</td></tr>
+          <tr><th scope="row"><code>/album</code> tên album</th><td>Phát cả một album trong thư viện, đúng thứ tự track.</td></tr>
+          <tr><th scope="row"><code>/artist</code> tên nghệ sĩ</th><td>Phát các bài của một nghệ sĩ trong thư viện.</td></tr>
+          <tr><th scope="row"><code>/nhaajt</code></th><td>Xáo trộn cả thư mục music, tránh cùng nghệ sĩ phát liền nhau, ưu tiên bài được thích; hết vòng thì xáo trộn lại, không dừng tới khi <code>/stop</code> hoặc <code>/leave</code>.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Yêu thích</th></tr>
+          <tr><th scope="row"><code>/favorites</code> add, remove, list, play</th><td>Quản lý danh sách yêu thích của riêng bạn: thêm, bỏ, xem, và phát cả danh sách.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Điều khiển</th></tr>
+          <tr><th scope="row"><code>/pause</code>, <code>/resume</code></th><td>Tạm dừng, tiếp tục.</td></tr>
+          <tr><th scope="row"><code>/skip</code></th><td>Bỏ qua bài đang phát; đông người nghe thì bỏ phiếu.</td></tr>
+          <tr><th scope="row"><code>/stop</code></th><td>Dừng phát và xóa hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/leave</code></th><td>Cho bot rời kênh thoại.</td></tr>
+          <tr><th scope="row"><code>/seek</code> giây</th><td>Tua tới một thời điểm trong bài.</td></tr>
+          <tr><th scope="row"><code>/volume</code> mức</th><td>Âm lượng từ 1 đến 150.</td></tr>
+          <tr><th scope="row"><code>/loop</code> chế độ</th><td>Tắt lặp, lặp bài hiện tại, hoặc lặp cả hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/shuffle</code></th><td>Xáo trộn hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/remove</code> vị trí</th><td>Bỏ một bài khỏi hàng chờ.</td></tr>
+          <tr><th scope="row"><code>/bump</code></th><td>Bỏ phiếu đưa một bài trong hàng chờ lên đầu.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Thông tin</th></tr>
+          <tr><th scope="row"><code>/queue</code></th><td>Xem hàng chờ theo thẻ mới, chia trang, có nút lật trang.</td></tr>
+          <tr><th scope="row"><code>/nowplaying</code></th><td>Xem thẻ Đang phát với thanh tiến trình chạy trực tiếp.</td></tr>
+          <tr><th scope="row"><code>/lyrics</code></th><td>Lời bài hát chạy theo giọng, dòng đang hát được tô sáng.</td></tr>
+          <tr><th scope="row"><code>/stats</code></th><td>Tình trạng bot: thời gian chạy, ping, số server, Lavalink.</td></tr>
+          <tr><th scope="row"><code>/help</code></th><td>Danh sách lệnh chia nhóm.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Đóng góp và đề xuất</th></tr>
+          <tr><th scope="row"><code>/contribute</code> submit, pending, stats</th><td>Gửi file nhạc của chính bạn (kèm xác nhận bạn có quyền chia sẻ) để chủ bot duyệt, xem file đang chờ, xem thống kê. Tắt sẵn.</td></tr>
+          <tr><th scope="row"><code>/request</code> add, list, vote, mine, remove, done, dismiss</th><td>Đề xuất bài theo tên hoặc link, bầu cho đề xuất của người khác, quản lý đề xuất của bạn. Bot không tải gì từ link.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Thư viện thông minh</th></tr>
+          <tr><th scope="row"><code>/vibe</code> tâm trạng</th><td>Radio theo tâm trạng (chill, vừa phải, sôi động, hừng hực) từ các bài đã được phân tích nhịp độ và năng lượng. Tắt sẵn, cần <code>ANALYSIS=on</code>.</td></tr>
+          <tr><th scope="row"><code>/similar</code> (số bài)</th><td>Thêm vào hàng chờ các bài trong thư viện giống bài đang phát nhất.</td></tr>
+          <tr><th scope="row"><code>/library</code> status, run, stop, review, forget</th><td>Dành cho chủ bot: xem tiến độ gắn thẻ và phân tích, chạy hoặc dừng, duyệt gợi ý thẻ, bỏ thẻ tự động của một bài.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Đố nhạc</th></tr>
+          <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Bắt đầu hoặc dừng một ván đố nhạc từ thư viện của server, xem bảng xếp hạng.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Thống kê và riêng tư</th></tr>
+          <tr><th scope="row"><code>/mystats</code></th><td>Thống kê nghe nhạc của bạn: thời gian, top bài, top nghệ sĩ, số lần bỏ qua, huy hiệu.</td></tr>
+          <tr><th scope="row"><code>/leaderboard</code></th><td>Bảng xếp hạng của server và những bài được yêu thích nhất.</td></tr>
+          <tr><th scope="row"><code>/wrapped</code></th><td>Ảnh tổng kết một năm của bạn, vẽ như bản vẽ cyanotype.</td></tr>
+          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Tắt việc ghi thống kê về bạn, hoặc xóa dữ liệu của bạn.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Quản trị</th></tr>
+          <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status, contributions</th><td>Xem và đổi cài đặt của server: role DJ, âm lượng mặc định, hàng chờ công bằng, hiện tên bài trên kênh thoại, bật nhận đóng góp. Cần quyền Manage Server.</td></tr>
+          <tr><th scope="row"><code>/247</code> on, off (radio)</th><td>Bật hoặc tắt chế độ ở lại kênh thoại 24/7; tùy chọn radio phát cả thư mục không ngừng.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="hang-muc" data-sheet="S-02|Bảng thống kê hạng mục" aria-labelledby="h-hang-muc">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-hang-muc">Bảng thống kê hạng mục</h2>
+      <p class="sheet__scale">Những thứ nhỏ làm bot đỡ phiền<br>cho cả server</p>
+    </header>
+    <div class="table-wrap">
+      <table class="sched">
+        <caption>Mỗi hạng mục có một ký hiệu, như bảng thống kê cửa trong bản vẽ nhà</caption>
+        <thead><tr><th scope="col">Ký hiệu</th><th scope="col">Hạng mục</th><th scope="col">Lệnh</th><th scope="col">Cách hoạt động</th></tr></thead>
+        <tbody>
+          <tr><td>D-01</td><td>Role DJ</td><td><code>/settings dj-role</code></td><td>Chỉ role này (và người có quyền Manage Server) điều khiển được nhạc. Bỏ trống thì ai cũng dùng được.</td></tr>
+          <tr><td>D-02</td><td>Âm lượng mặc định</td><td><code>/settings volume</code></td><td>Từ 1 đến 150, áp dụng mỗi lần bot vào kênh thoại.</td></tr>
+          <tr><td>D-03</td><td>Bỏ phiếu bỏ qua</td><td>nút ⏭ hoặc <code>/skip</code></td><td>Từ ba người nghe trở lên, bài chỉ chuyển khi đủ một nửa số người đồng ý. Người yêu cầu bài và DJ bỏ qua ngay.</td></tr>
+          <tr><td>D-04</td><td>Hàng chờ công bằng</td><td><code>/settings fair-queue</code></td><td>Mỗi người được một lượt xoay vòng, không ai chiếm cả hàng chờ.</td></tr>
+          <tr><td>D-05</td><td>Chen lên đầu</td><td><code>/bump</code></td><td>Bỏ phiếu để đưa một bài trong hàng chờ lên phát sớm nhất.</td></tr>
+          <tr><td>D-06</td><td>Tên bài trên kênh thoại</td><td><code>/settings vc-status</code></td><td>Bot ghi "Đang phát: ..." vào trạng thái kênh thoại. Bật hoặc tắt theo từng server.</td></tr>
+          <tr><td>D-07</td><td>Chế độ 24/7</td><td><code>/247</code></td><td>Bot ở lại kênh cả khi vắng người và tự vào lại sau khi khởi động lại. Có tùy chọn radio phát cả thư mục.</td></tr>
+          <tr><td>D-08</td><td>Nhớ hàng chờ</td><td>tự động</td><td>Bot khởi động lại thì hàng chờ được nạp lại, bạn nghe tiếp mà không phải thêm bài từ đầu.</td></tr>
+          <tr><td>D-09</td><td>Tự rời kênh</td><td>tự động</td><td>Kênh không còn ai, hoặc hết bài, bot rời sau 60 giây cho đỡ chiếm chỗ. Bật <code>/247</code> thì bot không rời.</td></tr>
+          <tr><td>D-10</td><td>Quyền riêng tư</td><td><code>/privacy</code></td><td>Mỗi người tự tắt việc ghi thống kê về mình hoặc xóa dữ liệu của mình.</td></tr>
+          <tr><td>D-11</td><td>Đóng góp file</td><td><code>/contribute</code>, <code>/settings contributions</code></td><td>Tắt sẵn. Chủ bot duyệt từng file trước khi vào kho nhạc.</td></tr>
+          <tr><td>D-12</td><td>Danh sách mong muốn</td><td><code>/request</code></td><td>Ghi tên bài kèm phiếu bầu, không tải gì. Có file khớp thì báo người đề xuất.</td></tr>
+          <tr><td>D-13</td><td>Tự gắn thẻ</td><td><code>/library</code></td><td>Tắt sẵn. Nhận diện bài thiếu thẻ bằng dấu vân âm thanh (AcoustID, MusicBrainz) rồi điền tên, nghệ sĩ, album, bìa. Thẻ lưu riêng, file nhạc gốc không bị sửa; độ tin cậy thấp thì chủ bot duyệt tay.</td></tr>
+          <tr><td>D-14</td><td>Phân tích âm thanh</td><td><code>/vibe</code>, <code>/similar</code></td><td>Tắt sẵn. Chạy nền trên máy của bạn: ước lượng nhịp độ, năng lượng, độ sáng của từng bài để phát radio theo tâm trạng hoặc tìm bài giống.</td></tr>
+          <tr><td>D-15</td><td>Nhiều bot cùng lúc</td><td>docker compose <code>--profile multi</code></td><td>Mỗi bot một token riêng, chung Lavalink và thư mục nhạc; thẻ và đặc trưng âm thanh dùng chung, dữ liệu thống kê riêng.</td></tr>
+          <tr><td>D-16</td><td>Màn hình trạng thái</td><td>trang <code>/display</code></td><td>Tắt sẵn. Trang 480×320 hiện bài đang phát, có nút cảm ứng; hợp màn TFT 3.5 inch gắn Raspberry Pi hoặc điện thoại trong mạng nhà. Điều khiển cần token.</td></tr>
+          <tr><td>D-17</td><td>Sao lưu, tự cập nhật, giám sát</td><td>script trong <code>scripts/</code></td><td>Sao lưu dữ liệu định kỳ, tự cập nhật từ GitHub và quay về bản cũ nếu bot không khỏe, Uptime Kuma theo dõi.</td></tr>
+          <tr><td>D-18</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="L-01|Khung tên bản vẽ">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Dự án</small><strong>musiDISCORD</strong><span>Bot nhạc cho Discord, chạy trên Raspberry Pi 5</span></div>
+      <div class="w2"><small>Bản vẽ số</small><strong>L-01</strong></div>
+      <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Tài liệu kèm theo</small>
+        <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">đã được chiếc loa ở góc phòng duyệt</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">mã nguồn</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

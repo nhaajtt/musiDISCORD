@@ -2,6 +2,8 @@
 
 Bot phát nhạc Discord tự host, viết bằng discord.js và phát qua Lavalink v4. Điểm mạnh nằm ở **thư viện nhạc riêng**: bot đọc thẻ tên bài, ảnh bìa, lời bài hát trong thư mục `music/` của bạn và xây tính năng quanh đó (tìm kiếm, album, đố nhạc, thống kê, radio 24/7...). Ngoài ra vẫn phát được từ link YouTube, SoundCloud, Spotify.
 
+Website giới thiệu: https://musidiscord.vercel.app. Nhật ký làm dự án (những chỗ tôi vấp và cách gỡ): [docs/nhat-ky.md](docs/nhat-ky.md).
+
 ## Tính năng
 
 - **Thư viện nhạc thông minh:** đọc thẻ (tên, nghệ sĩ, album, thể loại), tự đoán từ tên file và thư mục khi thiếu thẻ, tìm kiếm không phân biệt dấu, phát cả album hoặc nghệ sĩ, danh sách yêu thích riêng từng người.
@@ -131,7 +133,16 @@ docker compose run --rm bot node src/deploy-commands.js
 ```
 Trên Kali nhớ đổi mật khẩu mặc định (`passwd`), bật SSH (`sudo systemctl enable --now ssh`); nếu Docker lỗi mạng, thử `sudo update-alternatives --set iptables /usr/sbin/iptables-legacy`.
 
-**Truy cập từ xa an toàn:** cài Tailscale (`curl -fsSL https://tailscale.com/install.sh | sh` rồi `sudo tailscale up`), SSH qua địa chỉ Tailscale mà không cần mở cổng router. Muốn xem trang trạng thái hay Uptime Kuma từ điện thoại: `sudo tailscale serve --bg 8787` hoặc `3001`.
+**Truy cập từ xa an toàn:** cài Tailscale, bật dịch vụ tự chạy khi khởi động (mặc định trên Kali nó ở trạng thái `disabled`, nên sau khi khởi động lại sẽ mất nếu quên bước này), rồi đăng nhập:
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo systemctl enable --now tailscaled
+sudo tailscale up
+sudo tailscale set --operator=$USER                              # để chạy `tailscale serve` không cần sudo
+tailscale serve --bg --https=443  http://127.0.0.1:8787          # trang trạng thái
+tailscale serve --bg --https=8443 http://127.0.0.1:3001          # Uptime Kuma
+```
+Lần đầu `serve` sẽ yêu cầu bật tính năng trong trang quản trị Tailscale. Địa chỉ HTTPS tạo ra chỉ các thiết bị trong tài khoản Tailscale của bạn mới vào được.
 
 ### Nhiều bot cùng lúc
 
@@ -149,14 +160,22 @@ docker compose run --rm bot2 node src/deploy-commands.js
 Đặt `DISPLAY_PORT=8787` và `DISPLAY_TOKEN=<chuỗi ngẫu nhiên dài>` trong `.env`, khởi động lại. Docker chỉ mở cổng này trên chính máy chạy bot:
 
 - `http://127.0.0.1:8787/display?token=...` là trang 480×320 hiện bài đang phát, có nút ⏯ ⏭ và âm lượng; mở được trên điện thoại hay máy tính bảng (qua Tailscale).
-- API: `GET /api/np`, `GET /api/cover`, `POST /api/control` (`toggle`, `skip`, `volume`; luôn cần token). Không có ID Discord hay tên người yêu cầu, và ẩn hoàn toàn khi đang đố nhạc. Không đặt token thì chỉ xem được, không điều khiển được.
-- **Màn TFT:** bật driver màn hình và cảm ứng của thẻ (thường là `dtoverlay` kiểu `piscreen`/`waveshare35a` kèm `ads7846` trong `/boot/firmware/config.txt`; **driver SPI cũ có thể chưa chạy trên Pi 5 + Kali**, nếu vậy dùng màn HDMI hoặc điện thoại). Khi thấy `/dev/fb1`:
-```bash
-sudo apt install -y python3-pil python3-evdev
-cp pi/display.env.example pi/display.env     # điền DISPLAY_TOKEN, chỉnh TOUCH_* nếu cảm ứng lệch
-sed "s#__USER__#$USER#g; s#__DIR__#$PWD#g" deploy/pi/musidiscord-display.service | sudo tee /etc/systemd/system/musidiscord-display.service
-sudo systemctl daemon-reload && sudo systemctl enable --now musidiscord-display
+- API: `GET /api/np`, `GET /api/cover`, `POST /api/control` (`toggle`, `skip`, `volume`, `seek`, `loop`; luôn cần token). Không có ID Discord hay tên người yêu cầu, và ẩn hoàn toàn khi đang đố nhạc. Không đặt token thì chỉ xem được, không điều khiển được.
+- **Màn TFT 3.5 inch (SPI)**, đã chạy thật trên Pi 5 + Kali với thẻ ILI9486 cảm ứng điện trở (Keyestudio KS0214, họ Waveshare 3.5 (A)). Overlay `tft35a` của hãng dùng driver fbtft cũ và **không hiện hình trên Pi 5**; dùng overlay chính thức với driver DRM, và hạ tốc độ SPI (ở 24 MHz màn chỉ đen):
 ```
+# /boot/firmware/config.txt
+dtparam=spi=on
+dtoverlay=piscreen,drm,rotate=90,speed=8000000
+```
+  Sau khi khởi động lại có `/dev/fb1` (320×480, 32 bit); chương trình tự xoay hình 90 độ. Cảm ứng là loại điện trở nên dùng **bút**. Màn chỉ vẽ lại mỗi giây một lần (và ngay khi chạm) vì bus SPI 8 MHz chỉ chịu được khoảng 1 MB mỗi giây. Chạm vào cột nút ở đáy màn (lặp, giảm âm lượng, tạm dừng, tăng âm lượng, bỏ qua) hoặc vào thanh tiến trình để tua.
+```bash
+sudo apt install -y python3-pil python3-evdev python3-numpy
+python3 -m venv --system-site-packages pi/.venv && pi/.venv/bin/pip install evdev
+cp pi/display.env.example pi/display.env     # điền DISPLAY_TOKEN; chỉnh TOUCH_* nếu cảm ứng lệch (TOUCH_DEBUG=1 để xem toạ độ thô)
+# tự chạy khi khởi động (thêm vào crontab hiện có, không ghi đè):
+(crontab -l 2>/dev/null; echo "@reboot sleep 40 && cd $PWD && setsid sh pi/run-display.sh >> /tmp/display.log 2>&1") | crontab -
+```
+  Muốn có ảnh đại diện trên màn, đặt file ảnh tại `pi/avatar.jpg` (đã nằm trong `.gitignore`, sẽ không bị đưa lên repo công khai) và chỉnh `AVATAR_CROP` trong `pi/display.env`.
 
 ### Sao lưu, tự cập nhật, giám sát
 
