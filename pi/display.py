@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 from array import array
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 try:
     import numpy as numpy_mod
@@ -147,8 +147,10 @@ class State:
 INK = (255, 246, 236)
 MARGIN = 28
 RIGHT = W - 20
-AVATAR = int(os.environ.get("AVATAR_SIZE", "206"))  # đường kính ảnh đại diện: gần nửa màn, nằm bên phải
-AVATAR_POS = (W - 18 - AVATAR, 16)
+AVATAR_W = int(os.environ.get("AVATAR_W", "212"))  # ảnh đại diện: khung chữ nhật bo góc, gần nửa màn, nằm bên phải
+AVATAR_H = int(os.environ.get("AVATAR_H", "214"))
+AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "10"))  # 0 = góc vuông
+AVATAR_POS = (W - 18 - AVATAR_W, 14)
 TEXT_TOP, TEXT_BOTTOM = 40, 228  # vùng chữ (giữa dòng tên server và thanh tiến trình)
 BAR_Y = 236
 BTN_Y = 282
@@ -272,8 +274,8 @@ _avatar = {"img": None, "loaded": False}
 
 
 def load_avatar():
-    """Ảnh đại diện bo tròn từ AVATAR_PATH (mặc định pi/avatar.jpg). Không có ảnh thì bỏ qua.
-    AVATAR_CROP="x0,y0,x1,y1" để tự chọn vùng cắt; mặc định cắt hình vuông phần trên, chính giữa (hợp ảnh chân dung)."""
+    """Ảnh đại diện (khung chữ nhật bo góc) từ AVATAR_PATH (mặc định pi/avatar.jpg). Không có ảnh thì bỏ qua.
+    AVATAR_CROP="x0,y0,x1,y1" chọn vùng cắt trên ảnh gốc; không đặt thì lấy phần trên, chính giữa (hợp ảnh chân dung)."""
     if _avatar["loaded"]:
         return _avatar["img"]
     _avatar["loaded"] = True
@@ -285,17 +287,15 @@ def load_avatar():
         sw, sh = src.size
         if os.environ.get("AVATAR_CROP"):
             box = tuple(int(v) for v in os.environ["AVATAR_CROP"].split(","))
+            region = src.crop(box)
         else:
-            side = int(min(sw, sh) * 0.82)
-            x0 = (sw - side) // 2
-            y0 = int(sh * 0.03)
-            box = (x0, y0, x0 + side, y0 + side)
-        big = AVATAR * 4  # vẽ lớn rồi thu nhỏ để viền tròn mịn
-        face_img = src.crop(box).resize((big, big), Image.LANCZOS)
-        mask = Image.new("L", (big, big), 0)
-        ImageDraw.Draw(mask).ellipse((0, 0, big - 1, big - 1), fill=255)
-        out = face_img.resize((AVATAR, AVATAR), Image.LANCZOS)
-        _avatar["img"] = (out, mask.resize((AVATAR, AVATAR), Image.LANCZOS))
+            region = src.crop((0, int(sh * 0.02), sw, sh))
+        # lấp đầy khung đúng tỉ lệ, giữ phần trên (đầu người) khi phải cắt bớt
+        out = ImageOps.fit(region, (AVATAR_W, AVATAR_H), Image.LANCZOS, centering=(0.5, 0.25))
+        k = 4  # vẽ mặt nạ lớn rồi thu nhỏ để góc bo mịn
+        mask = Image.new("L", (AVATAR_W * k, AVATAR_H * k), 0)
+        ImageDraw.Draw(mask).rounded_rectangle((0, 0, AVATAR_W * k - 1, AVATAR_H * k - 1), radius=AVATAR_RADIUS * k, fill=255)
+        _avatar["img"] = (out, mask.resize((AVATAR_W, AVATAR_H), Image.LANCZOS))
     except Exception as e:
         print("Không đọc được ảnh đại diện:", e, file=sys.stderr)
     return _avatar["img"]
@@ -307,7 +307,7 @@ def draw_avatar(img, d, accent):
     if av is None:
         return RIGHT
     x, y = AVATAR_POS
-    d.ellipse((x - 4, y - 4, x + AVATAR + 3, y + AVATAR + 3), outline=accent, width=3)
+    d.rounded_rectangle((x - 4, y - 4, x + AVATAR_W + 3, y + AVATAR_H + 3), radius=AVATAR_RADIUS + 4, outline=accent, width=3)
     img.paste(av[0], (x, y), av[1])
     return x - 22
 
