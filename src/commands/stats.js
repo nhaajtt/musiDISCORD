@@ -15,6 +15,8 @@ export default {
     const manager = client.lavalink;
     const node = manager.nodeManager.leastUsedNodes()[0];
     const stats = node?.stats;
+    const nodes = [...manager.nodeManager.nodes.values()];
+    const nodesUp = nodes.filter((n) => n.connected).length;
     const playing = [...manager.players.values()].filter((p) => p.playing).length;
 
     const embed = new EmbedBuilder()
@@ -25,7 +27,8 @@ export default {
         { name: "Ping Discord", value: `${Math.round(client.ws.ping)} ms`, inline: true },
         { name: "Server", value: String(client.guilds.cache.size), inline: true },
         { name: "Playing", value: `${playing} servers`, inline: true },
-        { name: "Lavalink", value: node?.connected ? "Connected" : "Disconnected", inline: true },
+        { name: "Lavalink", value: nodes.length > 1 ? `${nodesUp} of ${nodes.length} nodes connected` : node?.connected ? "Connected" : "Disconnected", inline: true },
+        { name: "Shards", value: String(client.ws.shards.size), inline: true },
         {
           name: "Lavalink resources",
           value: stats

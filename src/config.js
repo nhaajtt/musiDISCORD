@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { parseNodes, parseShards } from "./infra.js";
 
 const required = ["DISCORD_TOKEN", "CLIENT_ID"];
 const missing = required.filter((key) => !process.env[key]);
@@ -11,11 +12,10 @@ export const config = {
   token: process.env.DISCORD_TOKEN,
   clientId: process.env.CLIENT_ID,
   guildId: process.env.GUILD_ID || null,
-  lavalink: {
-    host: process.env.LAVALINK_HOST || "localhost",
-    port: Number(process.env.LAVALINK_PORT) || 2333,
-    password: process.env.LAVALINK_PASSWORD || "youshallnotpass",
-  },
+  // One or more Lavalink nodes (LAVALINK_NODES, or the single node from LAVALINK_HOST / PORT / PASSWORD)
+  lavalink: { nodes: parseNodes() },
+  // Discord sharding inside this process: empty = one shard, "auto", or a number (SHARDS)
+  shardOptions: parseShards(process.env.SHARDS),
   // Music folder, same path in the bot and Lavalink containers
   musicDir: process.env.MUSIC_DIR || "/music",
   // Where per-server settings are stored (mount as a volume so they survive container recreation)

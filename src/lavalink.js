@@ -1,6 +1,7 @@
 import { LavalinkManager } from "lavalink-client";
 import { alertOwner } from "./alerts.js";
 import { config } from "./config.js";
+import { failoverTargets } from "./infra.js";
 import * as library from "./library/index.js";
 import { normalizeLocalTrack } from "./library/normalize.js";
 import { stopLive } from "./lyrics/live.js";
@@ -14,17 +15,15 @@ import { announceTrack, clearVoiceStatus } from "./utils/vcStatus.js";
 
 export function createLavalink(client) {
   const manager = new LavalinkManager({
-    nodes: [
-      {
-        id: "main",
-        host: config.lavalink.host,
-        port: config.lavalink.port,
-        authorization: config.lavalink.password,
-        secure: false,
-        retryAmount: 10,
-        retryDelay: 5000,
-      },
-    ],
+    nodes: config.lavalink.nodes.map((node) => ({
+      id: node.id,
+      host: node.host,
+      port: node.port,
+      authorization: node.password,
+      secure: node.secure,
+      retryAmount: 10,
+      retryDelay: 5000,
+    })),
     sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
     autoSkip: true,
     client: { id: config.clientId, username: config.botName },
@@ -67,8 +66,39 @@ export function createLavalink(client) {
 
   manager.nodeManager.on("error", (node, error) => console.error(`Lavalink node "${node.id}" error:`, error.message));
 
+  /** Moves the players of a node that just went down to the other nodes. Returns how many players could not be moved. */
+  async function failOver(node) {
+    const players = [...manager.players.values()].filter((p) => p.node?.id === node.id);
+    let stranded = 0;
+    for (const player of players) {
+      const [target] = failoverTargets([...manager.nodeManager.nodes.values()], node);
+      if (!target) {
+        stranded++;
+        continue;
+      }
+      try {
+        await player.changeNode(target.id);
+        console.log(`Moved the player of guild ${player.guildId} from node "${node.id}" to "${target.id}".`);
+      } catch (error) {
+        stranded++;
+        console.error(`Could not move the player of guild ${player.guildId} off node "${node.id}":`, error.message);
+      }
+    }
+    return stranded;
+  }
+
   manager.nodeManager.on("disconnect", (node, reason) => {
     console.warn(`Lavalink node "${node.id}" disconnected:`, reason?.reason ?? reason);
+
+    // Other nodes still up: move this node's players over and carry on without bothering anyone
+    const othersUp = [...manager.nodeManager.nodes.values()].some((n) => n.id !== node.id && n.connected);
+    if (othersUp) {
+      failOver(node).then((stranded) => {
+        alertOwner(`lavalink-failover-${node.id}`, `⚠️ Lavalink node "${node.id}" went down; its players were moved to another node${stranded ? ` (${stranded} could not be moved)` : ""}.`);
+      });
+      return;
+    }
+
     if (wasDown) return;
     wasDown = true;
     broadcast("⚠️ Lost connection to the music server, playback may be interrupted. The bot is trying to reconnect.");
