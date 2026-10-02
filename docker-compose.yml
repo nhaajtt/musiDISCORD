@@ -119,24 +119,6 @@ services:
       - ./data/bot3:/app/data
       - ./data/shared:/app/shared
 
-  # --- Companion bots (2 to 8 small bots that chat in one channel): docker compose --profile companions up -d --build ---
-  # Needs .env.companions (copy .env.companions.example). They run in one process and do not need Lavalink.
-  companions:
-    build: .
-    image: musidiscord-bot:local
-    profiles: ["companions"]
-    container_name: musidiscord-companions
-    restart: unless-stopped
-    logging: *logging
-    command: ["node", "src/companions/index.js"]
-    env_file: .env.companions
-    environment:
-      - COMPANION_DATA_DIR=/app/data
-    healthcheck:
-      disable: true
-    volumes:
-      - ./data/companions:/app/data
-
   # --- Monitoring: docker compose --profile ops up -d (open http://localhost:3001) ---
   uptime-kuma:
     image: louislam/uptime-kuma:1

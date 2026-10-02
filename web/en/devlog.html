@@ -227,15 +227,12 @@
     </section>
     <section class="clause">
       <p class="when">Oct 2</p>
-      <h2>Version 2.5: companion bots</h2>
-      <p>An empty Discord channel is sad, and a channel with a music bot and nobody in it is sad with a soundtrack. So I wrote a separate, optional program in <code>src/companions/</code>: 2 to 8 small bots in one process that every so often ask a question, tell a joke or a riddle, share a fun fact, or chat with each other. If nobody answers after a few minutes another one jumps in; if a real person joins, they step back, and anyone who replies gets a short thank-you.</p>
+      <h2>Companion bots, and why they left</h2>
+      <p>A server with a music bot can still feel empty between songs, so I built a set of small chatty bots: five personalities that ask questions, tell jokes and riddles and share fun facts, with another bot jumping in when nobody answers and everybody stepping back when a person joins. They stay clearly bots (BOT tag, no pretending to be human), keep quiet hours and a daily limit, and read no message content.</p>
+      <p>I first put them inside this repo as <code>src/companions/</code>, then moved them out the same day. They share nothing with the music bot at runtime: no Lavalink, no database, no music config. Keeping them here would have meant that anyone who wants lively chat downloads a music bot, and that an update to one restarts the other. So they became their own project, <a href="https://github.com/nhaajtt/companionsDISCORD" target="_blank" rel="noopener noreferrer">companionsDISCORD</a>, with their own repo, Docker image, auto-update timer and website. On the Pi they are two folders and two compose projects; the container names, image tags and data folders differ, and the companions publish no ports, so nothing clashes.</p>
       <ul>
-        <li><strong>Open about being bots.</strong> They keep the BOT tag, have five personalities (Pip, Grumble, Nova, Sage, Bean), never pretend to be human, and use normal bot tokens only.</li>
-        <li><strong>Good manners.</strong> One channel you choose, quiet hours (default 23:00 to 08:00), a daily limit (Calm 4, Normal 8, Lively 14 conversations), silence while people are chatting, no pings.</li>
-        <li><strong>Content lives in the repo,</strong> in English and Vietnamese, nothing is sent to any service, and nothing repeats until the others have been used.</li>
-        <li><strong>They do not read message content,</strong> only the <code>Guilds</code> and <code>GuildMessages</code> intents.</li>
+        <li><strong>Lesson:</strong> when a feature has its own process, its own data file and imports nothing from the rest, it is already a separate project; the repo split is just paperwork.</li>
       </ul>
-      <p>The honest lesson: the first version of my tests used time windows that were too short, so conversations "happened" in tests that never would in real life, and the other way round. The hard part of this was never the jokes, it was the timing: how long counts as nobody answering, how long counts as people chatting. The tests now use a fake clock and realistic windows. The logic is tested that way, but I have not run it against a live Discord server yet, so I still do not know whether it annoys anyone.</p>
     </section>
     <section class="clause">
       <h2>What I learned</h2>
@@ -248,7 +245,6 @@
         <li>For a feature that could cause harm (downloading copyrighted music), weigh the risk and choose the safer option instead of forcing it through.</li>
         <li>Operations matter as much as writing code: backups, self-updates with rollback, monitoring, auto restart.</li>
         <li>Write tests for the parts with real logic (BPM, path blocking, the API, string sanitizing) and be clear about what has no tests.</li>
-        <li>For anything that runs on a schedule, the hard part is the timing, not the content; the tests need a fake clock and windows that look like real life.</li>
       </ul>
     </section>
     <section class="clause">
@@ -259,7 +255,6 @@
         <li>The TFT Python code has no automated tests; for now it is only checked with exported images and by running on the device.</li>
         <li>The rollback part of the self-update script has only been written and tested for the "no new version" case; I have not tried it with a genuinely broken release.</li>
         <li>The multi-bot profile (<code>multi</code>) has not been run with a second token.</li>
-        <li>The companion bots have not been run on a live Discord server; the timing and content will probably need tuning.</li>
         <li>The SD card is still the weak spot; for long-term use, move to a USB SSD.</li>
       </ul>
     </section>
@@ -285,7 +280,7 @@
         <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Auto-tagging with audio fingerprints (<code>/library</code>), mood radio and similar tracks (<code>/vibe</code>, <code>/similar</code>), several bots at once, a status page for small screens, backups, self-updates and monitoring for the Raspberry Pi.</td></tr>
         <tr><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>3.5 inch TFT screen on the Raspberry Pi 5 (magazine-cover interface, stylus touch), a new <code>/display</code> page, backups, self-updates, monitoring and remote access through Tailscale, the website split into multiple pages.</td></tr>
         <tr><th scope="row">H</th><td>2.4</td><td>2026-10-02</td><td>Stackable audio filters (<code>/filter</code> subcommands), personal and server playlists (<code>/playlist</code>), server radio (<code>/radio</code>), story-format Wrapped cards, new quiz modes and monthly seasons, several Lavalink nodes with automatic failover, optional sharding, a one-command installer for the Raspberry Pi.</td></tr>
-        <tr class="now"><th scope="row">I</th><td>2.5</td><td>2026-10-02</td><td>Companion bots: a separate, optional program of 2 to 8 small bots that keep a channel lively (<code>/companions</code> commands), with quiet hours and a daily limit.<span class="revstamp" id="rev-stamp" aria-hidden="true">CURRENT</span></td></tr>
+        <tr class="now"><th scope="row">I</th><td>2.5</td><td>2026-10-02</td><td>Companion bots moved to their own project (companionsDISCORD).<span class="revstamp" id="rev-stamp" aria-hidden="true">CURRENT</span></td></tr>
         </tbody>
       </table>
     </div>

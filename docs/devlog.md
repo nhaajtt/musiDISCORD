@@ -158,6 +158,14 @@ Two honest lessons from this round:
 - **A missing variable, found by the installer.** While writing the installer I listed every variable the bot needs, and found that `.env.example` did not list the required ones (`DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID`, `LAVALINK_PASSWORD`, the Spotify keys). It worked for me only because my own `.env` already had them. Anyone starting from the example file would have hit confusing errors. Writing a setup script for someone else is a good way to find what the docs forgot.
 - **A test that kept the process alive.** The quiz mode test never finished: the process stayed open after the assertions passed. The cause was the idle-leave timer, which the code under test had started and nothing cancelled. I fixed the test so it stops that timer. Lesson: a hanging test runner is often a leftover timer, not a failed assertion.
 
+## Oct 2: Companion bots, and why they left
+
+A server with a music bot can still feel empty between songs, so I built a set of small chatty bots: five personalities that ask questions, tell jokes and riddles and share fun facts, with another bot jumping in when nobody answers and everybody stepping back when a person joins. They stay clearly bots (BOT tag, no pretending to be human), keep quiet hours and a daily limit, and read no message content.
+
+I first put them inside this repo as `src/companions/`, then moved them out the same day. They share nothing with the music bot at runtime: no Lavalink, no database, no music config. Keeping them here would have meant that anyone who wants lively chat downloads a music bot, and that an update to one restarts the other. So they became their own project, [companionsDISCORD](https://github.com/nhaajtt/companionsDISCORD), with their own repo, Docker image, auto-update timer and website. On the Pi they are two folders and two compose projects; the container names, image tags and data folders differ, and the companions publish no ports, so nothing clashes.
+
+- **Lesson:** when a feature has its own process, its own data file and imports nothing from the rest, it is already a separate project; the repo split is just paperwork.
+
 ## What I learned
 
 - When a direction depends on something you do not control (YouTube), change course early.

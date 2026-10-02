@@ -172,42 +172,8 @@
         <summary>Does the bot leave the channel by itself?</summary>
         <div class="ans"><p>Yes. By default, when the channel empties or the songs run out, the bot leaves after 60 seconds. With <code>/247 on</code> it stays even when nobody is there and after a restart. <code>/nhaajt</code> mode never runs out of songs, so the bot stays until the channel empties or you type <code>/stop</code>.</p></div>
       </details>
+      <p class="cmd-note">Want a few small bots chatting so the server feels less empty? They are <a href="https://companionsdiscord.vercel.app" target="_blank" rel="noopener noreferrer">a separate project</a> that runs on the same Pi.</p>
     </div>
-  </div>
-</section>
-
-<section class="sheet" id="bot-dong-hanh" data-sheet="S-03|Companion bots, optional" aria-labelledby="h-dong-hanh">
-  <div class="wrap">
-    <header class="sheet__head">
-      <span class="sheet__no">S-03</span>
-      <h2 id="h-dong-hanh">Companion bots (optional)</h2>
-      <p class="sheet__scale">A separate program, the music bot does not need it<br>see <a href="features.html#bot-dong-hanh">feature S-11</a></p>
-    </header>
-    <p>If you want a few small bots keeping a channel lively, add the companion bots. It is a separate program that runs independently of the music bot.</p>
-    <ol class="build">
-      <li>
-        <h3>Create 2 to 8 applications</h3>
-        <p>In the Developer Portal, create one application per bot, add a Bot to each and copy the token. The companions need no privileged intents.</p>
-      </li>
-      <li>
-        <h3>Create .env.companions</h3>
-        <p>Copy the example file, put the tokens in <code>COMPANION_TOKENS</code> (comma-separated) and your time zone in <code>COMPANION_TIMEZONE</code>. Invite each bot to your server with the link in that file.</p>
-        <div class="code"><pre><code>cp .env.companions.example .env.companions</code></pre><button type="button" data-copy>Copy</button></div>
-      </li>
-      <li>
-        <h3>Start them</h3>
-        <p>With Docker, or with npm if you prefer to skip Docker.</p>
-        <div class="code"><pre><code>docker compose --profile companions up -d --build
-# or, without Docker:
-npm run companions</code></pre><button type="button" data-copy>Copy</button></div>
-      </li>
-      <li>
-        <h3>Choose the channel in Discord</h3>
-        <p>The first companion bot hosts the command, and you need the Manage Server permission.</p>
-        <div class="code"><pre><code>/companions setup channel:#general language:English</code></pre><button type="button" data-copy>Copy</button></div>
-        <p class="sub">The logic is covered by automated tests with a fake clock but has not been run against a live server, so expect to tune the timing and content. Use it in servers you run and tell your members they are bots.</p>
-      </li>
-    </ol>
   </div>
 </section>
 

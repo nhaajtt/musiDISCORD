@@ -700,35 +700,6 @@
   </div>
 </section>
 
-<section class="sheet" id="bot-dong-hanh" data-sheet="S-11|Companion bots" aria-labelledby="h-dong-hanh">
-  <div class="wrap">
-    <header class="sheet__head">
-      <span class="sheet__no">S-11</span>
-      <h2 id="h-dong-hanh">Companion bots</h2>
-      <p class="sheet__scale">A few small bots to make a quiet channel less quiet<br>a separate program, entirely optional</p>
-    </header>
-    <div class="copy">
-      <p>This is a <strong>separate, optional program</strong> in the same repo (<code>src/companions/</code>), not part of the music bot. You give it 2 to 8 small bots, one Discord application and token each, all running in one process. Every so often one of them asks a question, tells a joke or a riddle, shares a fun fact, or chats with another bot. If nobody answers after a few minutes, another bot jumps in. If a person joins the conversation the bots step back, and anyone who replies gets a short thank-you. An empty channel is a channel problem; try not to make it yours.</p>
-      <ul class="ticks">
-        <li><strong>Open about being bots.</strong> They keep Discord's BOT tag and have five personalities: Pip (the cheerful hype bot), Grumble (the sarcastic grump), Nova (the space and facts nerd), Sage (the deadpan philosopher) and Bean (the chaotic gremlin). They never pretend to be human, and they run on normal bot tokens only.</li>
-        <li><strong>Content written into the repo.</strong> English and Vietnamese banks of questions, jokes and riddles, fun facts and bot-to-bot banter. Nothing is sent to any external service, and nothing repeats until the others have been used.</li>
-        <li><strong>Good manners built in.</strong> One channel you choose; quiet hours (default 23:00 to 08:00 in the configured time zone); a daily limit (Calm up to 4 conversations a day, Normal 8, Lively 14); nothing while people are chatting; typing indicators; no pings.</li>
-        <li><strong>They do not read message content.</strong> They only use the non-privileged <code>Guilds</code> and <code>GuildMessages</code> intents.</li>
-      </ul>
-      <p>The commands live on the <strong>first companion bot</strong> and need the Manage Server permission. They belong to the companion bots and are <strong>not counted</strong> in the music bot's 38 slash commands.</p>
-      <dl class="cmdlist">
-        <div><dt><code>/companions setup channel [language]</code></dt><dd>Choose the channel and language, and turn them on.</dd></div>
-        <div><dt><code>/companions on</code>, <code>off</code></dt><dd>Turn them on or off.</dd></div>
-        <div><dt><code>/companions frequency level</code></dt><dd>Calm (up to 4 a day), Normal (8) or Lively (14).</dd></div>
-        <div><dt><code>/companions quiet from until</code></dt><dd>The hours they stay silent.</dd></div>
-        <div><dt><code>/companions now</code></dt><dd>Start a conversation right away, to test it.</dd></div>
-        <div><dt><code>/companions status</code></dt><dd>Current settings and when the next chat is due.</dd></div>
-      </dl>
-      <p class="cmd-note">Setup is on the <a href="setup.html#bot-dong-hanh">Setup</a> page. The honest part: the logic is covered by automated tests with a fake clock, but it has <strong>not been run against a live Discord server yet</strong>, so the timing and content will probably need tuning. Use it in servers you run, and tell your members what the bots are.</p>
-    </div>
-  </div>
-</section>
-
 </main>
 
 <footer class="foot" data-sheet="F-01|Title block">

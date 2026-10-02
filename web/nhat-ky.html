@@ -227,15 +227,12 @@
     </section>
     <section class="clause">
       <p class="when">02/10</p>
-      <h2>Bản 2.5: bot đồng hành</h2>
-      <p>Một kênh Discord vắng thì buồn, còn kênh có bot nhạc mà không ai ở đó thì buồn kiểu có nhạc nền. Nên tôi viết một chương trình riêng, tùy chọn, trong <code>src/companions/</code>: từ 2 đến 8 con bot nhỏ chạy chung một tiến trình, thỉnh thoảng hỏi một câu, kể chuyện cười hoặc câu đố, chia sẻ một điều thú vị, hoặc tán gẫu với nhau. Không ai đáp sau vài phút thì một con khác nhảy vào; có người thật chen vào thì chúng lùi lại, và ai trả lời được cảm ơn một câu ngắn.</p>
+      <h2>Bot đồng hành, và vì sao chúng dọn ra ở riêng</h2>
+      <p>Server có bot nhạc vẫn có thể vắng tanh giữa các bài hát, nên tôi làm một bộ bot nhỏ hay tán gẫu: năm tính cách hỏi đáp, kể chuyện cười, đố vui và chia sẻ điều thú vị, con khác nhảy vào khi không ai đáp, và tất cả lùi lại khi có người thật chen vào. Chúng luôn khai thật là bot (giữ thẻ BOT, không giả làm người), có giờ yên lặng và giới hạn mỗi ngày, và không đọc nội dung tin nhắn.</p>
+      <p>Lúc đầu tôi để chúng trong repo này, thư mục <code>src/companions/</code>, rồi chuyển ra ngay trong ngày. Chúng không chung gì với bot nhạc lúc chạy: không Lavalink, không database, không cấu hình nhạc. Để chúng ở đây nghĩa là ai chỉ muốn kênh có tiếng người tán gẫu cũng phải tải một bot nhạc, và cập nhật bên này thì phải khởi động lại bên kia. Vậy nên chúng thành dự án riêng, <a href="https://github.com/nhaajtt/companionsDISCORD" target="_blank" rel="noopener noreferrer">companionsDISCORD</a>, có repo, Docker image, bộ tự cập nhật và website riêng. Trên Pi, chúng là hai thư mục và hai compose project; tên container, tag image và thư mục dữ liệu đều khác nhau, và bộ đồng hành không mở cổng nào, nên không đụng nhau.</p>
       <ul>
-        <li><strong>Khai thật là bot.</strong> Giữ thẻ BOT, có năm tính cách (Pip, Grumble, Nova, Sage, Bean), không giả làm người, chỉ dùng token bot bình thường.</li>
-        <li><strong>Phép lịch sự.</strong> Một kênh do bạn chọn, giờ yên lặng (mặc định 23:00 đến 08:00), giới hạn mỗi ngày (Calm 4, Normal 8, Lively 14 cuộc trò chuyện), im khi người ta đang chat, không ping.</li>
-        <li><strong>Nội dung nằm trong kho mã,</strong> bằng cả tiếng Anh và tiếng Việt, không gửi gì ra dịch vụ nào và không lặp lại cho tới khi các mục khác đã dùng hết.</li>
-        <li><strong>Không đọc nội dung tin nhắn,</strong> chỉ dùng intent <code>Guilds</code> và <code>GuildMessages</code>.</li>
+        <li><strong>Bài học:</strong> khi một tính năng có tiến trình riêng, file dữ liệu riêng và không import gì từ phần còn lại, nó đã là một dự án riêng rồi; tách repo chỉ là thủ tục giấy tờ.</li>
       </ul>
-      <p>Bài học thật: bản test đầu tiên của tôi dùng các khung thời gian quá ngắn, nên có những cuộc trò chuyện "xảy ra" trong test mà ngoài đời sẽ không bao giờ xảy ra, và ngược lại. Chỗ khó của việc này không nằm ở những câu đùa mà ở giờ giấc: bao lâu thì được coi là không ai đáp, bao lâu thì được coi là người ta đang chat. Giờ test dùng đồng hồ giả và các khung thời gian sát với thực tế. Phần logic được test như vậy, nhưng tôi chưa chạy nó trên một server Discord thật, nên tôi vẫn chưa biết nó có làm phiền ai không.</p>
     </section>
     <section class="clause">
       <h2>Những gì tôi học được</h2>
@@ -248,7 +245,6 @@
         <li>Với tính năng có thể gây hại (tải nhạc có bản quyền), cân nhắc rủi ro rồi chọn phương án an toàn hơn thay vì làm cho bằng được.</li>
         <li>Vận hành quan trọng ngang viết code: sao lưu, tự cập nhật có quay lui, giám sát, tự khởi động lại.</li>
         <li>Viết test cho phần có logic (BPM, chặn đường dẫn, API, làm sạch chuỗi) và ghi rõ chỗ chưa có test.</li>
-        <li>Với thứ chạy theo thời gian, cái khó là giờ giấc chứ không phải nội dung; test cần đồng hồ giả và khung thời gian giống ngoài đời.</li>
       </ul>
     </section>
     <section class="clause">
@@ -259,7 +255,6 @@
         <li>Code Python của màn TFT chưa có test tự động; hiện chỉ kiểm bằng ảnh xuất ra và chạy trên thiết bị.</li>
         <li>Phần quay về bản cũ của script tự cập nhật mới được viết và kiểm với trường hợp "không có bản mới"; chưa thử bằng một bản hỏng thật.</li>
         <li>Profile nhiều bot (<code>multi</code>) chưa được chạy thử với token thứ hai.</li>
-        <li>Bộ bot đồng hành chưa được chạy trên một server Discord thật; giờ giấc và nội dung nhiều khả năng cần chỉnh.</li>
         <li>Thẻ SD vẫn là điểm yếu; nên chuyển sang SSD USB để chạy lâu dài.</li>
       </ul>
     </section>
@@ -285,7 +280,7 @@
         <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Tự gắn thẻ bằng dấu vân âm thanh (<code>/library</code>), radio theo tâm trạng và bài giống nhau (<code>/vibe</code>, <code>/similar</code>), nhiều bot cùng lúc, trang trạng thái cho màn hình nhỏ, sao lưu, tự cập nhật và giám sát cho Raspberry Pi.</td></tr>
         <tr><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>Màn TFT 3.5 inch trên Raspberry Pi 5 (giao diện bìa tạp chí, cảm ứng bằng bút), trang <code>/display</code> mới, sao lưu, tự cập nhật, giám sát và truy cập từ xa qua Tailscale, website tách nhiều trang.</td></tr>
         <tr><th scope="row">H</th><td>2.4</td><td>2026-10-02</td><td>Bộ lọc âm thanh xếp chồng (<code>/filter</code> có lệnh con), playlist cá nhân và của server (<code>/playlist</code>), radio của server (<code>/radio</code>), thẻ Wrapped dạng story, chế độ đố nhạc mới và mùa theo tháng, nhiều node Lavalink có tự chuyển dự phòng, chia shard tùy chọn, trình cài đặt một lệnh cho Raspberry Pi.</td></tr>
-        <tr class="now"><th scope="row">I</th><td>2.5</td><td>2026-10-02</td><td>Bot đồng hành: chương trình riêng, tùy chọn gồm 2 đến 8 bot nhỏ giữ kênh đỡ vắng (lệnh <code>/companions</code>), có giờ yên lặng và giới hạn mỗi ngày.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+        <tr class="now"><th scope="row">I</th><td>2.5</td><td>2026-10-02</td><td>Bot đồng hành chuyển ra dự án riêng (companionsDISCORD).<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
         </tbody>
       </table>
     </div>

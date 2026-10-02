@@ -225,32 +225,9 @@ done
 ```
 **Restore:** stop the bot (`docker compose stop bot`), extract the backup into `data/` (`tar -xzf data/backups/<file> -C data`), then `docker compose start bot`.
 
-## Companion bots
+## Related project: companionsDISCORD
 
-An optional, separate program: two to eight small bots that keep a channel lively. Every so often one of them asks a question, tells a joke or a riddle, shares a fun fact or starts a short chat with another bot. If nobody answers after a few minutes, another bot jumps in. If a person joins the conversation, the bots step back, and they thank anyone who replies to them.
-
-- **They are open about being bots.** They keep Discord's BOT tag, have five distinct personalities (Pip, Grumble, Nova, Sage, Bean) and never pretend to be human. They run on a normal bot token, never a user account.
-- **Content:** English and Vietnamese banks of questions, jokes and riddles, fun facts and bot-to-bot banter, written into the repo (no external service, nothing is sent anywhere). Content is not repeated until the others have been used.
-- **Good manners built in:** one channel you choose, quiet hours (default 23:00 to 08:00 in your time zone), a daily limit, nothing while people are chatting, typing indicators, no pings, and a ten minute cooldown between thank-yous.
-- **They do not read message content.** They only need the non-privileged `Guilds` and `GuildMessages` intents to notice that someone wrote or replied.
-
-Setup:
-
-1. Create 2 to 8 applications in the Discord Developer Portal, each with a Bot, and copy each token.
-2. `cp .env.companions.example .env.companions` and put the tokens (comma-separated) in `COMPANION_TOKENS`. Invite every bot to your server with the link in that file.
-3. `docker compose --profile companions up -d --build` (or `npm run companions` without Docker).
-4. In Discord, run `/companions setup channel:#general language:English`. The first bot hosts the command; it needs the Manage Server permission.
-
-| Command | What it does |
-| --- | --- |
-| `/companions setup channel [language]` | Choose the channel and language, and turn them on |
-| `/companions on \| off` | Turn them on or off |
-| `/companions frequency level` | Calm (up to 4 a day), Normal (8) or Lively (14) |
-| `/companions quiet from until` | Hours they stay silent |
-| `/companions now` | Start a conversation right away, to test it |
-| `/companions status` | Current settings and when the next chat is due |
-
-The conversation logic is covered by automated tests with a fake clock; I have not run it against a live Discord server yet, so expect to tune the content and timing after you watch it for a few days. Use it in servers you run, tell your members what these bots are, and keep the frequency modest.
+The small chatty bots that keep a channel lively (jokes, riddles, fun facts and questions) used to live in this repo. They are now their own project, [companionsDISCORD](https://github.com/nhaajtt/companionsDISCORD), and the two can run side by side on the same Raspberry Pi, each in its own folder with its own containers. `docker compose --profile companions` no longer exists here; use the new repo.
 
 ## Testing
 
