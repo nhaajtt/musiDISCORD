@@ -35,6 +35,9 @@ export const config = {
     ownerIds: (process.env.OWNER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean),
     folder: "Contributions",
   },
+  // Join voice channels without the "deafened" icon so the bot looks like a regular member. SELF_DEAF=on deafens it again
+  // (a deafened bot does not receive other people's voice audio at all, which saves a little bandwidth)
+  selfDeaf: process.env.SELF_DEAF === "on",
   idleLeaveMs: 60_000,
   // Bot name (shown in alerts and the status API) and a data folder shared between several bots (tags, audio features, covers)
   botName: process.env.BOT_NAME || "musiDISCORD",

@@ -109,7 +109,7 @@ async function restoreOne(client, snap) {
     guildId: snap.guildId,
     voiceChannelId: snap.voiceChannelId,
     textChannelId: snap.textChannelId,
-    selfDeaf: true,
+    selfDeaf: config.selfDeaf,
     selfMute: false,
     volume: snap.volume,
   });

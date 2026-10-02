@@ -1,3 +1,4 @@
+import { config } from "./config.js";
 import * as library from "./library/index.js";
 import { allSettings } from "./store.js";
 import { startNhaajt } from "./utils/nhaajt.js";
@@ -18,7 +19,7 @@ export async function ensure247(client) {
           guildId,
           voiceChannelId: stay.voiceChannelId,
           textChannelId: stay.textChannelId,
-          selfDeaf: true,
+          selfDeaf: config.selfDeaf,
           selfMute: false,
           volume: settings.defaultVolume,
         });

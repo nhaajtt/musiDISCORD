@@ -1,4 +1,5 @@
 import { MessageFlags } from "discord.js";
+import { config } from "../config.js";
 import { errorEmbed, formatDuration, infoEmbed, trackEmbed } from "./embeds.js";
 import { getSettings } from "../store.js";
 import { applyFairOrder } from "./fairQueue.js";
@@ -33,7 +34,7 @@ export async function ensurePlayer(interaction) {
     guildId: interaction.guildId,
     voiceChannelId: voiceChannel.id,
     textChannelId: interaction.channelId,
-    selfDeaf: true,
+    selfDeaf: config.selfDeaf,
     selfMute: false,
     volume: getSettings(interaction.guildId).defaultVolume,
   });
