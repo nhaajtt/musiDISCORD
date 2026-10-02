@@ -389,6 +389,7 @@ def render(state, w=W, h=H):
     dur = np.get("duration")
     if dur:
         pos = min(pos, dur)
+    pos = pos // 1000 * 1000  # làm tròn về giây: mọi thay đổi trên màn chỉ xảy ra mỗi giây một lần
     frac = (pos / dur) if dur else 1.0
     d.rectangle((MARGIN, BAR_Y, RIGHT, BAR_Y + 2), fill=mix(bg, INK, 0.17))
     d.rectangle((MARGIN, BAR_Y, MARGIN + int((RIGHT - MARGIN) * frac), BAR_Y + 2), fill=accent)
