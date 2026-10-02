@@ -21,7 +21,7 @@ export function buildPage(player, page) {
   const start = page * PER_PAGE;
   const lines = tracks
     .slice(start, start + PER_PAGE)
-    .map((t, i) => `**${start + i + 1}.** ${trim(t.info.title, 70)} — ${trim(t.info.author || "Không rõ", 40)} \`${formatDuration(t.info.duration)}\``);
+    .map((t, i) => `**${start + i + 1}.** ${trim(t.info.title, 70)} — ${trim(t.info.author || "Unknown", 40)} \`${formatDuration(t.info.duration)}\``);
 
   const current = player.queue.current;
   const total = tracks.reduce((sum, t) => sum + (t.info.isStream ? 0 : t.info.duration || 0), 0);
@@ -29,13 +29,13 @@ export function buildPage(player, page) {
   const container = new ContainerBuilder().setAccentColor(accentFor(current?.info.title ?? "queue"));
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent(
-      `### Hàng chờ\n**Đang phát:** ${current ? `${trim(current.info.title, 80)} — ${trim(current.info.author || "Không rõ", 40)}` : "—"}`,
+      `### Queue\n**Now playing:** ${current ? `${trim(current.info.title, 80)} — ${trim(current.info.author || "Unknown", 40)}` : "—"}`,
     ),
   );
   container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
-  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join("\n") || "Hàng chờ trống."));
+  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join("\n") || "The queue is empty."));
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`-# Trang ${page + 1}/${pages} • ${tracks.length} bài • ${formatDuration(total)}`),
+    new TextDisplayBuilder().setContent(`-# Page ${page + 1}/${pages} • ${tracks.length} tracks • ${formatDuration(total)}`),
   );
 
   if (pages > 1) {
@@ -50,12 +50,12 @@ export function buildPage(player, page) {
 }
 
 export default {
-  data: new SlashCommandBuilder().setName("queue").setDescription("Xem hàng chờ"),
+  data: new SlashCommandBuilder().setName("queue").setDescription("Show the queue"),
 
   async execute(interaction) {
     const player = interaction.client.lavalink.getPlayer(interaction.guildId);
     if (!player || (!player.queue.current && !player.queue.tracks.length)) {
-      return interaction.reply({ embeds: [errorEmbed("Hàng chờ đang trống.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [errorEmbed("The queue is empty.")], flags: MessageFlags.Ephemeral });
     }
 
     let page = 0;
@@ -73,7 +73,7 @@ export default {
     });
     collector.on("end", () => {
       const final = buildPage(player, page);
-      // Bỏ hàng nút chuyển trang (hàng cuối của khung) khi hết thời gian
+      // Drop the page-button row (the last row of the container) when time runs out
       if (Math.ceil(player.queue.tracks.length / PER_PAGE) > 1) final.components[0].components.pop();
       interaction.editReply(final).catch(() => {});
     });

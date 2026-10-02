@@ -9,28 +9,28 @@ function sessionOf(interaction) {
   return { player, session: player?.getData("quiz") };
 }
 
-/** Người chơi phải đang ở cùng kênh thoại với bot. */
+/** The player must be in the same voice channel as the bot. */
 function inVoice(interaction, player) {
   return interaction.member.voice?.channelId === player.voiceChannelId;
 }
 
-/** Bấm nút của ván đố nhạc (customId dạng "qz:<hành động>"). */
+/** Quiz button press (customId "qz:<action>"). */
 export async function handleQuizButton(interaction) {
   const { player, session } = sessionOf(interaction);
-  if (!session) return interaction.reply(ephemeral(errorEmbed("Ván đố nhạc này đã kết thúc.")));
-  if (!inVoice(interaction, player)) return interaction.reply(ephemeral(errorEmbed("Bạn cần ở cùng kênh thoại với bot để chơi.")));
+  if (!session) return interaction.reply(ephemeral(errorEmbed("This music quiz has ended.")));
+  if (!inVoice(interaction, player)) return interaction.reply(ephemeral(errorEmbed("You need to be in the same voice channel as the bot to play.")));
 
   const action = interaction.customId.slice(3);
 
   if (action === "answer") {
     const modal = new ModalBuilder()
       .setCustomId("qz:modal")
-      .setTitle("Đoán bài hát")
+      .setTitle("Guess the song")
       .addComponents(
         new ActionRowBuilder().addComponents(
           new TextInputBuilder()
             .setCustomId("answer")
-            .setLabel("Tên bài hát (hoặc nghệ sĩ)")
+            .setLabel("Song title (or artist)")
             .setStyle(TextInputStyle.Short)
             .setMinLength(1)
             .setMaxLength(100)
@@ -42,32 +42,32 @@ export async function handleQuizButton(interaction) {
 
   if (action === "hint") {
     const hint = session.hint();
-    return interaction.reply(ephemeral(infoEmbed(hint ?? "Chưa thể xin gợi ý lúc này.")));
+    return interaction.reply(ephemeral(infoEmbed(hint ?? "No hint available right now.")));
   }
 
   if (action === "skip") {
     if (interaction.user.id !== session.starterId && !isDj(interaction.member, interaction.guildId)) {
-      return interaction.reply(ephemeral(errorEmbed("Chỉ người bắt đầu ván hoặc DJ mới bỏ qua được vòng.")));
+      return interaction.reply(ephemeral(errorEmbed("Only the player who started the game or a DJ can skip the round.")));
     }
     session.skipRound();
-    return interaction.reply(ephemeral(infoEmbed("⏭️ Đang bỏ qua vòng này.")));
+    return interaction.reply(ephemeral(infoEmbed("⏭️ Skipping this round.")));
   }
 }
 
-/** Gửi câu trả lời từ cửa sổ nhập. */
+/** Submit an answer from the modal. */
 export async function handleQuizModal(interaction) {
   const { player, session } = sessionOf(interaction);
-  if (!session) return interaction.reply(ephemeral(errorEmbed("Ván đố nhạc này đã kết thúc.")));
-  if (!inVoice(interaction, player)) return interaction.reply(ephemeral(errorEmbed("Bạn cần ở cùng kênh thoại với bot để chơi.")));
+  if (!session) return interaction.reply(ephemeral(errorEmbed("This music quiz has ended.")));
+  if (!inVoice(interaction, player)) return interaction.reply(ephemeral(errorEmbed("You need to be in the same voice channel as the bot to play.")));
 
   const result = session.submit(interaction.user, interaction.fields.getTextInputValue("answer"));
   const messages = {
-    correct: `✅ Chính xác! **+${result.points}** điểm${result.streak > 1 ? ` (chuỗi ${result.streak} 🔥)` : ""}.`,
-    artist: `🎤 Đúng nghệ sĩ! **+${result.points}** điểm. Còn tên bài nữa nhé.`,
-    "artist-again": "Bạn đã được điểm nghệ sĩ rồi, hãy đoán tên bài.",
-    already: "Bạn đã trả lời đúng vòng này rồi.",
-    late: "Vòng này chưa bắt đầu hoặc đã kết thúc.",
-    wrong: "❌ Chưa đúng, thử lại nhé.",
+    correct: `✅ Correct! **+${result.points}** points${result.streak > 1 ? ` (streak ${result.streak} 🔥)` : ""}.`,
+    artist: `🎤 Right artist! **+${result.points}** points. Now guess the title.`,
+    "artist-again": "You already got the artist points, now guess the title.",
+    already: "You already answered this round correctly.",
+    late: "This round hasn't started or has already ended.",
+    wrong: "❌ Not quite, try again.",
   };
   const embed = result.status === "wrong" || result.status === "late" ? errorEmbed(messages[result.status]) : infoEmbed(messages[result.status]);
   return interaction.reply(ephemeral(embed));

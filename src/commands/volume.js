@@ -5,15 +5,15 @@ import { requirePlayer } from "../utils/guards.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("volume")
-    .setDescription("Chỉnh âm lượng")
+    .setDescription("Adjust the volume")
     .addIntegerOption((o) =>
-      o.setName("level").setDescription("Âm lượng từ 1 đến 150").setMinValue(1).setMaxValue(150).setRequired(true),
+      o.setName("level").setDescription("Volume from 1 to 150").setMinValue(1).setMaxValue(150).setRequired(true),
     ),
   async execute(interaction) {
     const player = await requirePlayer(interaction);
     if (!player) return;
     const level = interaction.options.getInteger("level", true);
     await player.setVolume(level);
-    await interaction.reply({ embeds: [infoEmbed(`🔊 Âm lượng: **${level}%**`)] });
+    await interaction.reply({ embeds: [infoEmbed(`🔊 Volume: **${level}%**`)] });
   },
 };

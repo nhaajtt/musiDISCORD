@@ -48,31 +48,31 @@ export function createLavalink(client) {
   let wasDown = false;
 
   manager.nodeManager.on("connect", (node) => {
-    console.log(`Lavalink node "${node.id}" đã kết nối`);
+    console.log(`Lavalink node "${node.id}" connected`);
 
     if (firstConnect) {
       firstConnect = false;
-      // Việc cần làm khi vừa có Lavalink: quét thư viện, khôi phục hàng chờ, vào lại kênh 24/7
+      // Work to do once Lavalink is up: scan the library, restore queues, rejoin 24/7 channels
       (async () => {
         await library.scan();
         await restoreQueues(client);
         await ensure247(client);
-      })().catch((error) => console.error("Khởi tạo sau khi nối Lavalink lỗi:", error));
+      })().catch((error) => console.error("Post-connect initialization failed:", error));
     } else if (wasDown) {
-      broadcast("✅ Đã kết nối lại với máy chủ nhạc.");
-      alertOwner("lavalink-up", "✅ Lavalink đã kết nối lại.");
+      broadcast("✅ Reconnected to the music server.");
+      alertOwner("lavalink-up", "✅ Lavalink reconnected.");
     }
     wasDown = false;
   });
 
-  manager.nodeManager.on("error", (node, error) => console.error(`Lavalink node "${node.id}" lỗi:`, error.message));
+  manager.nodeManager.on("error", (node, error) => console.error(`Lavalink node "${node.id}" error:`, error.message));
 
   manager.nodeManager.on("disconnect", (node, reason) => {
-    console.warn(`Lavalink node "${node.id}" ngắt kết nối:`, reason?.reason ?? reason);
+    console.warn(`Lavalink node "${node.id}" disconnected:`, reason?.reason ?? reason);
     if (wasDown) return;
     wasDown = true;
-    broadcast("⚠️ Mất kết nối với máy chủ nhạc, nhạc có thể bị gián đoạn. Bot đang thử kết nối lại.");
-    alertOwner("lavalink-down", `⚠️ Lavalink mất kết nối: ${reason?.reason ?? reason ?? "không rõ lý do"}`);
+    broadcast("⚠️ Lost connection to the music server, playback may be interrupted. The bot is trying to reconnect.");
+    alertOwner("lavalink-down", `⚠️ Lavalink disconnected: ${reason?.reason ?? reason ?? "unknown reason"}`);
   });
 
   manager.on("trackStart", async (player, track) => {
@@ -82,16 +82,16 @@ export function createLavalink(client) {
     cancelIdleLeave(player);
     stopLive(player);
 
-    // Đố nhạc: không hiện tên bài, không ghi thống kê
+    // Music quiz: don't show the track name, don't record stats
     if (player.getData("quiz")) return;
 
     beginPlay(player, track);
     saveAll(manager);
     announceTrack(client, player, track);
 
-    // Chế độ /nhaajt: giữ hàng chờ không bao giờ cạn bằng cách nạp vòng mới khi bắt đầu bài cuối
+    // /nhaajt mode: keep the queue from ever running dry by loading a new round when the last track starts
     if (player.getData("nhaajt") && player.queue.tracks.length === 0) {
-      refillNhaajt(player).catch((error) => console.error("Không nạp được vòng nhạc mới:", error));
+      refillNhaajt(player).catch((error) => console.error("Could not load a new round of music:", error));
     }
 
     await sendNowPlaying(client, player, track);
@@ -100,14 +100,14 @@ export function createLavalink(client) {
   manager.on("trackEnd", (player, track, payload) => endPlay(client, player, payload));
 
   manager.on("trackError", (player, track, payload) => {
-    console.error("Lỗi phát bài:", track?.info?.title, payload?.exception?.message);
+    console.error("Playback error:", track?.info?.title, payload?.exception?.message);
     if (player.getData("quiz")) return;
-    send(player, { content: `❌ Không phát được **${track?.info?.title ?? "bài này"}**, đang bỏ qua.` });
+    send(player, { content: `❌ Could not play **${track?.info?.title ?? "this track"}**, skipping.` });
   });
 
   manager.on("trackStuck", (player, track) => {
     if (player.getData("quiz")) return;
-    send(player, { content: `⚠️ Bài **${track?.info?.title ?? "này"}** bị đứng, đang bỏ qua.` });
+    send(player, { content: `⚠️ **${track?.info?.title ?? "This track"}** got stuck, skipping.` });
   });
 
   manager.on("playerDestroy", (player, reason) => {
@@ -116,7 +116,7 @@ export function createLavalink(client) {
     cancelIdleLeave(player);
     finalizeNowPlaying(player);
     clearVoiceStatus(client, player);
-    // Tắt bot thì giữ lại dữ liệu để khôi phục; các lý do khác (/leave, hết hàng chờ...) thì xoá khỏi bản lưu
+    // On shutdown keep the data for restoring; for other reasons (/leave, queue ended...) remove it from the saved state
     if (reason !== "Shutdown") {
       endPlay(client, player, { reason: "stopped" });
       saveAll(manager, { exclude: player.guildId });
@@ -130,10 +130,10 @@ export function createLavalink(client) {
     clearVoiceStatus(client, player);
 
     if (is247(player.guildId, player.voiceChannelId)) {
-      send(player, { content: "✅ Đã hết hàng chờ. Bot ở lại kênh vì đang bật chế độ 24/7." });
+      send(player, { content: "✅ The queue has ended. The bot is staying in the channel because 24/7 mode is on." });
     } else {
       scheduleIdleLeave(player);
-      send(player, { content: "✅ Đã hết hàng chờ. Bot sẽ rời kênh nếu không có bài mới." });
+      send(player, { content: "✅ The queue has ended. The bot will leave the channel if no new track is added." });
     }
   });
 

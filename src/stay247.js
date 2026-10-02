@@ -2,7 +2,7 @@ import * as library from "./library/index.js";
 import { allSettings } from "./store.js";
 import { startNhaajt } from "./utils/nhaajt.js";
 
-/** Vào lại các kênh thoại đã bật 24/7 (sau khi bot khởi động) và bật radio nếu được yêu cầu. */
+/** Rejoins voice channels with 24/7 enabled (after the bot starts) and starts the radio if requested. */
 export async function ensure247(client) {
   for (const [guildId, settings] of allSettings()) {
     const stay = settings.stay247;
@@ -31,7 +31,7 @@ export async function ensure247(client) {
         if (files.length) await startNhaajt(player, files, requester);
       }
     } catch (error) {
-      console.error(`Không vào lại được kênh 24/7 của server ${guildId}:`, error);
+      console.error(`Could not rejoin the 24/7 channel of server ${guildId}:`, error);
     }
   }
 }

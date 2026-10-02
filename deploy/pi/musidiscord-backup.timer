@@ -1,5 +1,5 @@
 [Unit]
-Description=musiDISCORD: sao luu hang ngay
+Description=musiDISCORD: daily backup
 
 [Timer]
 OnCalendar=*-*-* 04:30:00

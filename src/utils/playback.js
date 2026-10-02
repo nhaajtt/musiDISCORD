@@ -9,23 +9,25 @@ async function reject(interaction, message) {
 }
 
 /**
- * Kiểm tra người dùng đang ở kênh thoại, trả lời "đang xử lý" (defer) và trả về player đã kết nối.
- * Trả null (đã phản hồi lỗi) nếu không thể phát.
+ * Checks the user is in a voice channel, defers the reply and returns the connected player.
+ * Returns null (an error reply was already sent) if playback is not possible.
  */
 export async function ensurePlayer(interaction) {
   const voiceChannel = interaction.member.voice?.channel;
-  if (!voiceChannel) return reject(interaction, "Bạn cần vào một kênh thoại trước.");
+  if (!voiceChannel) return reject(interaction, "You need to join a voice channel first.");
 
   const manager = interaction.client.lavalink;
-  if (!manager.useable) return reject(interaction, "Chưa kết nối được Lavalink, thử lại sau ít giây.");
+  if (!manager.useable) return reject(interaction, "Not connected to Lavalink yet, try again in a few seconds.");
 
   let player = manager.getPlayer(interaction.guildId);
   if (player && player.voiceChannelId !== voiceChannel.id) {
-    return reject(interaction, "Bot đang phát ở kênh thoại khác.");
+    return reject(interaction, "The bot is playing in another voice channel.");
   }
-  if (player?.getData("quiz")) return reject(interaction, "Đang chơi đố nhạc, hãy đợi hết ván hoặc dùng `/quiz stop`.");
+  if (player?.getData("quiz")) return reject(interaction, "A music quiz is in progress, wait for it to end or use `/quiz stop`.");
 
-  await interaction.deferReply();
+  // Button presses edit the message they came from; slash commands get a fresh reply
+  if (interaction.isButton()) await interaction.deferUpdate();
+  else await interaction.deferReply();
 
   player ??= manager.createPlayer({
     guildId: interaction.guildId,
@@ -40,7 +42,7 @@ export async function ensurePlayer(interaction) {
 }
 
 /**
- * Tìm `query` (qua `source`), thêm vào hàng chờ của người dùng và phát nếu đang rảnh.
+ * Searches for `query` (via `source`), adds it to the user's queue and plays if idle.
  */
 export async function queueAndPlay(interaction, { query, source }) {
   const player = await ensurePlayer(interaction);
@@ -49,10 +51,10 @@ export async function queueAndPlay(interaction, { query, source }) {
   const res = await player.search({ query, source }, interaction.user);
 
   if (!res || res.loadType === "error") {
-    return interaction.editReply({ embeds: [errorEmbed("Không tải được bài này (có thể bị chặn hoặc lỗi nguồn).")] });
+    return interaction.editReply({ embeds: [errorEmbed("Could not load this track (it may be blocked or the source failed).")] });
   }
   if (res.loadType === "empty" || !res.tracks.length) {
-    return interaction.editReply({ embeds: [errorEmbed("Không tìm thấy kết quả nào.")] });
+    return interaction.editReply({ embeds: [errorEmbed("No results found.")] });
   }
 
   res.tracks.forEach(normalizeLocalTrack);
@@ -62,18 +64,28 @@ export async function queueAndPlay(interaction, { query, source }) {
     await player.queue.add(res.tracks);
     const total = res.tracks.reduce((sum, t) => sum + (t.info.duration || 0), 0);
     reply = infoEmbed(
-      `📃 Đã thêm playlist **${res.playlist?.title ?? "Playlist"}** — ${res.tracks.length} bài (${formatDuration(total)})`,
+      `📃 Added playlist **${res.playlist?.title ?? "Playlist"}** — ${res.tracks.length} tracks (${formatDuration(total)})`,
     );
   } else {
-    const track = res.tracks[0];
-    await player.queue.add(track);
-    reply = player.playing || player.queue.tracks.length > 1
-      ? trackEmbed(track, "Đã thêm vào hàng chờ")
-      : infoEmbed(`🔎 Đã tìm thấy **${track.info.title}**`);
+    reply = await enqueueTrack(player, res.tracks[0], interaction.guildId);
+    await interaction.editReply({ embeds: [reply] });
+    return;
   }
 
-  if (getSettings(interaction.guildId).fairQueue && !player.getData("nhaajt")) await applyFairOrder(player);
-  if (!player.playing && !player.paused) await player.play();
-
+  await startIfIdle(player, interaction.guildId);
   await interaction.editReply({ embeds: [reply] });
+}
+
+async function startIfIdle(player, guildId) {
+  if (getSettings(guildId).fairQueue && !player.getData("nhaajt")) await applyFairOrder(player);
+  if (!player.playing && !player.paused) await player.play();
+}
+
+/** Adds one already-resolved track to the queue, starts playback if idle and returns the embed to show. */
+export async function enqueueTrack(player, track, guildId) {
+  normalizeLocalTrack(track);
+  await player.queue.add(track);
+  const queued = player.playing || player.queue.tracks.length > 1;
+  await startIfIdle(player, guildId);
+  return queued ? trackEmbed(track, "Added to queue") : infoEmbed(`🔎 Found **${track.info.title}**`);
 }

@@ -14,17 +14,17 @@ const ephemeral = (embed) => ({ embeds: [embed], flags: MessageFlags.Ephemeral }
 export default {
   data: new SlashCommandBuilder()
     .setName("quiz")
-    .setDescription("Đố nhạc: nghe đoạn trích và đoán tên bài trong thư viện nhạc của bot")
+    .setDescription("Music quiz: listen to a clip and guess the track from the bot's music library")
     .setDMPermission(false)
     .addSubcommand((s) =>
       s
         .setName("start")
-        .setDescription("Bắt đầu một ván đố nhạc ở kênh thoại bạn đang ở")
-        .addIntegerOption((o) => o.setName("rounds").setDescription("Số vòng (mặc định 8)").setMinValue(3).setMaxValue(20))
-        .addIntegerOption((o) => o.setName("seconds").setDescription("Độ dài đoạn nhạc, tính bằng giây (mặc định 20)").setMinValue(10).setMaxValue(40)),
+        .setDescription("Start a music quiz in the voice channel you are in")
+        .addIntegerOption((o) => o.setName("rounds").setDescription("Number of rounds (default 8)").setMinValue(3).setMaxValue(20))
+        .addIntegerOption((o) => o.setName("seconds").setDescription("Clip length in seconds (default 20)").setMinValue(10).setMaxValue(40)),
     )
-    .addSubcommand((s) => s.setName("stop").setDescription("Dừng ván đố nhạc đang chơi"))
-    .addSubcommand((s) => s.setName("top").setDescription("Bảng xếp hạng đố nhạc của server")),
+    .addSubcommand((s) => s.setName("stop").setDescription("Stop the running music quiz"))
+    .addSubcommand((s) => s.setName("top").setDescription("Music quiz leaderboard for this server")),
 
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
@@ -32,37 +32,37 @@ export default {
 
     if (sub === "top") {
       const rows = quizLeaderboard(guildId, 10);
-      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("Chưa có ai chơi đố nhạc ở server này. Thử `/quiz start` nhé.")));
+      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("Nobody has played the music quiz on this server yet. Try `/quiz start`.")));
       const embed = new EmbedBuilder()
         .setColor(0xf5a524)
-        .setTitle("🧠 Bảng xếp hạng đố nhạc")
-        .setDescription(rows.map((r, i) => `${medal(i)} <@${r.user_id}> • **${r.points}** điểm • ${r.correct} đúng • ${r.games} ván`).join("\n"));
+        .setTitle("🧠 Music quiz leaderboard")
+        .setDescription(rows.map((r, i) => `${medal(i)} <@${r.user_id}> • **${r.points}** pts • ${r.correct} correct • ${r.games} games`).join("\n"));
       return interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
     }
 
     if (sub === "stop") {
       const player = interaction.client.lavalink.getPlayer(guildId);
       const session = player?.getData("quiz");
-      if (!session) return interaction.reply(ephemeral(errorEmbed("Hiện không có ván đố nhạc nào.")));
+      if (!session) return interaction.reply(ephemeral(errorEmbed("There's no music quiz running right now.")));
       if (interaction.user.id !== session.starterId && !isDj(interaction.member, guildId)) {
-        return interaction.reply(ephemeral(errorEmbed("Chỉ người bắt đầu ván hoặc DJ mới dừng được.")));
+        return interaction.reply(ephemeral(errorEmbed("Only the person who started the game or a DJ can stop it.")));
       }
       session.abort();
-      return interaction.reply({ embeds: [infoEmbed("🛑 Đang dừng ván đố nhạc…")] });
+      return interaction.reply({ embeds: [infoEmbed("🛑 Stopping the music quiz…")] });
     }
 
     if (!canControl(interaction.member, guildId)) return denyDj(interaction);
 
     if (library.size() === 0) await library.scan();
     if (library.size() < MIN_SONGS) {
-      return interaction.reply(ephemeral(errorEmbed(`Thư viện nhạc cần ít nhất ${MIN_SONGS} bài để chơi đố nhạc.`)));
+      return interaction.reply(ephemeral(errorEmbed(`The music library needs at least ${MIN_SONGS} tracks to play the music quiz.`)));
     }
 
     const existing = interaction.client.lavalink.getPlayer(guildId);
     if (existing && (existing.queue.current || existing.queue.tracks.length)) {
-      return interaction.reply(ephemeral(errorEmbed("Bot đang phát nhạc. Hãy `/stop` trước khi bắt đầu đố nhạc.")));
+      return interaction.reply(ephemeral(errorEmbed("The bot is playing music. Use `/stop` before starting a music quiz.")));
     }
-    if (existing?.getData("quiz")) return interaction.reply(ephemeral(errorEmbed("Đang có một ván đố nhạc rồi.")));
+    if (existing?.getData("quiz")) return interaction.reply(ephemeral(errorEmbed("A music quiz is already running.")));
 
     const player = await ensurePlayer(interaction);
     if (!player) return;
@@ -84,7 +84,7 @@ export default {
     await interaction.editReply({
       embeds: [
         infoEmbed(
-          `🎧 **Đố nhạc bắt đầu!** ${rounds} vòng, mỗi đoạn ${seconds} giây. Nghe đoạn nhạc rồi bấm 🎯 để đoán tên bài (hoặc nghệ sĩ). Trả lời càng nhanh điểm càng cao.`,
+          `🎧 **Music quiz started!** ${rounds} rounds, ${seconds} seconds per clip. Listen to the clip, then press 🎯 to guess the track (or artist). The faster you answer, the more points you get.`,
         ),
       ],
     });

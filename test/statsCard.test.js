@@ -26,20 +26,20 @@ function check(buf, kind) {
 
 for (const kind of ["wrapped", "profile"]) {
   for (const theme of ["dark", "light"]) {
-    test(`${kind} ${theme}: PNG đúng kích thước`, async () => {
+    test(`${kind} ${theme}: PNG has the right size`, async () => {
       check(await renderStatsCard(full(kind), { theme }), kind);
     });
   }
 }
 
-test("dữ liệu rỗng", async () => {
+test("empty data", async () => {
   for (const kind of ["wrapped", "profile"]) {
     const b = await renderStatsCard({ kind, year: 2026, userName: "", guildName: "", totalListenMs: 0, totalPlays: 0, totalSkips: 0, totalRequests: 0, topTracks: [], topArtists: [], badges: [], streakDays: 0 });
     check(b, kind);
   }
 });
 
-test("thiếu trường tùy chọn và đầu vào lạ", async () => {
+test("missing optional fields and odd input", async () => {
   check(await renderStatsCard({ kind: "wrapped", userName: "a", guildName: "b" }), "wrapped");
   check(await renderStatsCard({ kind: "profile", userName: "a", hourlyPlays: [1, 2], busiestHour: 99, generatedAt: "không phải ngày" }), "profile");
   check(await renderStatsCard({}), "wrapped");
@@ -47,7 +47,7 @@ test("thiếu trường tùy chọn và đầu vào lạ", async () => {
   check(await renderStatsCard({ kind: "wrapped", totalPlays: -5, totalListenMs: NaN, topTracks: [null, {}, { title: 5 }], badges: [null] }), "wrapped");
 });
 
-test("dữ liệu dài tối đa", async () => {
+test("maximum-length data", async () => {
   const long = "Rất dài ".repeat(60);
   const d = full();
   d.userName = long; d.guildName = long;
@@ -68,20 +68,20 @@ const HOST = [
   "x".repeat(500),
 ];
 
-test("chuỗi độc hại không chèn được SVG", async () => {
+test("malicious strings cannot inject SVG", async () => {
   for (const h of HOST) {
     const d = { ...full(), userName: h, guildName: h, topTracks: [{ title: h, artist: h, plays: 3 }], topArtists: [{ name: h, plays: 1 }], badges: [{ name: h }] };
     const { svg } = _internals.build(d, "dark");
     assert.ok(!/<script/i.test(svg), "script");
     const tags = new Set([...svg.matchAll(/<([a-zA-Z]+)/g)].map((m) => m[1]));
     const okTags = ["svg", "defs", "radialGradient", "stop", "pattern", "path", "line", "rect", "circle", "ellipse", "text", "tspan", "g"];
-    for (const t of tags) assert.ok(okTags.includes(t), "thẻ lạ: " + t);
+    for (const t of tags) assert.ok(okTags.includes(t), "unexpected tag: " + t);
     assert.ok(!/[\u0000-\u0008\u000b-\u001f​-‏‪-‮⁦-⁩]/.test(svg));
     for (const kind of ["wrapped", "profile"]) check(await renderStatsCard({ ...d, kind }), kind);
   }
 });
 
-test("làm sạch tên", () => {
+test("sanitize names", () => {
   const { clean, trunc } = _internals;
   assert.equal(clean("🎵🎵", "ẩn danh"), "ẩn danh");
   assert.equal(clean("  a \t\n b  "), "a b");
@@ -91,34 +91,34 @@ test("làm sạch tên", () => {
   assert.equal(trunc("abc", 4), "abc");
 });
 
-test("định dạng số kiểu Việt Nam", () => {
+test("number formatting", () => {
   const { fmtInt, fmtTime } = _internals;
-  assert.equal(fmtInt(1234567), "1.234.567");
-  assert.deepEqual(fmtTime(128.4 * 3.6e6), { value: "128,4", unit: "giờ" });
-  assert.deepEqual(fmtTime(1234.56 * 3.6e6), { value: "1.234,6", unit: "giờ" });
-  assert.deepEqual(fmtTime(0), { value: "0", unit: "phút" });
+  assert.equal(fmtInt(1234567), "1,234,567");
+  assert.deepEqual(fmtTime(128.4 * 3.6e6), { value: "128.4", unit: "hrs" });
+  assert.deepEqual(fmtTime(1234.56 * 3.6e6), { value: "1,234.6", unit: "hrs" });
+  assert.deepEqual(fmtTime(0), { value: "0", unit: "min" });
 });
 
-test("xác định và đủ nhanh", async () => {
+test("deterministic and fast enough", async () => {
   const a = await renderStatsCard(full());
   const b = await renderStatsCard(full());
   assert.ok(a.equals(b));
   const t = performance.now();
   for (let i = 0; i < 3; i++) await renderStatsCard(full());
   const avg = (performance.now() - t) / 3;
-  assert.ok(avg < 400, `quá chậm: ${avg}ms`);
+  assert.ok(avg < 400, `too slow: ${avg}ms`);
 });
 
-test("huy hiệu chính thức đều có ký hiệu riêng", () => {
-  const names = ["Cú đêm", "Tàn nhẫn", "Bậc thầy hàng chờ", "Fan cứng", "Thính phòng", "Nhà phê bình", "Bậc thầy đố nhạc", "Chuỗi 7 ngày"];
+test("every official badge has its own glyph", () => {
+  const names = ["Night Owl", "Ruthless", "Queue Master", "Die-Hard Fan", "Audiophile", "Critic", "Quiz Master", "7-Day Streak", "Cú đêm", "Bậc thầy hàng chờ"];
   for (const kind of ["wrapped", "profile"]) {
     for (const n of names) {
       const { svg } = _internals.build({ ...full(kind), badges: [{ name: n }] }, "dark");
-      assert.ok(!svg.includes('<text x="0" y="6"'), "rơi về vòng tròn số: " + n);
+      assert.ok(!svg.includes('<text x="0" y="6"'), "fell back to the numbered circle: " + n);
     }
   }
-  const q = _internals.build({ ...full(), badges: [{ name: "Bậc thầy đố nhạc" }] }, "dark").svg;
-  const l = _internals.build({ ...full(), badges: [{ name: "Bậc thầy hàng chờ" }] }, "dark").svg;
+  const q = _internals.build({ ...full(), badges: [{ name: "Quiz Master" }] }, "dark").svg;
+  const l = _internals.build({ ...full(), badges: [{ name: "Queue Master" }] }, "dark").svg;
   const g = (x) => x.slice(x.indexOf('<g fill="none" stroke'), x.indexOf("</g></g>"));
   assert.notEqual(g(q), g(l));
 });

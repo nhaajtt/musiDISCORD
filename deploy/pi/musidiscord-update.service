@@ -1,5 +1,5 @@
 [Unit]
-Description=musiDISCORD: tu cap nhat tu GitHub
+Description=musiDISCORD: self-update from GitHub
 After=docker.service network-online.target
 Wants=network-online.target
 Requires=docker.service

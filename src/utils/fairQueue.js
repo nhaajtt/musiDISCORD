@@ -1,6 +1,6 @@
 /**
- * Sắp xếp luân phiên theo người yêu cầu: mỗi người lần lượt một bài, giữ nguyên thứ tự trong từng người.
- * Trả về mảng mới, không sửa mảng gốc.
+ * Interleaves tracks by requester: one track per person in turn, keeping each person's own order.
+ * Returns a new array without modifying the original.
  */
 export function roundRobin(tracks) {
   const queues = new Map();
@@ -18,7 +18,7 @@ export function roundRobin(tracks) {
   return out;
 }
 
-/** Áp dụng thứ tự công bằng lên hàng chờ của player. */
+/** Applies the fair order to the player's queue. */
 export async function applyFairOrder(player) {
   const tracks = player.queue.tracks;
   if (tracks.length < 3) return;
@@ -27,7 +27,7 @@ export async function applyFairOrder(player) {
   await player.queue.splice(0, tracks.length, ...ordered);
 }
 
-/** Đưa một bài lên đầu hàng chờ (phát kế tiếp). Trả về false nếu vị trí không hợp lệ. */
+/** Moves a track to the front of the queue (plays next). Returns false if the index is invalid. */
 export async function moveToFront(player, index) {
   const tracks = player.queue.tracks;
   if (index < 0 || index >= tracks.length) return false;

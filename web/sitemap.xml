@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://musidiscord.vercel.app/</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/raspberry-pi.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/raspberry-pi.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/raspberry-pi.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/raspberry-pi.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/raspberry-pi.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/raspberry-pi.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/raspberry-pi.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/raspberry-pi.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/tinh-nang.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/tinh-nang.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/features.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/tinh-nang.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/features.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/tinh-nang.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/features.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/tinh-nang.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/lenh.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/lenh.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/commands.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/lenh.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/commands.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/lenh.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/commands.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/lenh.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/cai-dat.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/cai-dat.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/setup.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/cai-dat.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/setup.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/cai-dat.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/setup.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/cai-dat.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/nhat-ky.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/nhat-ky.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/devlog.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/nhat-ky.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/devlog.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/nhat-ky.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/devlog.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/nhat-ky.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/privacy.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/privacy.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/terms.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/terms.html"/>
+  </url>
+  <url>
+    <loc>https://musidiscord.vercel.app/en/terms.html</loc>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/terms.html"/>
+  </url>
+</urlset>

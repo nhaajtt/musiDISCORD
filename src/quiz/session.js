@@ -14,9 +14,9 @@ const medal = (i) => ["🥇", "🥈", "🥉"][i] ?? `**${i + 1}.**`;
 
 const buttons = () =>
   new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId("qz:answer").setLabel("Trả lời").setEmoji("🎯").setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId("qz:hint").setLabel("Gợi ý").setEmoji("💡").setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId("qz:skip").setLabel("Bỏ qua vòng").setEmoji("⏭️").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("qz:answer").setLabel("Answer").setEmoji("🎯").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("qz:hint").setLabel("Hint").setEmoji("💡").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("qz:skip").setLabel("Skip round").setEmoji("⏭️").setStyle(ButtonStyle.Secondary),
   );
 
 function humansIn(client, player) {
@@ -25,13 +25,13 @@ function humansIn(client, player) {
 }
 
 /**
- * Bắt đầu một ván đố nhạc. Chạy nền; trạng thái nằm ở player.getData("quiz") với các hàm
- * submit(user, text), hint(), skipRound(), abort() để lớp xử lý nút bấm gọi vào.
+ * Start a music quiz game. Runs in the background; state lives in player.getData("quiz") with the functions
+ * submit(user, text), hint(), skipRound(), abort() for the button handlers to call.
  */
 export function startQuiz({ client, player, channel, starter, entries, rounds, clipMs, gapMs = GAP_MS, graceMs = GRACE_MS }) {
   const picked = pickRounds(entries, rounds);
   const windowMs = clipMs + graceMs;
-  const requester = { id: client.user.id, username: "Đố nhạc" };
+  const requester = { id: client.user.id, username: "Music quiz" };
 
   const scores = new Map();
   let aborted = false;
@@ -56,7 +56,7 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
       round?.finish("abort");
     },
 
-    /** Trả lời của một người chơi. Trả về { status, points? }. */
+    /** A player's answer. Returns { status, points? }. */
     submit(user, text) {
       if (!round?.startedAt) return { status: "late" };
       if (round.correct.has(user.id)) return { status: "already" };
@@ -89,13 +89,13 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
       return { status: "correct", points, streak };
     },
 
-    /** Lộ thêm một gợi ý cho vòng hiện tại. */
+    /** Reveal one more hint for the current round. */
     hint() {
       if (!round?.startedAt) return null;
-      if (round.hintLevel >= MAX_HINTS) return "Đã hết gợi ý cho vòng này.";
+      if (round.hintLevel >= MAX_HINTS) return "No more hints for this round.";
       round.hintLevel += 1;
       round.refresh();
-      return `💡 Gợi ý ${round.hintLevel}: ${buildHint(round.entry.title, round.hintLevel)}`;
+      return `💡 Hint ${round.hintLevel}: ${buildHint(round.entry.title, round.hintLevel)}`;
     },
 
     skipRound() {
@@ -105,14 +105,14 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
 
   function roundEmbed(index, state) {
     const hints = [];
-    for (let level = 1; level <= round.hintLevel; level++) hints.push(`💡 Gợi ý ${level}: ${buildHint(round.entry.title, level)}`);
+    for (let level = 1; level <= round.hintLevel; level++) hints.push(`💡 Hint ${level}: ${buildHint(round.entry.title, level)}`);
     return new EmbedBuilder()
       .setColor(COLOR)
-      .setTitle(`🎧 Vòng ${index + 1}/${picked.length}`)
+      .setTitle(`🎧 Round ${index + 1}/${picked.length}`)
       .setDescription(
-        `Đoán **tên bài hát** (hoặc nghệ sĩ) trong **${Math.round(windowMs / 1000)} giây**!\nBấm 🎯 để trả lời. Trả lời nhanh được nhiều điểm hơn, mỗi gợi ý trừ 20 điểm.${hints.length ? `\n\n${hints.join("\n")}` : ""}`,
+        `Guess the **song title** (or artist) within **${Math.round(windowMs / 1000)} seconds**!\nPress 🎯 to answer. Faster answers earn more points, and each hint costs 20 points.${hints.length ? `\n\n${hints.join("\n")}` : ""}`,
       )
-      .setFooter({ text: `Đã trả lời đúng: ${round.correct.size}${state ? ` • ${state}` : ""}` });
+      .setFooter({ text: `Answered correctly: ${round.correct.size}${state ? ` • ${state}` : ""}` });
   }
 
   async function playRound(entry, index) {
@@ -144,15 +144,15 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
     round = null;
     await player.stopPlaying(true, false).catch(() => {});
 
-    // Ai không đúng vòng này thì mất chuỗi
+    // Anyone who didn't get this round right loses their streak
     for (const [id, score] of scores) if (!finished.correct.has(id)) score.streak = 0;
 
     const winners = [...finished.correct.values()].map((w) => `${w.name} (+${w.points})`).join(", ");
     const reveal = new EmbedBuilder()
       .setColor(finished.correct.size ? 0x57f287 : 0xed4245)
-      .setTitle(`Vòng ${index + 1}/${picked.length}: ${entry.title}`)
+      .setTitle(`Round ${index + 1}/${picked.length}: ${entry.title}`)
       .setDescription(
-        `${entry.artist ? `**${entry.artist}**` : "Không rõ nghệ sĩ"}${entry.album ? ` • ${entry.album}` : ""}\n\n${winners ? `✅ ${winners}` : outcome === "skip" ? "⏭️ Đã bỏ qua vòng này." : "😅 Không ai đoán ra."}`,
+        `${entry.artist ? `**${entry.artist}**` : "Unknown artist"}${entry.album ? ` • ${entry.album}` : ""}\n\n${winners ? `✅ ${winners}` : outcome === "skip" ? "⏭️ This round was skipped." : "😅 Nobody guessed it."}`,
       );
     await message?.edit({ embeds: [reveal], components: [] }).catch(() => {});
   }
@@ -162,11 +162,11 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
     await player.stopPlaying(true, false).catch(() => {});
 
     const ranking = [...scores.entries()].sort((a, b) => b[1].points - a[1].points);
-    const lines = ranking.map(([id, s], i) => `${medal(i)} <@${id}> • **${s.points}** điểm (${s.correct} đúng, chuỗi dài nhất ${s.best})`);
+    const lines = ranking.map(([id, s], i) => `${medal(i)} <@${id}> • **${s.points}** points (${s.correct} correct, best streak ${s.best})`);
     const embed = new EmbedBuilder()
       .setColor(COLOR)
-      .setTitle(aborted ? "🛑 Ván đố nhạc đã dừng" : "🏁 Kết thúc ván đố nhạc")
-      .setDescription(lines.join("\n") || "Không ai ghi điểm ván này.");
+      .setTitle(aborted ? "🛑 Music quiz stopped" : "🏁 Music quiz finished")
+      .setDescription(lines.join("\n") || "Nobody scored this game.");
     await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
 
     for (const [id, s] of ranking) {
@@ -186,7 +186,7 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
         if (!aborted && i < picked.length - 1) await sleep(gapMs);
       }
     } catch (error) {
-      console.error("Đố nhạc lỗi:", error);
+      console.error("Music quiz error:", error);
     } finally {
       await finish();
     }

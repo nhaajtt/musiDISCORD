@@ -4,7 +4,7 @@ import { config } from "../config.js";
 
 export const AUDIO_EXT = new Set([".mp3", ".flac", ".wav", ".ogg", ".opus", ".m4a", ".aac", ".webm"]);
 
-/** Danh sách file âm thanh (đường dẫn tương đối, dùng dấu "/") trong thư mục music. */
+/** List of audio files (relative paths, using "/") in the music folder. */
 export async function listAudioFiles() {
   try {
     const entries = await readdir(config.musicDir, { recursive: true });

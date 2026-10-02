@@ -4,7 +4,7 @@ import { trackKey } from "../utils/trackKey.js";
 
 const btn = (id, emoji, style = ButtonStyle.Secondary) => new ButtonBuilder().setCustomId(`np:${id}`).setEmoji(emoji).setStyle(style);
 
-/** Hai hàng nút dưới tin nhắn "Đang phát": điều khiển và phản hồi (👍 👎 ❤️ 📜). */
+/** Two button rows under the "Now playing" message: controls and feedback (👍 👎 ❤️ 📜). */
 export function controlRows(player, track) {
   const looping = player.repeatMode !== "off";
   const key = track ? trackKey(track) : null;

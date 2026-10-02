@@ -2,46 +2,46 @@ import { EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.
 import { getSettings, updateSettings } from "../store.js";
 import { infoEmbed } from "../utils/embeds.js";
 
-const onOff = (value) => (value ? "Bật" : "Tắt");
+const onOff = (value) => (value ? "On" : "Off");
 
 export default {
   data: new SlashCommandBuilder()
     .setName("settings")
-    .setDescription("Cài đặt bot cho server này")
+    .setDescription("Bot settings for this server")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setDMPermission(false)
-    .addSubcommand((s) => s.setName("view").setDescription("Xem cài đặt hiện tại"))
+    .addSubcommand((s) => s.setName("view").setDescription("View current settings"))
     .addSubcommand((s) =>
       s
         .setName("dj-role")
-        .setDescription("Chỉ role này mới được điều khiển nhạc (bỏ trống để ai cũng dùng được)")
-        .addRoleOption((o) => o.setName("role").setDescription("Role DJ")),
+        .setDescription("Only this role can control the music (leave empty to allow everyone)")
+        .addRoleOption((o) => o.setName("role").setDescription("DJ role")),
     )
     .addSubcommand((s) =>
       s
         .setName("volume")
-        .setDescription("Âm lượng mặc định mỗi khi bot vào kênh thoại")
+        .setDescription("Default volume whenever the bot joins a voice channel")
         .addIntegerOption((o) =>
-          o.setName("level").setDescription("Từ 1 đến 150").setMinValue(1).setMaxValue(150).setRequired(true),
+          o.setName("level").setDescription("From 1 to 150").setMinValue(1).setMaxValue(150).setRequired(true),
         ),
     )
     .addSubcommand((s) =>
       s
         .setName("fair-queue")
-        .setDescription("Hàng chờ công bằng: mỗi người lần lượt một bài")
-        .addBooleanOption((o) => o.setName("enabled").setDescription("Bật hay tắt").setRequired(true)),
+        .setDescription("Fair queue: each person gets a turn, one track at a time")
+        .addBooleanOption((o) => o.setName("enabled").setDescription("On or off").setRequired(true)),
     )
     .addSubcommand((s) =>
       s
         .setName("contributions")
-        .setDescription("Cho phép thành viên gửi file nhạc đóng góp (chủ bot duyệt, cần CONTRIBUTIONS=on)")
-        .addBooleanOption((o) => o.setName("enabled").setDescription("Bật hay tắt").setRequired(true)),
+        .setDescription("Let members submit music files (the bot owner reviews them, needs CONTRIBUTIONS=on)")
+        .addBooleanOption((o) => o.setName("enabled").setDescription("On or off").setRequired(true)),
     )
     .addSubcommand((s) =>
       s
         .setName("vc-status")
-        .setDescription("Tự ghi tên bài đang phát lên trạng thái kênh thoại")
-        .addBooleanOption((o) => o.setName("enabled").setDescription("Bật hay tắt").setRequired(true)),
+        .setDescription("Automatically set the current track name as the voice channel status")
+        .addBooleanOption((o) => o.setName("enabled").setDescription("On or off").setRequired(true)),
     ),
 
   async execute(interaction) {
@@ -52,7 +52,7 @@ export default {
       const role = interaction.options.getRole("role");
       updateSettings(guildId, { djRoleId: role?.id ?? null });
       return interaction.reply({
-        embeds: [infoEmbed(role ? `🎚️ Chỉ ${role} (và người có quyền Manage Server) được điều khiển nhạc. Ai cũng vẫn bỏ phiếu bỏ qua bài được.` : "🎚️ Đã tắt role DJ, ai cũng điều khiển được.")],
+        embeds: [infoEmbed(role ? `🎚️ Only ${role} (and people with Manage Server) can control the music. Anyone can still vote to skip.` : "🎚️ DJ role turned off, anyone can control the music.")],
         allowedMentions: { parse: [] },
       });
     }
@@ -60,14 +60,14 @@ export default {
     if (sub === "volume") {
       const level = interaction.options.getInteger("level", true);
       updateSettings(guildId, { defaultVolume: level });
-      return interaction.reply({ embeds: [infoEmbed(`🔊 Âm lượng mặc định: **${level}%** (áp dụng từ lần bot vào kênh sau).`)] });
+      return interaction.reply({ embeds: [infoEmbed(`🔊 Default volume: **${level}%** (applies the next time the bot joins a channel).`)] });
     }
 
     if (sub === "fair-queue") {
       const enabled = interaction.options.getBoolean("enabled", true);
       updateSettings(guildId, { fairQueue: enabled });
       return interaction.reply({
-        embeds: [infoEmbed(enabled ? "⚖️ Đã bật hàng chờ công bằng: các bài mới được xếp luân phiên theo từng người." : "⚖️ Đã tắt hàng chờ công bằng.")],
+        embeds: [infoEmbed(enabled ? "⚖️ Fair queue turned on: new tracks are interleaved by person." : "⚖️ Fair queue turned off.")],
       });
     }
 
@@ -75,7 +75,7 @@ export default {
       const enabled = interaction.options.getBoolean("enabled", true);
       updateSettings(guildId, { contributions: enabled });
       return interaction.reply({
-        embeds: [infoEmbed(enabled ? "🎁 Đã bật đóng góp nhạc ở server này. Thành viên dùng `/contribute submit`, chủ bot duyệt trước khi file vào thư viện." : "🎁 Đã tắt đóng góp nhạc ở server này.")],
+        embeds: [infoEmbed(enabled ? "🎁 Music contributions turned on for this server. Members use `/contribute submit`, and the bot owner reviews files before they enter the library." : "🎁 Music contributions turned off for this server.")],
       });
     }
 
@@ -83,7 +83,7 @@ export default {
       const enabled = interaction.options.getBoolean("enabled", true);
       updateSettings(guildId, { vcStatus: enabled });
       return interaction.reply({
-        embeds: [infoEmbed(enabled ? "🎙️ Đã bật: tên bài đang phát sẽ hiện trên kênh thoại (bot cần quyền Set Voice Channel Status)." : "🎙️ Đã tắt trạng thái kênh thoại.")],
+        embeds: [infoEmbed(enabled ? "🎙️ Turned on: the current track name will show on the voice channel (the bot needs the Set Voice Channel Status permission)." : "🎙️ Voice channel status turned off.")],
       });
     }
 
@@ -91,14 +91,14 @@ export default {
     const stay = settings.stay247;
     const embed = new EmbedBuilder()
       .setColor(0x5865f2)
-      .setTitle("Cài đặt server")
+      .setTitle("Server settings")
       .addFields(
-        { name: "Role DJ", value: settings.djRoleId ? `<@&${settings.djRoleId}>` : "Không giới hạn", inline: true },
-        { name: "Âm lượng mặc định", value: `${settings.defaultVolume}%`, inline: true },
-        { name: "Hàng chờ công bằng", value: onOff(settings.fairQueue), inline: true },
-        { name: "Trạng thái kênh thoại", value: onOff(settings.vcStatus), inline: true },
-        { name: "Đóng góp nhạc", value: onOff(settings.contributions), inline: true },
-        { name: "Chế độ 24/7", value: stay ? `Bật tại <#${stay.voiceChannelId}>${stay.radio ? " (radio)" : ""}` : "Tắt", inline: true },
+        { name: "DJ role", value: settings.djRoleId ? `<@&${settings.djRoleId}>` : "No restriction", inline: true },
+        { name: "Default volume", value: `${settings.defaultVolume}%`, inline: true },
+        { name: "Fair queue", value: onOff(settings.fairQueue), inline: true },
+        { name: "Voice channel status", value: onOff(settings.vcStatus), inline: true },
+        { name: "Music contributions", value: onOff(settings.contributions), inline: true },
+        { name: "24/7 mode", value: stay ? `On in <#${stay.voiceChannelId}>${stay.radio ? " (radio)" : ""}` : "Off", inline: true },
       );
     await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
   },

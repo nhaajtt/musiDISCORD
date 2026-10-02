@@ -1,4 +1,4 @@
-// Tính đặc trưng âm thanh bằng JS thuần: năng lượng, độ sáng, nhịp độ (BPM ước lượng), tâm trạng.
+// Computes audio features in plain JS: energy, brightness, tempo (estimated BPM), mood.
 
 const FRAME = 1024;
 const HOP = 512;
@@ -9,7 +9,7 @@ export const MOODS = ["chill", "steady", "upbeat", "hype"];
 
 const clamp = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 
-/** FFT cơ số 2 tại chỗ. */
+/** In-place radix-2 FFT. */
 function fft(re, im) {
   const n = re.length;
   for (let i = 1, j = 0; i < n; i++) {
@@ -55,13 +55,13 @@ export function moodOf(bpm, energy) {
   return "steady";
 }
 
-/** Ước lượng BPM từ đường bao onset bằng tự tương quan (chuẩn hoá theo độ dài, nội suy parabol). */
+/** Estimate BPM from the onset envelope using autocorrelation (length-normalized, parabolic interpolation). */
 function estimateBpm(onset, frameRate) {
   const n = onset.length;
   if (n < frameRate * 6) return null;
 
   const mean = onset.reduce((a, b) => a + b, 0) / n;
-  // Làm mượt nhẹ để đỉnh tự tương quan rộng hơn một khung, đỡ lệch do làm tròn lag
+  // Light smoothing so the autocorrelation peak is wider than one frame, reducing lag rounding error
   const x = onset.map((v, i) => Math.max(0, 0.25 * (onset[i - 1] ?? v) + 0.5 * v + 0.25 * (onset[i + 1] ?? v) - mean));
   if (!x.some((v) => v > 0)) return null;
 
@@ -79,7 +79,7 @@ function estimateBpm(onset, frameRate) {
   let bestScore = 0;
   for (let lag = minLag; lag <= maxLag; lag++) {
     const bpm = (60 * frameRate) / lag;
-    // Ưu tiên nhẹ vùng nhịp phổ biến để tránh nhầm sang gấp đôi / một nửa
+    // Slightly favor the common tempo range to avoid double/half-tempo mistakes
     const prior = Math.exp(-0.5 * (Math.log2(bpm / 120) / 0.9) ** 2);
     const score = (ac[lag] + 0.5 * (ac[lag * 2] ?? 0)) * prior;
     if (score > bestScore && ac[lag] >= ac[lag - 1] && ac[lag] >= ac[lag + 1]) {
@@ -98,8 +98,8 @@ function estimateBpm(onset, frameRate) {
 }
 
 /**
- * Tính đặc trưng từ mẫu PCM mono. `samples`: Float32Array biên độ -1..1.
- * Trả về { bpm|null, energy 0..1, brightness 0..1, mood } hoặc null nếu quá ngắn/im lặng.
+ * Compute features from mono PCM samples. `samples`: Float32Array of amplitudes -1..1.
+ * Returns { bpm|null, energy 0..1, brightness 0..1, mood } or null if too short/silent.
  */
 export function computeFeatures(samples, sampleRate = 22050) {
   const frames = Math.floor((samples.length - FRAME) / HOP) + 1;
@@ -152,7 +152,7 @@ export function computeFeatures(samples, sampleRate = 22050) {
   return { bpm, energy, brightness, loudness: Math.round(rmsDb * 10) / 10, mood: moodOf(bpm, energy) };
 }
 
-/** Khoảng cách giữa hai bộ đặc trưng (nhỏ = giống nhau); nhịp độ tính theo cả nửa/gấp đôi. */
+/** Distance between two feature sets (smaller = more similar); tempo also counts half/double. */
 export function distance(a, b) {
   const bpmDist =
     a.bpm != null && b.bpm != null ? Math.min(1, Math.min(Math.abs(a.bpm - b.bpm), Math.abs(2 * a.bpm - b.bpm), Math.abs(a.bpm - 2 * b.bpm)) / 60) : 0.4;

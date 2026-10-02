@@ -1,4 +1,4 @@
-// musiDISCORD /display: đĩa quay theo nhịp thật của bài, loang màu khi đổi bài, điều khiển và tua bằng chạm.
+// musiDISCORD /display: a disc spinning to the track's real beat, a color wipe on track change, touch controls and seeking.
 (() => {
   "use strict";
 
@@ -19,12 +19,12 @@
   };
   el.label = el.disc.querySelector(".disc__label");
 
-  const MOODS = { chill: "Chill", steady: "Vừa phải", upbeat: "Sôi động", hype: "Hừng hực" };
+  const MOODS = { chill: "Chill", steady: "Steady", upbeat: "Upbeat", hype: "Hype" };
   const COPY = {
-    idle: ["Chưa có bài nào đang phát", "Vào kênh thoại rồi dùng /play, /local hoặc /nhaajt để bắt đầu."],
-    quiz: ["Đang chơi đố nhạc", "Tên bài được giấu để không lộ đáp án."],
-    offline: ["Mất kết nối với bot", "Trang sẽ tự thử lại sau vài giây."],
-    auth: ["Cần token để xem trang này", "Thêm ?token=… vào cuối địa chỉ. Token nằm ở mục DISPLAY_TOKEN trong file .env của bot."],
+    idle: ["Nothing is playing", "Join a voice channel and use /play, /local or /nhaajt to start."],
+    quiz: ["Music quiz in progress", "The title is hidden so it doesn't give away the answer."],
+    offline: ["Lost connection to the bot", "The page will retry in a few seconds."],
+    auth: ["A token is required to view this page", "Add ?token=… to the end of the address. The token is the DISPLAY_TOKEN value in the bot's .env file."],
   };
 
   let np = null;
@@ -54,7 +54,7 @@
     return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
   };
 
-  /* ---------- màu theo bài ---------- */
+  /* ---------- per-track color ---------- */
   function hueOf(hex) {
     const n = parseInt(String(hex).slice(1), 16);
     if (!Number.isFinite(n)) return 262;
@@ -74,7 +74,7 @@
     return c1;
   }
 
-  /* ---------- hiệu ứng chữ ---------- */
+  /* ---------- text effects ---------- */
   function buildTitle(text, delay) {
     el.title.textContent = "";
     el.title.setAttribute("aria-label", text);
@@ -158,7 +158,7 @@
     requestAnimationFrame(lean);
   });
 
-  /* ---------- loang màu khi đổi bài ---------- */
+  /* ---------- color wipe on track change ---------- */
   function wipe(color) {
     if (reduced.matches || !el.wipe.animate) return;
     const r = el.deck.getBoundingClientRect();
@@ -178,21 +178,21 @@
     };
   }
 
-  /* ---------- chuyển bài ---------- */
+  /* ---------- track change ---------- */
   function onNewTrack(n, firstLoad) {
     const hue = hueOf(n.accent);
     const color = theme(hue, n.energy);
     if (!firstLoad) {
       wipe(color);
-      vel = 560; // đĩa quay vọt rồi chậm dần
+      vel = 560; // the disc spins up, then slows down
     }
 
     buildTitle(n.title, firstLoad ? 150 : 420);
     scramble(el.artist, n.artist || "", firstLoad ? 400 : 650);
     document.title = n.artist ? `${n.title} – ${n.artist}` : n.title;
-    el.live.textContent = `Đang phát: ${n.title}${n.artist ? `, ${n.artist}` : ""}`;
+    el.live.textContent = `Now playing: ${n.title}${n.artist ? `, ${n.artist}` : ""}`;
 
-    // vòng chữ: lặp nguyên cụm (không cắt giữa chừng) và chỉnh cỡ chữ cho vừa một vòng
+    // text ring: repeat the whole phrase (never cut mid-way) and adjust the font size to fit exactly one loop
     const clip = (s, max) => ([...s].length > max ? `${[...s].slice(0, max - 1).join("")}…` : s);
     const unit = `${clip(n.title, 30)} • ${clip(n.artist || "musiDISCORD", 22)} • `;
     const chars = [...unit].length;
@@ -217,7 +217,7 @@
     setTimeout(measureLetters, 1700);
   }
 
-  /* ---------- hiển thị ---------- */
+  /* ---------- display ---------- */
   function setMode(next) {
     mode = next;
     document.body.dataset.state = next;
@@ -242,7 +242,7 @@
     if (n.paused && n.title) {
       const chip = document.createElement("em");
       chip.className = "chip";
-      chip.textContent = "Tạm dừng";
+      chip.textContent = "Paused";
       nodes.push(chip);
     }
     el.where.replaceChildren(...nodes);
@@ -251,18 +251,18 @@
   function renderMeta(n) {
     const lines = [];
     if (n.album) lines.push(n.album);
-    if (n.mood) lines.push(`${MOODS[n.mood] || n.mood}${n.energy != null ? `, năng lượng ${Math.round(n.energy * 100)}%` : ""}`);
-    if (n.next) lines.push(`Tiếp theo: ${n.next}`);
-    else if (n.queueLength) lines.push(`Còn ${n.queueLength} bài trong hàng chờ`);
-    if (n.repeat === "track") lines.push("Đang lặp bài này");
-    if (n.repeat === "queue") lines.push("Đang lặp cả hàng chờ");
+    if (n.mood) lines.push(`${MOODS[n.mood] || n.mood}${n.energy != null ? `, energy ${Math.round(n.energy * 100)}%` : ""}`);
+    if (n.next) lines.push(`Up next: ${n.next}`);
+    else if (n.queueLength) lines.push(`${n.queueLength} more in the queue`);
+    if (n.repeat === "track") lines.push("Repeating this track");
+    if (n.repeat === "queue") lines.push("Repeating the whole queue");
     el.meta.textContent = lines.join("\n");
   }
 
   function renderDisc(n) {
     if (n.bpm) {
       el.bpm.textContent = String(Math.round(n.bpm));
-      el.bpmUnit.textContent = "nhịp/phút";
+      el.bpmUnit.textContent = "BPM";
     } else {
       el.bpm.textContent = "♪";
       el.bpmUnit.textContent = "";
@@ -294,7 +294,7 @@
     renderDisc(n);
   }
 
-  /* ---------- thước theo nhịp ---------- */
+  /* ---------- beat ruler ---------- */
   function layoutRuler() {
     if (!np || !np.duration) return;
     const w = el.ruler.clientWidth || 300;
@@ -314,7 +314,7 @@
     return np.duration ? clamp(p, 0, np.duration) : p;
   }
 
-  /* ---------- vòng lặp hoạt ảnh ---------- */
+  /* ---------- animation loop ---------- */
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(0.1, (now - last) / 1000);
@@ -322,7 +322,7 @@
     const live = mode === "playing" || mode === "paused";
     const playing = mode === "playing";
 
-    // đĩa: tăng tốc, giảm tốc có quán tính
+    // disc: accelerates and decelerates with inertia
     const target = playing ? 34 + 40 * (np?.energy ?? 0.4) : 0;
     vel += (target - vel) * (1 - Math.exp(-dt / (playing ? 0.5 : 0.75)));
     angle = (angle + vel * dt) % 360;
@@ -345,7 +345,7 @@
         el.ruler.setAttribute("aria-valuenow", String(Math.round(p * 100)));
       }
 
-      // nhịp: đập đúng theo BPM đo được; không có BPM thì chỉ thở chậm
+      // beat: pulses in time with the measured BPM; with no BPM it just breathes slowly
       if (!reduced.matches) {
         let k;
         if (playing && np.bpm) {
@@ -363,7 +363,7 @@
     requestAnimationFrame(frame);
   }
 
-  /* ---------- thông báo ---------- */
+  /* ---------- notifications ---------- */
   let toastTimer = 0;
   function toast(text, big) {
     el.toast.replaceChildren();
@@ -378,9 +378,9 @@
     toastTimer = setTimeout(() => el.toast.classList.remove("on"), 1800);
   }
 
-  /* ---------- điều khiển ---------- */
+  /* ---------- controls ---------- */
   async function send(action, value) {
-    if (!canControl) return toast("Điều khiển đang tắt. Mở trang với ?token=… và đặt DISPLAY_TOKEN trên bot.");
+    if (!canControl) return toast("Controls are disabled. Open the page with ?token=… and set DISPLAY_TOKEN on the bot.");
     if (action === "toggle" && np) {
       np.position = position(performance.now());
       at = performance.now();
@@ -392,10 +392,10 @@
     try {
       const res = await fetch(api("/api/control"), { method: "POST", headers: { "content-type": "application/json", ...(token ? { "x-token": token } : {}) }, body: JSON.stringify({ action, value }) });
       if (res.ok) return render(await res.json());
-      const msg = { 401: "Thiếu hoặc sai token.", 403: "Điều khiển đang tắt trên bot.", 409: "Không có bài đang phát." }[res.status];
-      toast(msg || "Không điều khiển được, thử lại nhé.");
+      const msg = { 401: "Missing or wrong token.", 403: "Controls are disabled on the bot.", 409: "Nothing is playing." }[res.status];
+      toast(msg || "Couldn't send the command, please try again.");
     } catch {
-      toast("Mất kết nối với bot.");
+      toast("Lost connection to the bot.");
     }
   }
 
@@ -405,7 +405,7 @@
     const act = btn.dataset.act;
     if (act === "vol+" || act === "vol-") {
       const v = clamp((np?.volume ?? 100) + (act === "vol+" ? 10 : -10), 0, 150);
-      if (canControl) toast("% âm lượng", String(v));
+      if (canControl) toast("% volume", String(v));
       return send("volume", v);
     }
     send(act);
@@ -414,7 +414,7 @@
 
   function seekFromEvent(e) {
     if (!np?.duration || np.isStream) return;
-    if (el.ruler.getAttribute("aria-disabled") === "true") return toast("Cần token để tua bài.");
+    if (el.ruler.getAttribute("aria-disabled") === "true") return toast("A token is required to seek.");
     const r = el.ruler.getBoundingClientRect();
     const ratio = clamp((e.clientX - r.left) / r.width, 0, 0.999);
     send("seek", Math.round(ratio * np.duration));
@@ -427,7 +427,7 @@
     send("seek", Math.round(to));
   });
 
-  /* ---------- lấy dữ liệu ---------- */
+  /* ---------- fetch data ---------- */
   async function poll() {
     let wait = 1500;
     try {
@@ -448,12 +448,13 @@
     setTimeout(poll, wait);
   }
 
-  // giữ màn hình sáng (điện thoại, máy tính bảng dùng làm bảng hiển thị)
+  // keep the screen awake (phones and tablets used as a display board)
   async function keepAwake() {
     try {
       await navigator.wakeLock?.request("screen");
     } catch {
-      // trình duyệt không cho thì thôi
+      // if the browser refuses, so be it
+
     }
   }
   document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && keepAwake());

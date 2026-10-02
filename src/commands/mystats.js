@@ -4,8 +4,8 @@ import { replyWithCard } from "../ui/statsView.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("mystats")
-    .setDescription("Thẻ thống kê nghe nhạc của bạn (hoặc của người khác) ở server này")
-    .addUserOption((o) => o.setName("user").setDescription("Người muốn xem (mặc định là bạn)")),
+    .setDescription("Listening stats card for you (or someone else) on this server")
+    .addUserOption((o) => o.setName("user").setDescription("User to view (default: you)")),
 
   async execute(interaction) {
     await interaction.deferReply();

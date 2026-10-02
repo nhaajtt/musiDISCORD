@@ -1,6 +1,6 @@
 #!/bin/sh
-# Tự cập nhật từ GitHub (chạy trên máy chủ, ví dụ bằng systemd timer):
-#   lấy commit mới -> chỉ chấp nhận fast-forward -> dựng lại -> chờ bot "healthy" -> hỏng thì quay về bản cũ.
+# Self-update from GitHub (run on the host, e.g. from a systemd timer):
+#   fetch new commits -> accept fast-forward only -> rebuild -> wait for the bot to be "healthy" -> roll back to the old version on failure.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -9,7 +9,7 @@ WAIT_SECONDS="${UPDATE_WAIT_SECONDS:-180}"
 
 exec 9>"${TMPDIR:-/tmp}/musidiscord-update.lock"
 if ! flock -n 9; then
-  echo "Đang có lần cập nhật khác chạy, bỏ qua."
+  echo "Another update is already running, skipping."
   exit 0
 fi
 
@@ -33,7 +33,7 @@ wait_healthy() {
 }
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "Có thay đổi chưa commit trong thư mục, không tự cập nhật."
+  echo "There are uncommitted changes in the working directory, not updating."
   exit 1
 fi
 
@@ -43,25 +43,25 @@ git fetch --quiet origin "$branch"
 new=$(git rev-parse "origin/$branch")
 
 if [ "$old" = "$new" ]; then
-  echo "Đã là bản mới nhất ($(git rev-parse --short HEAD))."
+  echo "Already up to date ($(git rev-parse --short HEAD))."
   exit 0
 fi
 
 git merge --ff-only "origin/$branch"
-notify "Đang cập nhật $(git rev-parse --short "$old") -> $(git rev-parse --short "$new")"
+notify "Updating $(git rev-parse --short "$old") -> $(git rev-parse --short "$new")"
 
 docker compose up -d --build
 if wait_healthy; then
-  notify "Đã cập nhật xong lên $(git rev-parse --short "$new")."
+  notify "Update complete: now on $(git rev-parse --short "$new")."
   exit 0
 fi
 
-notify "Bản $(git rev-parse --short "$new") không khoẻ sau ${WAIT_SECONDS}s, đang quay về $(git rev-parse --short "$old")."
+notify "Version $(git rev-parse --short "$new") is unhealthy after ${WAIT_SECONDS}s, rolling back to $(git rev-parse --short "$old")."
 git reset --hard "$old"
 docker compose up -d --build
 if wait_healthy; then
-  notify "Đã quay về bản cũ, bot chạy bình thường."
+  notify "Rolled back to the old version, the bot is running normally."
 else
-  notify "Quay về bản cũ nhưng bot vẫn chưa khoẻ, cần kiểm tra thủ công (docker compose logs bot)."
+  notify "Rolled back, but the bot is still unhealthy; manual check needed (docker compose logs bot)."
 fi
 exit 1

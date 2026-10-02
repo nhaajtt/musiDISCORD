@@ -18,7 +18,7 @@ let lastScan = 0;
 let scanning = null;
 const covers = new Map();
 
-/** Chuẩn hoá để so khớp: bỏ dấu, chữ thường, bỏ ký tự thừa. */
+/** Normalize for matching: strip diacritics, lowercase, drop extra characters. */
 export function normalizeText(text) {
   return String(text ?? "")
     .normalize("NFD")
@@ -29,12 +29,12 @@ export function normalizeText(text) {
     .trim();
 }
 
-// Ký tự điều khiển, ẩn và đổi chiều chữ
+// Control, invisible and bidi-override characters
 const HIDDEN = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g;
 
 /**
- * Làm sạch chữ đọc từ thẻ file (do người dùng đặt): bỏ ký tự ẩn, bỏ link dạng [chữ](url) và dấu < >
- * (tránh dựng link hoặc nhắc tên trong tin nhắn), gọn khoảng trắng, giới hạn độ dài.
+ * Sanitize text read from file tags (user-supplied): drop invisible characters, [text](url) links and < >
+ * (so messages can't build links or mentions), collapse whitespace, cap the length.
  */
 export function cleanMeta(value) {
   const text = String(value ?? "")
@@ -49,7 +49,7 @@ export function cleanMeta(value) {
 
 const clean = (value) => (typeof value === "string" ? cleanMeta(value) : null);
 
-/** Đoán nghệ sĩ và tên bài từ tên file ("01-ten-bai", "Nghệ sĩ - Tên bài"). */
+/** Guess artist and title from the filename ("01-song-name", "Artist - Title"). */
 export function guessFromName(name) {
   let base = name.replace(/^\s*\d{1,3}\s*[-._)]\s*/, "").trim() || name.trim();
   if (!/\s/.test(base)) base = base.replace(/[-_]+/g, " ").trim() || base;
@@ -90,8 +90,8 @@ export function buildEntry(rel, tags) {
 }
 
 /**
- * Phủ thẻ gắn tự động lên một mục thư viện (chỉ khi đã duyệt/áp dụng). Không đổi file gốc;
- * chạy sau khi lấy từ bộ nhớ đệm nên sửa tags.json có hiệu lực ngay ở lần quét sau.
+ * Overlay auto-assigned tags on a library entry (only when approved/applied). Leaves the source file untouched;
+ * runs after loading from the cache, so edits to tags.json take effect on the next scan.
  */
 export function applyOverlay(entry, overlay) {
   if (!overlay || overlay.status !== "applied") return entry;
@@ -136,7 +136,7 @@ async function saveCache(cache) {
     await writeFile(tmp, JSON.stringify(cache));
     await rename(tmp, CACHE_FILE);
   } catch (error) {
-    console.error("Không lưu được bộ nhớ đệm thư viện:", error.message);
+    console.error("Could not save the library cache:", error.message);
   }
 }
 
@@ -183,19 +183,19 @@ async function doScan() {
     try {
       listener(all());
     } catch (error) {
-      console.error("Xử lý sau khi quét thư viện lỗi:", error);
+      console.error("Post-scan library handler failed:", error);
     }
   }
   return entries.size;
 }
 
-/** Đăng ký hàm được gọi (với toàn bộ danh sách bài) sau mỗi lần quét xong. Trả về hàm huỷ đăng ký. */
+/** Register a callback invoked (with the full track list) after each completed scan. Returns an unsubscribe function. */
 export function onScanned(listener) {
   scanListeners.add(listener);
   return () => scanListeners.delete(listener);
 }
 
-/** Quét lại thư mục music (chỉ đọc lại thẻ của file mới hoặc đã đổi). */
+/** Rescan the music folder (re-reads tags only for new or changed files). */
 export function scan() {
   scanning ??= doScan().finally(() => {
     scanning = null;
@@ -204,9 +204,9 @@ export function scan() {
   return scanning;
 }
 
-/** Quét nền nếu dữ liệu đã cũ, không chờ kết quả. */
+/** Scan in the background if the data is stale, without waiting for the result. */
 export function refreshIfStale() {
-  if (!scanning && Date.now() - lastScan > STALE_MS) scan().catch((error) => console.error("Quét thư viện lỗi:", error));
+  if (!scanning && Date.now() - lastScan > STALE_MS) scan().catch((error) => console.error("Library scan failed:", error));
 }
 
 export const all = () => [...entries.values()];
@@ -215,7 +215,7 @@ export const size = () => entries.size;
 
 const byTitle = (a, b) => a.title.localeCompare(b.title, "vi");
 
-/** Tìm bài theo tên, nghệ sĩ, album, thể loại. Mọi từ khoá đều phải khớp. */
+/** Search tracks by title, artist, album, genre. Every keyword must match. */
 export function search(query, limit = 25) {
   const q = normalizeText(query);
   const list = all();
@@ -270,7 +270,7 @@ function searchGroups(list, query, limit) {
 export const searchAlbums = (query, limit = 25) => searchGroups(albums(), query, limit);
 export const searchArtists = (query, limit = 25) => searchGroups(artists(), query, limit);
 
-/** Lấy album/nghệ sĩ theo đúng tên (không phân biệt dấu và hoa thường). */
+/** Get an album/artist by exact name (ignoring diacritics and case). */
 export const findAlbum = (name) => albums().find((a) => a.key === normalizeText(name)) ?? null;
 export const findArtist = (name) => artists().find((a) => a.key === normalizeText(name)) ?? null;
 
@@ -287,12 +287,12 @@ async function folderCover(rel) {
       }
     }
   } catch {
-    // không có ảnh trong thư mục
+    // no image in the folder
   }
   return null;
 }
 
-/** Bìa tải tự động (Cover Art Archive), lưu ngoài thư mục nhạc trong SHARED_DIR/covers. */
+/** Auto-downloaded cover (Cover Art Archive), stored outside the music folder in SHARED_DIR/covers. */
 async function sharedCover(rel) {
   try {
     const buffer = await readFile(path.join(coversDir(), `${coverKey(rel)}.jpg`));
@@ -302,7 +302,7 @@ async function sharedCover(rel) {
   }
 }
 
-/** Ảnh bìa: ảnh nhúng trong file, nếu không có thì ảnh cover/folder trong thư mục. */
+/** Cover art: the image embedded in the file, otherwise a cover/folder image in the directory. */
 export async function getCover(rel) {
   if (covers.has(rel)) return covers.get(rel);
 
@@ -312,7 +312,7 @@ export async function getCover(rel) {
     const pic = selectCover(meta.common.picture);
     if (pic && pic.data.length <= MAX_COVER_BYTES) result = { buffer: Buffer.from(pic.data), mime: pic.format };
   } catch {
-    // bỏ qua, thử ảnh trong thư mục
+    // ignore, try the image in the folder
   }
   result ??= await folderCover(rel);
   result ??= await sharedCover(rel);
@@ -330,12 +330,12 @@ function aliasOf(rel) {
   return `~${hash.toString(36)}`;
 }
 
-/** Giá trị dùng trong ô gợi ý của Discord (giới hạn 100 ký tự): đường dẫn, hoặc bí danh nếu quá dài. */
+/** Value used in Discord autocomplete (100-character limit): the path, or an alias if too long. */
 export function choiceValue(entry) {
   return entry.file.length <= MAX_CHOICE ? entry.file : aliasOf(entry.file);
 }
 
-/** Tìm bài từ giá trị gợi ý (đường dẫn hoặc bí danh), nếu không khớp thì coi như từ khoá tìm kiếm. */
+/** Find a track from an autocomplete value (path or alias); if nothing matches, treat it as a search keyword. */
 export function resolve(value) {
   if (entries.has(value)) return entries.get(value);
   if (value.startsWith("~")) return all().find((e) => aliasOf(e.file) === value) ?? null;

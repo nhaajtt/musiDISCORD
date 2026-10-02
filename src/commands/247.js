@@ -10,15 +10,15 @@ import { ensurePlayer } from "../utils/playback.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("247")
-    .setDescription("Chế độ 24/7: bot ở lại kênh thoại kể cả khi không có ai")
+    .setDescription("24/7 mode: the bot stays in the voice channel even when it is empty")
     .setDMPermission(false)
     .addSubcommand((s) =>
       s
         .setName("on")
-        .setDescription("Bật 24/7 tại kênh thoại bạn đang ở")
-        .addBooleanOption((o) => o.setName("radio").setDescription("Phát ngẫu nhiên toàn bộ thư viện nhạc mãi mãi, kể cả sau khi bot khởi động lại")),
+        .setDescription("Turn on 24/7 in the voice channel you are in")
+        .addBooleanOption((o) => o.setName("radio").setDescription("Shuffle-play the whole music library forever, even after the bot restarts")),
     )
-    .addSubcommand((s) => s.setName("off").setDescription("Tắt chế độ 24/7")),
+    .addSubcommand((s) => s.setName("off").setDescription("Turn off 24/7 mode")),
 
   async execute(interaction) {
     if (!canControl(interaction.member, interaction.guildId)) return denyDj(interaction);
@@ -26,14 +26,14 @@ export default {
 
     if (interaction.options.getSubcommand() === "off") {
       if (!getSettings(guildId).stay247) {
-        return interaction.reply({ embeds: [infoEmbed("Chế độ 24/7 đang tắt.")], flags: MessageFlags.Ephemeral });
+        return interaction.reply({ embeds: [infoEmbed("24/7 mode is off.")], flags: MessageFlags.Ephemeral });
       }
       updateSettings(guildId, { stay247: null });
 
-      // Nếu đang rảnh thì hẹn rời kênh như bình thường
+      // If idle, schedule leaving the channel as usual
       const player = interaction.client.lavalink.getPlayer(guildId);
       if (player && !player.queue.current && !player.queue.tracks.length) scheduleIdleLeave(player);
-      return interaction.reply({ embeds: [infoEmbed("🌙 Đã tắt chế độ 24/7. Bot sẽ rời kênh khi hết nhạc hoặc kênh trống.")] });
+      return interaction.reply({ embeds: [infoEmbed("🌙 24/7 mode turned off. The bot will leave when the music ends or the channel is empty.")] });
     }
 
     const radio = interaction.options.getBoolean("radio") ?? false;
@@ -43,7 +43,7 @@ export default {
     if (radio) {
       if (library.size() === 0) await library.scan();
       if (library.size() === 0) {
-        return interaction.editReply({ embeds: [errorEmbed("Thư mục music đang trống nên chưa bật được radio.")] });
+        return interaction.editReply({ embeds: [errorEmbed("The music folder is empty, so radio can't be turned on.")] });
       }
     }
 
@@ -59,8 +59,8 @@ export default {
       embeds: [
         infoEmbed(
           radio
-            ? "📻 Đã bật **24/7 radio**: bot ở lại kênh và phát ngẫu nhiên toàn bộ thư viện nhạc mãi mãi, kể cả sau khi khởi động lại. Dùng `/247 off` để tắt."
-            : "🌙 Đã bật **24/7**: bot ở lại kênh này kể cả khi không có ai và sau khi khởi động lại. Dùng `/247 off` để tắt.",
+            ? "📻 **24/7 radio** is on: the bot stays in the channel and shuffle-plays the whole music library forever, even after a restart. Use `/247 off` to turn it off."
+            : "🌙 **24/7** is on: the bot stays in this channel even when nobody is there and after a restart. Use `/247 off` to turn it off.",
         ),
       ],
     });

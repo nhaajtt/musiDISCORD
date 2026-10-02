@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>musiDISCORD, bot nhạc Discord chạy trên Raspberry Pi 5</title>
 <meta name="description" content="Dự án cá nhân của nhaajt: bot nhạc Discord tự host, triển khai và vận hành trên Raspberry Pi 5 với Docker, sao lưu, tự cập nhật, giám sát, Tailscale và màn TFT riêng.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/">
 <meta name="theme-color" content="#0b3a60">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +61,7 @@
     <a href="cai-dat.html">Cài đặt</a>
     <a href="nhat-ky.html">Nhật ký</a>
   </nav>
+  <div class="lang" role="group" aria-label="Ngôn ngữ"><a href="index.html" hreflang="vi" lang="vi" title="Tiếng Việt" aria-current="true">VI</a><a href="en/index.html" hreflang="en" lang="en" title="English">EN</a></div>
   <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
   </button>
@@ -165,7 +169,7 @@
 
 <section class="gauges" aria-label="Vài con số của dự án">
   <div class="wrap gauges__row">
-    <figure class="gauge" data-gauge="34" data-max="40"><div class="gauge__dial"></div><figcaption><b data-num>34</b><span>lệnh gạch chéo</span></figcaption></figure>
+    <figure class="gauge" data-gauge="36" data-max="40"><div class="gauge__dial"></div><figcaption><b data-num>36</b><span>lệnh gạch chéo</span></figcaption></figure>
     <figure class="gauge" data-gauge="161" data-max="200"><div class="gauge__dial"></div><figcaption><b data-num>161</b><span>bài test tự động</span></figcaption></figure>
     <figure class="gauge" data-gauge="3" data-max="4"><div class="gauge__dial"></div><figcaption><b data-num>3</b><span>container trên một chiếc Pi</span></figcaption></figure>
     <figure class="gauge" data-gauge="24" data-max="24"><div class="gauge__dial"></div><figcaption><b data-num>24</b><span>giờ mỗi ngày chạy liên tục</span></figcaption></figure>
@@ -208,7 +212,7 @@
       <a class="card" href="raspberry-pi.html"><h3>Triển khai trên Raspberry Pi 5</h3><p>Phần cứng, kiến trúc, từng bước triển khai, cách vận hành và câu chuyện màn TFT.</p><span class="more">Xem trang Pi 5</span></a>
       <a class="card" href="nhat-ky.html"><h3>Nhật ký làm dự án</h3><p>Tôi đã vấp ở đâu, tìm nguyên nhân thế nào, quyết định gì và học được gì.</p><span class="more">Đọc nhật ký</span></a>
       <a class="card" href="tinh-nang.html"><h3>Tính năng</h3><p>Thư viện thông minh, thẻ Đang phát, đố nhạc, thống kê, lời bài hát, đóng góp.</p><span class="more">Xem tính năng</span></a>
-      <a class="card" href="lenh.html"><h3>Danh sách lệnh</h3><p>Toàn bộ 34 lệnh gạch chéo, chia nhóm, kèm các hạng mục cấu hình.</p><span class="more">Xem lệnh</span></a>
+      <a class="card" href="lenh.html"><h3>Danh sách lệnh</h3><p>Toàn bộ 36 lệnh gạch chéo, chia nhóm, kèm các hạng mục cấu hình.</p><span class="more">Xem lệnh</span></a>
       <a class="card" href="cai-dat.html"><h3>Cài đặt và hỏi đáp</h3><p>Tự host bot bằng Docker và những câu hỏi thường gặp.</p><span class="more">Xem hướng dẫn</span></a>
       <a class="card" href="privacy.html"><h3>Quyền riêng tư và điều khoản</h3><p>Bot lưu gì, không làm gì, cách tắt thống kê và xoá dữ liệu của bạn.</p><span class="more">Đọc</span></a>
     </div>

@@ -7,13 +7,13 @@ import { coverKey, coversDir } from "./overlay.js";
 
 const UA = () => `${config.botName}/1.0 (self-hosted Discord music bot)`;
 const MIN_GAP_MS = 1100;
-const TEXT_CONFIDENCE_CAP = 0.8; // tìm theo tên file không đủ chắc để tự áp dụng
+const TEXT_CONFIDENCE_CAP = 0.8; // a filename search isn't reliable enough to apply automatically
 const MAX_COVER = 2 * 1024 * 1024;
 
 let lastCall = 0;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** Giãn cách các lần gọi dịch vụ ngoài (MusicBrainz yêu cầu tối đa 1 yêu cầu/giây). */
+/** Space out calls to external services (MusicBrainz allows at most 1 request/second). */
 async function throttle(gap = MIN_GAP_MS) {
   const wait = lastCall + gap - Date.now();
   lastCall = Date.now() + Math.max(wait, 0);
@@ -26,7 +26,7 @@ export function runFpcalc(abs) {
       if (error) return reject(error);
       try {
         const out = JSON.parse(stdout);
-        if (!out.fingerprint || !out.duration) throw new Error("fpcalc không trả dấu vân");
+        if (!out.fingerprint || !out.duration) throw new Error("fpcalc returned no fingerprint");
         resolve({ duration: Math.round(out.duration), fingerprint: out.fingerprint });
       } catch (e) {
         reject(e);
@@ -35,7 +35,7 @@ export function runFpcalc(abs) {
   });
 }
 
-/** Chọn kết quả tốt nhất từ phản hồi AcoustID: { title, artist, album, albumId, confidence } hoặc null. */
+/** Pick the best result from an AcoustID response: { title, artist, album, albumId, confidence } or null. */
 export function parseAcoustid(json) {
   if (json?.status !== "ok") return null;
   let best = null;
@@ -55,7 +55,7 @@ export function parseAcoustid(json) {
   return best;
 }
 
-/** Chọn kết quả tìm theo chữ của MusicBrainz; độ tin cậy bị chặn trên vì chỉ dựa vào tên file. */
+/** Pick a MusicBrainz text-search result; confidence is capped because it only relies on the filename. */
 export function parseMusicBrainz(json) {
   const rec = json?.recordings?.[0];
   if (!rec) return null;
@@ -87,7 +87,7 @@ async function lookupText(rel, deps) {
   return parseMusicBrainz(await getJson(url, {}, deps));
 }
 
-/** Tải bìa mặt trước từ Cover Art Archive về SHARED_DIR/covers. Trả về true nếu lưu được. */
+/** Download the front cover from Cover Art Archive into SHARED_DIR/covers. Returns true if saved. */
 export async function fetchCover(rel, albumId, { fetchFn = fetch, gapMs } = {}) {
   if (!albumId || !/^[0-9a-f-]{36}$/i.test(albumId)) return false;
   try {
@@ -105,8 +105,8 @@ export async function fetchCover(rel, albumId, { fetchFn = fetch, gapMs } = {}) 
 }
 
 /**
- * Nhận diện một bài chưa có thẻ. Trả về bản ghi lớp phủ (status applied/suggested/none), không ghi file.
- * Thứ tự: dấu vân âm thanh (AcoustID) rồi tìm theo tên file (MusicBrainz).
+ * Identify an untagged track. Returns an overlay record (status applied/suggested/none) without writing the file.
+ * Order: audio fingerprint (AcoustID), then filename search (MusicBrainz).
  */
 export async function identify(rel, deps = {}) {
   const { fingerprintFn = runFpcalc } = deps;
@@ -116,7 +116,7 @@ export async function identify(rel, deps = {}) {
     try {
       candidate = await lookupAcoustid(await fingerprintFn(path.join(config.musicDir, rel)), deps);
     } catch (error) {
-      if (error.code === "ENOENT") throw new Error("Thiếu fpcalc (chromaprint) trong container");
+      if (error.code === "ENOENT") throw new Error("fpcalc (chromaprint) is missing in the container");
     }
   }
   if (!candidate) candidate = await lookupText(rel, deps).catch(() => null);

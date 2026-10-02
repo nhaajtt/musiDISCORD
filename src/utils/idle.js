@@ -1,7 +1,7 @@
 import { config } from "../config.js";
 import { getSettings } from "../store.js";
 
-/** Server có bật 24/7 cho đúng kênh thoại mà player đang ở không? */
+/** Does the server have 24/7 enabled for the voice channel the player is in? */
 export function is247(guildId, voiceChannelId) {
   const stay = getSettings(guildId).stay247;
   return Boolean(stay) && stay.voiceChannelId === voiceChannelId;
@@ -12,7 +12,7 @@ export function cancelIdleLeave(player) {
   player.setData("idleTimer", undefined);
 }
 
-/** Hẹn rời kênh nếu vẫn rảnh sau một lúc (không áp dụng khi bật 24/7). */
+/** Schedules leaving the channel if still idle after a while (not applied when 24/7 is on). */
 export function scheduleIdleLeave(player, ms = config.idleLeaveMs) {
   cancelIdleLeave(player);
   if (is247(player.guildId, player.voiceChannelId)) return;

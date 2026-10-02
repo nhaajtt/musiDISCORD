@@ -1,5 +1,5 @@
-// Sao lưu thư mục dữ liệu: bản sao nhất quán của sqlite (VACUUM INTO) + file JSON + thẻ/bìa dùng chung, nén .tar.gz.
-// Chạy trong container: docker compose exec bot node --disable-warning=ExperimentalWarning scripts/backup.js
+// Back up the data folder: a consistent sqlite copy (VACUUM INTO) + JSON files + shared tags/covers, compressed as .tar.gz.
+// Run inside the container: docker compose exec bot node --disable-warning=ExperimentalWarning scripts/backup.js
 import { spawn } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import path from "node:path";
@@ -12,17 +12,17 @@ const pad = (n) => String(n).padStart(2, "0");
 export const stamp = (d = new Date()) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 
 function tar(args, cwd) {
-  // Chạy với đường dẫn tương đối: GNU tar coi "C:\..." là máy từ xa (chỉ gặp khi thử trên Windows)
+  // Run with relative paths: GNU tar treats "C:\..." as a remote host (only seen when testing on Windows)
   return new Promise((resolve, reject) => {
     const child = spawn("tar", args, { cwd, stdio: ["ignore", "ignore", "pipe"] });
     let err = "";
     child.stderr.on("data", (c) => (err += c));
     child.on("error", reject);
-    child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`tar lỗi (${code}): ${err.trim()}`))));
+    child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`tar failed (${code}): ${err.trim()}`))));
   });
 }
 
-/** Giữ `keep` bản mới nhất, xoá phần còn lại. Trả về danh sách file đã xoá. */
+/** Keep the newest `keep` backups and delete the rest. Returns the list of deleted files. */
 export function prune(outDir, keep) {
   const files = readdirSync(outDir)
     .filter((f) => /^musidiscord-\d{8}-\d{6}\.tar\.gz$/.test(f))
@@ -33,9 +33,9 @@ export function prune(outDir, keep) {
   return old;
 }
 
-/** Tạo một bản sao lưu. Trả về { file, bytes, pruned }. */
+/** Create a backup. Returns { file, bytes, pruned }. */
 export async function runBackup({ dataDir, outDir = path.join(dataDir, "backups"), keep = 14, now = new Date() } = {}) {
-  if (!existsSync(dataDir)) throw new Error(`Không thấy thư mục dữ liệu: ${dataDir}`);
+  if (!existsSync(dataDir)) throw new Error(`Data folder not found: ${dataDir}`);
   mkdirSync(outDir, { recursive: true });
 
   const work = path.join(outDir, `.work-${stamp(now)}-${process.pid}`);
@@ -46,7 +46,7 @@ export async function runBackup({ dataDir, outDir = path.join(dataDir, "backups"
       const src = path.join(dataDir, name);
       const dest = path.join(work, name);
       if (name.endsWith(".db")) {
-        // VACUUM INTO cho bản sao nhất quán dù bot đang ghi
+        // VACUUM INTO gives a consistent copy even while the bot is writing
         const db = new DatabaseSync(src, { readOnly: true });
         try {
           db.exec(`VACUUM INTO '${dest.replace(/'/g, "''")}'`);
@@ -73,9 +73,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const dataDir = process.env.DATA_DIR || "data";
   const keep = Number(process.env.BACKUP_KEEP) > 0 ? Number(process.env.BACKUP_KEEP) : 14;
   runBackup({ dataDir, keep })
-    .then(({ file, bytes, pruned }) => console.log(`Đã sao lưu: ${file} (${(bytes / 1024).toFixed(0)} KB), xoá ${pruned.length} bản cũ`))
+    .then(({ file, bytes, pruned }) => console.log(`Backup created: ${file} (${(bytes / 1024).toFixed(0)} KB), removed ${pruned.length} old backups`))
     .catch((error) => {
-      console.error("Sao lưu lỗi:", error.message);
+      console.error("Backup failed:", error.message);
       process.exit(1);
     });
 }

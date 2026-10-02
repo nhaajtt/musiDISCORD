@@ -4,7 +4,7 @@ import { trackKey } from "./utils/trackKey.js";
 
 const MIN_LISTEN_MS = 15_000;
 
-/** Ghi nhận lúc một bài bắt đầu phát. */
+/** Records when a track starts playing. */
 export function beginPlay(player, track) {
   if (player.getData("quiz")) return;
   player.setData("playInfo", {
@@ -17,7 +17,7 @@ export function beginPlay(player, track) {
   });
 }
 
-/** Ghi nhận ai đã bỏ qua bài hiện tại (để tính thống kê "Tàn nhẫn"). */
+/** Records who skipped the current track (for the "Ruthless" stat). */
 export function noteSkip(player, userId) {
   player.setData("skippedBy", userId);
 }
@@ -27,18 +27,18 @@ function listenersOf(client, player) {
   return channel ? [...channel.members.filter((m) => !m.user.bot).keys()] : [];
 }
 
-/** Thông báo huy hiệu mới của một người trong kênh đang phát. */
+/** Announces a user's new badge in the channel that is playing. */
 export function announceBadges(client, player, userId) {
   if (!userId) return;
   for (const badge of awardBadges(player.guildId, userId)) {
     client.channels.cache
       .get(player.textChannelId)
-      ?.send({ content: `🏅 <@${userId}> vừa nhận huy hiệu **${badge.icon} ${badge.name}** (${badge.hint})`, allowedMentions: { parse: [] } })
+      ?.send({ content: `🏅 <@${userId}> just earned the badge **${badge.icon} ${badge.name}** (${badge.hint})`, allowedMentions: { parse: [] } })
       .catch(() => {});
   }
 }
 
-/** Ghi lại lượt phát khi bài kết thúc (hết bài, bị bỏ qua hoặc bị dừng). */
+/** Records the play when a track ends (finished, skipped or stopped). */
 export function endPlay(client, player, payload) {
   const info = player.getData("playInfo");
   player.setData("playInfo", undefined);

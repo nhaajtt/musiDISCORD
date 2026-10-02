@@ -3,8 +3,8 @@ import path from "node:path";
 import { config } from "../config.js";
 
 /**
- * Kho JSON nhỏ đặt trong thư mục dùng chung (SHARED_DIR). Chỉ một bot (worker) ghi; các bot khác gọi
- * `refresh()` để nạp lại khi file đổi (so theo mtime). Ghi nguyên tử bằng file tạm theo pid.
+ * Small JSON store in the shared folder (SHARED_DIR). Only one bot (the worker) writes; other bots call
+ * `refresh()` to reload when the file changes (compared by mtime). Writes atomically via a per-pid temp file.
  */
 export function createJsonStore(name, dir = config.sharedDir) {
   const file = path.join(dir, name);
@@ -22,13 +22,13 @@ export function createJsonStore(name, dir = config.sharedDir) {
 
   return {
     file,
-    /** Nạp lại nếu file đã đổi (hoặc lần đầu). Trả về true nếu có nạp. */
+    /** Reloads if the file changed (or on first call). Returns true if it reloaded. */
     refresh() {
       let mtime = 0;
       try {
         mtime = statSync(file).mtimeMs;
       } catch {
-        // chưa có file
+        // file does not exist yet
       }
       if (mtime === stamp) return false;
       stamp = mtime;
@@ -54,7 +54,7 @@ export function createJsonStore(name, dir = config.sharedDir) {
         renameSync(tmp, file);
         stamp = statSync(file).mtimeMs;
       } catch (error) {
-        console.error(`Không lưu được ${name}:`, error.message);
+        console.error(`Could not save ${name}:`, error.message);
       }
     },
   };

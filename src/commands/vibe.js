@@ -8,24 +8,24 @@ import { startNhaajt } from "../utils/nhaajt.js";
 import { ensurePlayer } from "../utils/playback.js";
 
 const MOODS = {
-  chill: "😌 Chill (chậm, nhẹ)",
-  steady: "🚶 Vừa phải (đều, dễ nghe)",
-  upbeat: "🎉 Sôi động",
-  hype: "🔥 Hừng hực (nhanh, mạnh)",
+  chill: "😌 Chill (slow, soft)",
+  steady: "🚶 Steady (even, easy listening)",
+  upbeat: "🎉 Upbeat",
+  hype: "🔥 Hype (fast, intense)",
 };
 
 export default {
   data: new SlashCommandBuilder()
     .setName("vibe")
-    .setDescription("Radio theo tâm trạng: phát mãi các bài hợp nhịp độ và năng lượng bạn chọn")
+    .setDescription("Mood radio: plays tracks matching the tempo and energy you pick, forever")
     .addStringOption((o) =>
-      o.setName("mood").setDescription("Tâm trạng").setRequired(true).addChoices(...Object.entries(MOODS).map(([value, name]) => ({ name, value }))),
+      o.setName("mood").setDescription("Mood").setRequired(true).addChoices(...Object.entries(MOODS).map(([value, name]) => ({ name, value }))),
     ),
 
   async execute(interaction) {
     if (!canControl(interaction.member, interaction.guildId)) return denyDj(interaction);
     if (!config.analysis.enabled) {
-      return interaction.reply({ embeds: [errorEmbed("Phân tích âm thanh chưa bật. Chủ bot đặt `ANALYSIS=on` trong .env rồi khởi động lại.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [errorEmbed("Audio analysis isn't enabled. The bot owner needs to set `ANALYSIS=on` in .env and restart.")], flags: MessageFlags.Ephemeral });
     }
 
     const player = await ensurePlayer(interaction);
@@ -36,13 +36,13 @@ export default {
     const files = byMood(mood).map((e) => e.file);
     if (!files.length) {
       const p = progress();
-      return interaction.editReply({ embeds: [errorEmbed(`Chưa có bài nào thuộc tâm trạng này (đã phân tích ${p.analyzed}/${p.total} bài). Đợi bot phân tích thêm rồi thử lại.`)] });
+      return interaction.editReply({ embeds: [errorEmbed(`No tracks match this mood yet (${p.analyzed}/${p.total} tracks analyzed). Wait for the bot to analyze more, then try again.`)] });
     }
 
     const count = await startNhaajt(player, files, interaction.user);
-    if (!count) return interaction.editReply({ embeds: [errorEmbed("Không đọc được file nhạc nào.")] });
+    if (!count) return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files.")] });
     await interaction.editReply({
-      embeds: [infoEmbed(`${MOODS[mood]}: đang phát **${count}** bài hợp tâm trạng này, xáo trộn và lặp mãi cho tới khi \`/stop\`.\n*Nhịp độ chỉ là ước lượng từ phân tích âm thanh.*`)],
+      embeds: [infoEmbed(`${MOODS[mood]}: playing **${count}** tracks that fit this mood, shuffled and on repeat until \`/stop\`.\n*Tempo is only an estimate from audio analysis.*`)],
     });
   },
 };

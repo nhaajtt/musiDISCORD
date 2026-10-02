@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup and FAQ, musiDISCORD</title>
+<meta name="description" content="How to self-host musiDISCORD with Docker, step by step, and answers to common questions.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/cai-dat.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/setup.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/cai-dat.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>C-01</b></span>
+  <span class="strip__name">Setup</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="features.html">Features</a>
+    <a href="commands.html">Commands</a>
+    <a href="setup.html" aria-current="page">Setup</a>
+    <a href="devlog.html">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../cai-dat.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="setup.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="content">
+<h1 class="sr">Setup and FAQ</h1>
+
+<section class="sheet" id="tu-host" data-sheet="S-01|Construction sequence, self-hosting" aria-labelledby="h-tu-host">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-tu-host">Self-hosting: construction sequence</h2>
+      <p class="sheet__scale">You need Docker and somewhere to run 24/7<br>work through the steps in order</p>
+    </header>
+    <ol class="build">
+      <li>
+        <h3>Get the token and Application ID</h3>
+        <p>Open the Discord Developer Portal, create an application and add a Bot. The token is on the Bot tab and the Application ID is under General Information. The bot only uses slash commands, buttons and voice channels, so it needs no privileged intents.</p>
+      </li>
+      <li>
+        <h3>Create the .env file</h3>
+        <p>Copy the sample file and fill in <code>DISCORD_TOKEN</code> and <code>CLIENT_ID</code>. Also set <code>LAVALINK_PASSWORD</code>; add <code>CONTRIBUTIONS=on</code> if you want to accept file contributions; add Spotify keys if you want to paste Spotify links.</p>
+        <div class="code"><pre><code>cp .env.example .env</code></pre><button type="button" data-copy>Copy</button></div>
+        <p class="sub">Online lyrics lookup through LRCLIB is optional and you can turn it on or off in the configuration; see .env.example for the variable names.</p>
+      </li>
+      <li>
+        <h3>Build the bot and Lavalink</h3>
+        <p>One command builds both. On first run Lavalink downloads its plugins, which takes about a minute, and the bot keeps retrying the connection while it waits. Docker health-checks each service; look with <code>docker compose ps</code>.</p>
+        <div class="code"><pre><code>docker compose up -d --build</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Register the slash commands</h3>
+        <p>Run it once, and again whenever you add or change commands (version 2.2 added <code>/library</code>, <code>/vibe</code> and <code>/similar</code>). Set <code>GUILD_ID</code> in .env if you want the commands to appear instantly in one server while testing.</p>
+        <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Invite the bot and add music</h3>
+        <p>Invite the bot with the link at the top of the page (change <code>client_id</code> to your own ID and keep the <code>permissions=281474979908608</code> part). Drop music files into the <code>music/</code> folder, and put a <code>.lrc</code> file next to a song if it has lyrics; new files do not need a bot restart.</p>
+        <p class="sub">Settings, the queue, stats and favorites are stored in the data/ folder next to docker-compose.yml. Keep this folder so nothing is lost when you rebuild the containers.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="sheet" id="hoi-dap" data-sheet="S-02|General notes" aria-labelledby="h-hoi-dap">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-hoi-dap">General notes</h2>
+      <p class="sheet__scale">Questions people often ask<br>before inviting the bot</p>
+    </header>
+    <div class="faq">
+      <details>
+        <summary>Is YouTube reliable?</summary>
+        <div class="ans"><p>The bot can play links and song names from YouTube, but YouTube keeps changing how it blocks music players, so some songs occasionally fail to play. When that happens, try SoundCloud, a Spotify link, or your own music files.</p></div>
+      </details>
+      <details>
+        <summary>What permissions does the bot need?</summary>
+        <div class="ans"><p>The invite link asks for seven permissions: View Channel, Send Messages, Embed Links, Attach Files, Connect, Speak and Set Voice Channel Status. Send Messages, Embed Links and Attach Files are used for the Now Playing card and the <code>/wrapped</code> image; Set Voice Channel Status is used for the "Now playing" line on the channel. The bot does not read anyone's message content.</p></div>
+      </details>
+      <details>
+        <summary>How do I limit who can control the music?</summary>
+        <div class="ans"><p>An admin runs <code>/settings dj-role</code> and picks a role. From then on only that role (and people with Manage Server) can use the control commands and buttons. Leave the role empty and anyone can.</p></div>
+      </details>
+      <details>
+        <summary>Can it play my own music files?</summary>
+        <div class="ans"><p>Yes, if you host the bot yourself: put files in the music folder, the bot reads their tags to build a library, and then you use <code>/local</code>, <code>/album</code>, <code>/artist</code> or <code>/nhaajt</code>. A bot hosted by someone else can only play the music in that person's folder. You are responsible for having the right to use those music files.</p></div>
+      </details>
+      <details>
+        <summary>Does the music quiz need permission to read messages?</summary>
+        <div class="ans"><p>No. Players press an answer button and type their guess in a small pop-up window, so the bot never needs to read the chat channel. Questions come from the server's own music library.</p></div>
+      </details>
+      <details>
+        <summary>Where do the lyrics come from?</summary>
+        <div class="ans"><p>From a .lrc file next to the music file, or lyrics embedded in the file's tags. If neither exists, the bot can look them up online at LRCLIB, which sends the song title, artist and duration to that service. The host can turn this feature off.</p></div>
+      </details>
+      <details>
+        <summary>Does the bot download music from YouTube?</summary>
+        <div class="ans"><p>No. The bot downloads nothing from YouTube, Spotify or SoundCloud into the library. With <code>/request</code> it only records a name or link on a wish list and never opens the link. Only valid files are added to the library.</p></div>
+      </details>
+      <details>
+        <summary>How do I add songs to the library?</summary>
+        <div class="ans"><p>Submit your own file through <code>/contribute</code> (tick the box confirming you own it or may share it, and the bot owner will review it) or suggest a song with <code>/request</code>. Contributions are off by default: the bot owner must set <code>CONTRIBUTIONS=on</code> and a server admin must turn on <code>/settings contributions</code>.</p></div>
+      </details>
+      <details>
+        <summary>What does the bot remember about the server and about me?</summary>
+        <div class="ans"><p>Server settings, the saved queue and, since version 2.0, listening history, ratings, favorites, quiz scores and badges, keyed by Discord ID. Since version 2.1 it also keeps your contribution and request profile. You can stop stats being recorded with <code>/privacy stats</code> and delete your data with <code>/privacy delete</code>. Details are on the <a href="privacy.html">Privacy</a> page.</p></div>
+      </details>
+      <details>
+        <summary>Does the bot leave the channel by itself?</summary>
+        <div class="ans"><p>Yes. By default, when the channel empties or the songs run out, the bot leaves after 60 seconds. With <code>/247 on</code> it stays even when nobody is there and after a restart. <code>/nhaajt</code> mode never runs out of songs, so the bot stays until the channel empties or you type <code>/stop</code>.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="C-01|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>C-01</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@ export default {
     const player = client.lavalink.getPlayer(guildId);
     if (!player?.voiceChannelId) return;
 
-    // Chỉ quan tâm các thay đổi liên quan tới kênh của bot
+    // Only care about changes related to the bot's channel
     if (oldState.channelId !== player.voiceChannelId && newState.channelId !== player.voiceChannelId) return;
 
     if (is247(guildId, player.voiceChannelId)) return;

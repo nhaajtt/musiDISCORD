@@ -17,7 +17,7 @@ let rerun = false;
 
 export const workerState = () => ({ ...state });
 
-/** Chờ khi máy đang bận (Raspberry Pi vừa phát nhạc vừa xử lý nền). */
+/** Wait while the machine is busy (a Raspberry Pi playing music and doing background work). */
 async function waitIdle() {
   const limit = os.cpus().length * 0.9;
   for (let i = 0; i < 20 && os.loadavg()[0] > limit && !stopRequested; i++) await sleep(15_000);
@@ -49,7 +49,7 @@ async function tagPass() {
       }
     } catch (error) {
       state.error = error.message;
-      console.error("Gắn thẻ lỗi:", error.message);
+      console.error("Tagging failed:", error.message);
       if (/fpcalc/.test(error.message)) break;
     }
     if (i % 5 === 4) tags.save();
@@ -81,7 +81,7 @@ async function analysisPass() {
       state.analyzed++;
     } catch (error) {
       if (error.code === "ENOENT") {
-        state.error = "Thiếu ffmpeg trong container";
+        state.error = "ffmpeg is missing in the container";
         break;
       }
       features.set(entry.file, { ...stamp, failed: true });
@@ -108,7 +108,7 @@ async function cycle() {
     if (applied > 0) await scan();
   } catch (error) {
     state.error = error.message;
-    console.error("Tác vụ nền thư viện lỗi:", error);
+    console.error("Library background task failed:", error);
   } finally {
     state.running = false;
     state.phase = null;
@@ -120,7 +120,7 @@ async function cycle() {
   }
 }
 
-/** Chạy nền sau mỗi lần quét thư viện (chỉ bot có LIBRARY_WORKER bật). */
+/** Runs in the background after each library scan (only on the bot with LIBRARY_WORKER enabled). */
 export function startWorker() {
   if (!config.libraryWorker || (!config.autotag.enabled && !config.analysis.enabled)) return;
   onScanned(() => {
@@ -133,7 +133,7 @@ export const stopWorker = () => {
   stopRequested = true;
 };
 
-/** Đặc trưng hợp lệ của một bài (đã phân tích thành công) hoặc null. */
+/** Valid features of a track (analyzed successfully) or null. */
 export function featuresOf(rel) {
   const f = features.get(rel);
   return f && !f.failed ? f : null;
@@ -154,7 +154,7 @@ export function progress() {
 
 export const suggestions = () => tags.entries().filter(([, r]) => r.status === "suggested");
 
-/** Duyệt (applied) hoặc loại (rejected) một gợi ý, rồi quét lại để thư viện cập nhật. */
+/** Approve (applied) or reject (rejected) a suggestion, then rescan so the library updates. */
 export async function reviewSuggestion(rel, accept) {
   const rec = tags.get(rel);
   if (!rec || rec.status !== "suggested") return false;
@@ -173,7 +173,7 @@ export async function forgetTag(rel) {
   return true;
 }
 
-/** Các bài gần `rel` nhất theo đặc trưng âm thanh (đã loại chính nó và bài chưa phân tích). */
+/** Tracks closest to `rel` by audio features (excluding itself and unanalyzed tracks). */
 export function similarTo(rel, limit = 10, entries = all()) {
   const base = featuresOf(rel);
   if (!base) return [];

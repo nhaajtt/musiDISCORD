@@ -44,9 +44,9 @@ function clicks(bpm, secs = 40, amp = 0.8, sr = 22050) {
   return out;
 }
 
-// ---------- cấu hình nhiều bot ----------
+// ---------- multi-bot config ----------
 
-test("cấu hình: tên bot, thư mục chung, công tắc tính năng", () => {
+test("config: bot name, shared directory, feature switches", () => {
   assert.equal(config.botName, "Bot Hai");
   assert.equal(config.sharedDir, process.env.SHARED_DIR);
   assert.equal(config.libraryWorker, true);
@@ -56,7 +56,7 @@ test("cấu hình: tên bot, thư mục chung, công tắc tính năng", () => {
   assert.equal(config.display.bind, "127.0.0.1");
 });
 
-test("kho JSON chung: ghi nguyên tử, nạp lại khi file đổi, không đụng nhau giữa hai kho", async () => {
+test("shared JSON store: atomic writes, reload when the file changes, no clashes between two stores", async () => {
   const dir = path.join(root, "store");
   const a = createJsonStore("x.json", dir);
   const b = createJsonStore("x.json", dir);
@@ -65,7 +65,7 @@ test("kho JSON chung: ghi nguyên tử, nạp lại khi file đổi, không đ�
   a.save();
   assert.equal(b.refresh(), true);
   assert.deepEqual(b.get("k"), { v: 1 });
-  assert.equal(b.refresh(), false, "không đổi thì không nạp lại");
+  assert.equal(b.refresh(), false, "no reload when unchanged");
 
   await new Promise((r) => setTimeout(r, 20));
   a.set("k", { v: 2 });
@@ -76,7 +76,7 @@ test("kho JSON chung: ghi nguyên tử, nạp lại khi file đổi, không đ�
   assert.deepEqual(JSON.parse(readFileSync(path.join(dir, "x.json"), "utf8")), { k: { v: 2 } });
 });
 
-test("kho JSON hỏng thì coi như rỗng", () => {
+test("a corrupt JSON store is treated as empty", () => {
   const dir = path.join(root, "bad");
   mkdirSync(dir, { recursive: true });
   writeFileSync(path.join(dir, "t.json"), "{hỏng");
@@ -85,9 +85,9 @@ test("kho JSON hỏng thì coi như rỗng", () => {
   assert.equal(s.size(), 0);
 });
 
-// ---------- gắn thẻ ----------
+// ---------- tagging ----------
 
-test("AcoustID: chọn kết quả điểm cao nhất, làm sạch chữ, bỏ kết quả thiếu tên", () => {
+test("AcoustID: pick the highest-scoring result, sanitize text, drop results with no title", () => {
   const json = {
     status: "ok",
     results: [
@@ -110,7 +110,7 @@ test("AcoustID: chọn kết quả điểm cao nhất, làm sạch chữ, bỏ k
   assert.equal(tagger.parseAcoustid({ status: "ok", results: [] }), null);
 });
 
-test("MusicBrainz theo chữ: độ tin cậy bị chặn dưới ngưỡng tự áp dụng", () => {
+test("MusicBrainz text search: confidence is capped below the auto-apply threshold", () => {
   const r = tagger.parseMusicBrainz({ recordings: [{ score: 100, title: "Buông", "artist-credit": [{ name: "Đen" }], releases: [{ title: "Album", "release-group": { id: "id" } }] }] });
   assert.equal(r.title, "Buông");
   assert.ok(r.confidence <= 0.8 && r.confidence < config.autotag.autoApply);
@@ -119,7 +119,7 @@ test("MusicBrainz theo chữ: độ tin cậy bị chặn dưới ngưỡng tự
 
 const okJson = (body) => ({ ok: true, status: 200, json: async () => body });
 
-test("identify: dấu vân tin cậy cao thì tự áp dụng, thấp thì chỉ gợi ý, không ra thì none", async () => {
+test("identify: a high-confidence fingerprint is applied automatically, a low one is only suggested, no match gives none", async () => {
   const fingerprintFn = async () => ({ duration: 200, fingerprint: "AQAA" });
   const calls = [];
   const mk = (score) => async (url, init) => {
@@ -136,16 +136,16 @@ test("identify: dấu vân tin cậy cao thì tự áp dụng, thấp thì chỉ
   const low = await tagger.identify("a.mp3", { fingerprintFn, fetchFn: mk(0.5), gapMs: 0 });
   assert.equal(low.status, "suggested");
 
-  const none = await tagger.identify("zzz.mp3", { fingerprintFn: async () => { throw new Error("hỏng"); }, fetchFn: async () => okJson({ recordings: [] }), gapMs: 0 });
+  const none = await tagger.identify("zzz.mp3", { fingerprintFn: async () => { throw new Error("broken"); }, fetchFn: async () => okJson({ recordings: [] }), gapMs: 0 });
   assert.equal(none.status, "none");
 });
 
-test("identify: dịch vụ lỗi HTTP không làm sập, trả none", async () => {
+test("identify: an HTTP error from the service does not crash, returns none", async () => {
   const res = await tagger.identify("a.mp3", { fingerprintFn: async () => ({ duration: 1, fingerprint: "x" }), fetchFn: async () => ({ ok: false, status: 503 }), gapMs: 0 });
   assert.equal(res.status, "none");
 });
 
-test("fetchCover: chỉ nhận JPEG nhỏ và id hợp lệ", async () => {
+test("fetchCover: only accepts small JPEGs and valid ids", async () => {
   const id = "a".repeat(8) + "-1111-2222-3333-" + "b".repeat(12);
   const mk = (type, size) => async () => ({ ok: true, headers: { get: () => type }, arrayBuffer: async () => new Uint8Array(size).buffer });
   assert.equal(await tagger.fetchCover("x.mp3", "../etc", { fetchFn: mk("image/jpeg", 10), gapMs: 0 }), false);
@@ -155,7 +155,7 @@ test("fetchCover: chỉ nhận JPEG nhỏ và id hợp lệ", async () => {
   assert.equal(existsSync(path.join(overlay.coversDir(), `${overlay.coverKey("x.mp3")}.jpg`)), true);
 });
 
-test("lớp phủ thẻ: chỉ áp dụng khi status applied, không sửa mục gốc, cập nhật searchText", () => {
+test("tag overlay: only applied when status is applied, never mutates the original entry, updates searchText", () => {
   const base = L.buildEntry("Không thẻ 1.mp3", null);
   assert.equal(base.hasTags, false);
   assert.equal(L.applyOverlay(base, { status: "suggested", title: "A" }), base);
@@ -165,11 +165,11 @@ test("lớp phủ thẻ: chỉ áp dụng khi status applied, không sửa mục
   assert.equal(tagged.title, "Lạc trôi");
   assert.equal(tagged.hasTags, true);
   assert.ok(tagged.searchText.includes("lac troi"));
-  assert.ok(tagged.searchText.includes("khong the"), "vẫn tìm được theo tên file cũ");
-  assert.equal(base.title, "Không thẻ 1", "mục gốc không đổi");
+  assert.ok(tagged.searchText.includes("khong the"), "still searchable by the old file name");
+  assert.equal(base.title, "Không thẻ 1", "the original entry is unchanged");
 });
 
-test("quét thư viện nạp lớp phủ từ tags.json (kể cả khi lấy từ bộ nhớ đệm)", async () => {
+test("library scan loads the overlay from tags.json (including when served from the cache)", async () => {
   await L.scan();
   assert.equal(L.get("Không thẻ 1.mp3").hasTags, false);
 
@@ -180,13 +180,13 @@ test("quét thư viện nạp lớp phủ từ tags.json (kể cả khi lấy t�
   assert.equal(L.get("Không thẻ 1.mp3").title, "Tên mới");
   assert.equal(L.search("album moi").length, 1);
 
-  // file nhạc gốc không bị đụng
+  // the original music file is untouched
   assert.equal(readFileSync(path.join(music, "Không thẻ 1.mp3"), "utf8"), "not really audio");
 });
 
-test("chọn bài cần gắn thẻ: bỏ bài đã có thẻ/đã thử, thử lại 'none' sau 30 ngày", async () => {
+test("choosing tracks to tag: skip tagged/already-tried tracks, retry 'none' after 30 days", async () => {
   await L.scan();
-  // "Không thẻ 1" đã có lớp phủ; hai bài còn lại thiếu thẻ
+  // "Không thẻ 1" already has an overlay; the other two tracks have no tags
   assert.equal(worker.untaggedTargets().length, 2);
   overlay.tags.set("Không thẻ 2.mp3", { status: "none", checkedAt: Date.now() });
   overlay.tags.set("Nghệ sĩ/Album/01 - Bài ba.mp3", { status: "none", checkedAt: Date.now() });
@@ -197,12 +197,12 @@ test("chọn bài cần gắn thẻ: bỏ bài đã có thẻ/đã thử, thử 
   overlay.tags.delete("Nghệ sĩ/Album/01 - Bài ba.mp3");
 });
 
-test("duyệt gợi ý: áp dụng thì thư viện đổi, loại thì giữ nguyên", async () => {
+test("reviewing suggestions: approving changes the library, rejecting leaves it as is", async () => {
   overlay.tags.set("Không thẻ 2.mp3", { status: "suggested", title: "Gợi ý hay", artist: "Ai đó", confidence: 0.6, source: "musicbrainz" });
   assert.equal(worker.suggestions().length, 1);
   assert.equal(await worker.reviewSuggestion("Không thẻ 2.mp3", false), true);
   assert.equal(L.get("Không thẻ 2.mp3").hasTags, false);
-  assert.equal(await worker.reviewSuggestion("Không thẻ 2.mp3", true), false, "đã xử lý rồi");
+  assert.equal(await worker.reviewSuggestion("Không thẻ 2.mp3", true), false, "already handled");
 
   overlay.tags.set("Không thẻ 2.mp3", { status: "suggested", title: "Gợi ý hay", artist: "Ai đó" });
   assert.equal(await worker.reviewSuggestion("Không thẻ 2.mp3", true), true);
@@ -211,16 +211,16 @@ test("duyệt gợi ý: áp dụng thì thư viện đổi, loại thì giữ ng
   assert.equal(L.get("Không thẻ 2.mp3").hasTags, false);
 });
 
-// ---------- phân tích âm thanh ----------
+// ---------- audio analysis ----------
 
-test("BPM ước lượng đúng trong ±3 với nhịp gõ tổng hợp", () => {
+test("BPM is estimated within ±3 on synthetic click tracks", () => {
   for (const bpm of [80, 100, 120, 128, 140, 170]) {
     const r = computeFeatures(clicks(bpm));
     assert.ok(Math.abs(r.bpm - bpm) <= 3, `${bpm} BPM -> ${r.bpm}`);
   }
 });
 
-test("năng lượng tăng theo độ lớn; im lặng và quá ngắn trả null", () => {
+test("energy rises with loudness; silence and too-short audio return null", () => {
   const loud = computeFeatures(clicks(120, 40, 0.9));
   const quiet = computeFeatures(clicks(120, 40, 0.02));
   assert.ok(loud.energy > quiet.energy);
@@ -229,7 +229,7 @@ test("năng lượng tăng theo độ lớn; im lặng và quá ngắn trả nul
   assert.equal(computeFeatures(new Float32Array(1000)), null);
 });
 
-test("tâm trạng theo nhịp độ và năng lượng", () => {
+test("mood from tempo and energy", () => {
   assert.equal(moodOf(130, 0.8), "hype");
   assert.equal(moodOf(110, 0.55), "upbeat");
   assert.equal(moodOf(70, 0.6), "chill");
@@ -238,14 +238,14 @@ test("tâm trạng theo nhịp độ và năng lượng", () => {
   assert.equal(moodOf(null, 0.8), "upbeat");
 });
 
-test("khoảng cách giống nhau: tự thân = 0, nhịp gấp đôi gần hơn nhịp lệch, thiếu BPM vẫn tính được", () => {
+test("similarity distance: self = 0, double tempo is closer than an off tempo, still works without BPM", () => {
   const a = { bpm: 70, energy: 0.5, brightness: 0.3 };
   assert.equal(distance(a, a), 0);
   assert.ok(distance(a, { ...a, bpm: 140 }) < distance(a, { ...a, bpm: 105 }));
   assert.ok(Number.isFinite(distance(a, { bpm: null, energy: 0.5, brightness: 0.3 })));
 });
 
-test("/similar và /vibe: gần nhất theo đặc trưng, bỏ bài chưa phân tích hay phân tích lỗi", async () => {
+test("/similar and /vibe: nearest by features, skipping unanalyzed or failed tracks", async () => {
   await L.scan();
   const stamp = { mtimeMs: 1, size: 1 };
   features_set("Không thẻ 1.mp3", { bpm: 120, energy: 0.8, brightness: 0.5, mood: "hype" });
@@ -263,7 +263,7 @@ test("/similar và /vibe: gần nhất theo đặc trưng, bỏ bài chưa phân
   assert.deepEqual(worker.similarTo("không-có.mp3"), []);
 });
 
-// ---------- API trạng thái ----------
+// ---------- status API ----------
 
 function fakePlayer(overrides = {}) {
   const data = { ...overrides.data };
@@ -297,7 +297,7 @@ function fakeRes() {
 }
 const fakeReq = (url, method = "GET", body = null, headers = {}) => ({ url, method, headers, async *[Symbol.asyncIterator]() { if (body) yield Buffer.from(JSON.stringify(body)); } });
 
-test("trạng thái đang phát không lộ ID hay tên người yêu cầu", () => {
+test("the now-playing state does not leak IDs or the requester's name", () => {
   const state = nowPlayingState(fakeClient(fakePlayer()), fakePlayer());
   assert.equal(state.title, "Bài **thử**");
   assert.equal(state.guild, "Chamy's");
@@ -308,7 +308,7 @@ test("trạng thái đang phát không lộ ID hay tên người yêu cầu", ()
   assert.ok(!text.includes("999") && !text.includes("bí mật"));
 });
 
-test("trạng thái: ẩn khi đố nhạc, rỗng khi không có player hay bài", () => {
+test("state: hidden during a music quiz, empty when there is no player or track", () => {
   const quiz = fakePlayer({ data: { quiz: true } });
   assert.deepEqual(nowPlayingState(fakeClient(quiz), quiz), { bot: "Bot Hai", playing: false, canControl: false, hidden: true });
   assert.deepEqual(nowPlayingState(fakeClient(), null), { bot: "Bot Hai", playing: false, canControl: false });
@@ -317,7 +317,7 @@ test("trạng thái: ẩn khi đố nhạc, rỗng khi không có player hay bà
   assert.equal(nowPlayingState(fakeClient(empty), empty).playing, false);
 });
 
-test("chọn player: ưu tiên server đang phát", () => {
+test("player selection: prefer the server that is playing", () => {
   const idle = { ...fakePlayer(), guildId: "g0", playing: false };
   const busy = fakePlayer();
   assert.equal(pickPlayer(fakeClient(idle, busy), null).guildId, "g1");
@@ -325,7 +325,7 @@ test("chọn player: ưu tiên server đang phát", () => {
   assert.equal(pickPlayer(fakeClient(idle, busy), "none"), null);
 });
 
-test("HTTP: trang /display, /api/np, 404, và điều khiển bị tắt khi không có token", async () => {
+test("HTTP: the /display page, /api/np, 404, and controls disabled when there is no token", async () => {
   const client = fakeClient(fakePlayer());
   const cfg = { token: null };
 
@@ -351,7 +351,7 @@ test("HTTP: trang /display, /api/np, 404, và điều khiển bị tắt khi kh�
   assert.equal(res.status, 403);
 });
 
-test("HTTP: có token thì mọi /api cần token đúng, điều khiển hoạt động và kiểm tra đầu vào", async () => {
+test("HTTP: with a token, every /api call needs the right token; controls work and validate input", async () => {
   const player = fakePlayer();
   const client = fakeClient(player);
   const cfg = { token: "s3cret" };
@@ -361,7 +361,7 @@ test("HTTP: có token thì mọi /api cần token đúng, điều khiển hoạt
   assert.equal(res.status, 401);
 
   res = fakeRes();
-  await handle(fakeReq("/api/np", "GET", null, { "x-token": "sai" }), res, client, cfg);
+  await handle(fakeReq("/api/np", "GET", null, { "x-token": "wrong" }), res, client, cfg);
   assert.equal(res.status, 401);
 
   res = fakeRes();
@@ -378,15 +378,15 @@ test("HTTP: có token thì mọi /api cần token đúng, điều khiển hoạt
   assert.equal((await control({ action: "toggle" })).status, 200);
   assert.equal(player.paused, false);
   assert.equal((await control({ action: "volume", value: 500 })).status, 200);
-  assert.equal(player.volume, 150, "âm lượng bị chặn ở 150");
+  assert.equal(player.volume, 150, "volume is capped at 150");
   assert.equal((await control({ action: "volume", value: "abc" })).status, 400);
-  for (const bad of [null, "", "  ", undefined, {}, [], true]) assert.equal((await control({ action: "volume", value: bad })).status, 400, `âm lượng ${JSON.stringify(bad)}`);
+  for (const bad of [null, "", "  ", undefined, {}, [], true]) assert.equal((await control({ action: "volume", value: bad })).status, 400, `volume ${JSON.stringify(bad)}`);
   assert.equal((await control({ action: "rm -rf" })).status, 400);
   assert.equal((await control({ action: "skip" })).status, 200);
   assert.ok(player.calls.includes("skip"));
 });
 
-test("HTTP: không điều khiển được khi đang đố nhạc hoặc không có bài", async () => {
+test("HTTP: no control during a music quiz or when nothing is playing", async () => {
   const cfg = { token: "t" };
   const quiz = fakePlayer({ data: { quiz: true } });
   let res = fakeRes();
@@ -398,16 +398,16 @@ test("HTTP: không điều khiển được khi đang đố nhạc hoặc không
   assert.equal(res.status, 409);
 });
 
-test("HTTP: /api/cover không lộ bìa khi đố nhạc", async () => {
+test("HTTP: /api/cover does not reveal the cover during a music quiz", async () => {
   const quiz = fakePlayer({ data: { quiz: true } });
   const res = fakeRes();
   await handle(fakeReq("/api/cover"), res, fakeClient(quiz), { token: null });
   assert.equal(res.status, 404);
 });
 
-// ---------- sao lưu ----------
+// ---------- backup ----------
 
-test("sao lưu: VACUUM INTO đọc lại được, bỏ backups/cache/contrib, giữ đúng số bản", async () => {
+test("backup: VACUUM INTO output is readable, backups/cache/contrib are skipped, the right number of copies is kept", async () => {
   const { spawnSync } = await import("node:child_process");
   const { DatabaseSync } = await import("node:sqlite");
   const { runBackup, prune } = await import("../scripts/backup.js");
@@ -429,11 +429,11 @@ test("sao lưu: VACUUM INTO đọc lại được, bỏ backups/cache/contrib, g
   const t0 = Date.now();
   let last;
   for (let i = 0; i < 4; i++) last = await runBackup({ dataDir, keep: 3, now: new Date(t0 + i * 2000) });
-  assert.equal(last.pruned.length, 1, "lần thứ 4 xoá bản cũ nhất");
+  assert.equal(last.pruned.length, 1, "the 4th run deletes the oldest copy");
 
   const files = (await import("node:fs")).readdirSync(path.join(dataDir, "backups")).filter((f) => f.endsWith(".tar.gz"));
   assert.equal(files.length, 3);
-  assert.equal((await import("node:fs")).readdirSync(path.join(dataDir, "backups")).some((f) => f.startsWith(".work-")), false, "thư mục tạm đã dọn");
+  assert.equal((await import("node:fs")).readdirSync(path.join(dataDir, "backups")).some((f) => f.startsWith(".work-")), false, "the temp directory was cleaned up");
 
   const out = path.join(root, "bk-restore");
   mkdirSync(out, { recursive: true });
@@ -452,9 +452,9 @@ test("sao lưu: VACUUM INTO đọc lại được, bỏ backups/cache/contrib, g
   assert.deepEqual(prune(path.join(dataDir, "backups"), 3), []);
 });
 
-// ---------- giao diện /display ----------
+// ---------- /display UI ----------
 
-test("giao diện: phục vụ css, js, font đúng loại; không cho đường dẫn tự do hay thoát thư mục", async () => {
+test("UI: serves css, js and fonts with the right types; refuses arbitrary paths and directory escapes", async () => {
   const client = fakeClient(fakePlayer());
   const get = async (p) => {
     const r = fakeRes();
@@ -473,11 +473,11 @@ test("giao diện: phục vụ css, js, font đúng loại; không cho đường
   for (const bad of ["/assets/fonts/../../.env", "/assets/fonts/OFL-BarlowCondensed.txt", "/src/config.js", "/display.html", "/assets/fonts/"]) {
     assert.equal((await get(bad)).status, 404, bad);
   }
-  // trang tĩnh không cần token, dữ liệu thì cần
+  // static pages need no token, data does
   assert.equal((await get("/api/np")).status, 401);
 });
 
-test("giao diện: HTML không nhúng script hay style trực tiếp (hợp CSP) và không gọi tài nguyên ngoài", async () => {
+test("UI: the HTML has no inline script or style (CSP-friendly) and loads no external resources", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("../src/web/static/display.html", import.meta.url), "utf8");
   const css = readFileSync(new URL("../src/web/static/display.css", import.meta.url), "utf8");
@@ -487,7 +487,7 @@ test("giao diện: HTML không nhúng script hay style trực tiếp (hợp CSP)
   assert.doesNotMatch(css, /@import/);
 });
 
-test("trạng thái có BPM, năng lượng, tâm trạng từ phân tích và cờ điều khiển", () => {
+test("state includes BPM, energy and mood from the analysis, plus the control flag", () => {
   const rel = "Nghệ sĩ/Album/01 - Bài ba.mp3";
   overlay.features.set(rel, { mtimeMs: 1, size: 1, bpm: 120.5, energy: 0.7, brightness: 0.4, mood: "hype" });
   const s = nowPlayingState(fakeClient(fakePlayer()), fakePlayer(), "B", true);
@@ -498,11 +498,11 @@ test("trạng thái có BPM, năng lượng, tâm trạng từ phân tích và c
   assert.equal(nowPlayingState(fakeClient(fakePlayer()), fakePlayer()).canControl, false);
 
   overlay.features.set(rel, { mtimeMs: 1, size: 1, failed: true });
-  assert.equal(nowPlayingState(fakeClient(fakePlayer()), fakePlayer()).bpm, null, "phân tích lỗi thì không có BPM");
+  assert.equal(nowPlayingState(fakeClient(fakePlayer()), fakePlayer()).bpm, null, "a failed analysis means no BPM");
   overlay.features.delete(rel);
 });
 
-test("điều khiển: tua kiểm tra giới hạn, lặp đổi vòng, báo lại trạng thái có canControl", async () => {
+test("controls: seek checks its bounds, repeat cycles through modes, the response includes canControl state", async () => {
   const player = fakePlayer({ player: { seek: async function (ms) { this.calls.push(["seek", ms]); }, setRepeatMode: async function (m) { this.repeatMode = m; } } });
   player.seek = player.seek.bind(player);
   player.setRepeatMode = player.setRepeatMode.bind(player);
@@ -528,10 +528,11 @@ test("điều khiển: tua kiểm tra giới hạn, lặp đổi vòng, báo l�
   assert.equal(player.repeatMode, "off");
 
   player.queue.current.info.isStream = true;
-  assert.equal((await control({ action: "seek", value: 1000 })).status, 400, "không tua được luồng trực tiếp");
+  assert.equal((await control({ action: "seek", value: 1000 })).status, 400, "cannot seek a live stream");
 });
 
-test("trạng thái có tên bài kế tiếp; hàng chờ rỗng hay phần tử lạ thì là null", () => {
+test("state includes the next track's title; an empty queue or an odd element gives null"
+, () => {
   const p = fakePlayer();
   p.queue.tracks = [{ info: { title: "Bài sau" } }, {}];
   assert.equal(nowPlayingState(fakeClient(p), p).next, "Bài sau");

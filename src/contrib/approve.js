@@ -8,7 +8,7 @@ import { claimPending, expireStale, getContribution, markApproved, markRejected,
 
 const EXPIRE_AFTER_MS = 14 * 86_400_000;
 
-/** Đổi chỗ file, nếu khác ổ đĩa thì sao chép rồi xoá bản cũ. */
+/** Move a file; if it is on a different drive, copy it and delete the original. */
 async function moveFile(from, to) {
   try {
     await rename(from, to);
@@ -20,13 +20,13 @@ async function moveFile(from, to) {
 }
 
 /**
- * Chủ bot duyệt một đóng góp: chuyển file vào music/<thư mục đóng góp>/ rồi quét lại thư viện.
- * Trả về { row, file } (file là đường dẫn tương đối trong music/).
+ * Bot owner approves a contribution: move the file into music/<contributions folder>/ and rescan the library.
+ * Returns { row, file } (file is the relative path inside music/).
  */
 export async function approveContribution({ id, ownerId, scan = library.scan }) {
   const row = getContribution(id);
-  if (!row) throw new Error("Không có đóng góp này.");
-  if (!claimPending(id)) throw new Error("Đóng góp này đã được xử lý rồi.");
+  if (!row) throw new Error("No such contribution.");
+  if (!claimPending(id)) throw new Error("This contribution has already been handled.");
 
   try {
     const destDir = path.join(config.musicDir, config.contributions.folder);
@@ -34,13 +34,13 @@ export async function approveContribution({ id, ownerId, scan = library.scan }) 
 
     const base = sanitizeFileName(`${row.artist ? `${row.artist} - ` : ""}${row.title ?? row.original_name}`);
     const dest = await uniquePath(destDir, base, row.ext);
-    if (!isInside(destDir, dest)) throw new Error("Đường dẫn đích không hợp lệ.");
+    if (!isInside(destDir, dest)) throw new Error("Invalid destination path.");
 
     await moveFile(stagedPath(id, row.ext), dest);
 
     const file = path.posix.join(config.contributions.folder, path.basename(dest));
     markApproved(id, ownerId, file);
-    await scan().catch((error) => console.error("Quét thư viện sau khi duyệt lỗi:", error));
+    await scan().catch((error) => console.error("Library scan after approval failed:", error));
     return { row: getContribution(id), file };
   } catch (error) {
     revertToPending(id);
@@ -48,16 +48,16 @@ export async function approveContribution({ id, ownerId, scan = library.scan }) 
   }
 }
 
-/** Chủ bot từ chối một đóng góp: xoá file tạm và ghi lý do. */
+/** Bot owner rejects a contribution: delete the temp file and record the reason. */
 export async function rejectContribution({ id, ownerId, reason }) {
   const row = getContribution(id);
-  if (!row) throw new Error("Không có đóng góp này.");
-  if (!markRejected(id, ownerId, reason)) throw new Error("Đóng góp này đã được xử lý rồi.");
+  if (!row) throw new Error("No such contribution.");
+  if (!markRejected(id, ownerId, reason)) throw new Error("This contribution has already been handled.");
   await rm(stagedPath(id, row.ext), { force: true }).catch(() => {});
   return getContribution(id);
 }
 
-/** Dọn các đóng góp chờ duyệt quá 14 ngày. Trả về các dòng đã hết hạn. */
+/** Clean up contributions pending for more than 14 days. Returns the expired rows. */
 export async function expirePending(now = Date.now()) {
   const rows = expireStale(now - EXPIRE_AFTER_MS);
   for (const row of rows) await rm(stagedPath(row.id, row.ext), { force: true }).catch(() => {});

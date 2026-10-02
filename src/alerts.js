@@ -3,7 +3,7 @@ import { config } from "./config.js";
 const COOLDOWN_MS = 60_000;
 const lastSent = new Map();
 
-/** Gửi cảnh báo cho người vận hành qua webhook Discord (nếu có cấu hình ALERT_WEBHOOK_URL). */
+/** Sends an alert to the operator via a Discord webhook (if ALERT_WEBHOOK_URL is configured). */
 export async function alertOwner(key, message) {
   if (!config.alertWebhookUrl) return;
 

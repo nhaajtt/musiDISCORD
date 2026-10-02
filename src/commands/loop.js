@@ -2,16 +2,16 @@ import { SlashCommandBuilder } from "discord.js";
 import { infoEmbed } from "../utils/embeds.js";
 import { requirePlayer } from "../utils/guards.js";
 
-const LABELS = { off: "Tắt lặp", track: "Lặp bài hiện tại", queue: "Lặp cả hàng chờ" };
+const LABELS = { off: "Loop off", track: "Loop current track", queue: "Loop whole queue" };
 
 export default {
   data: new SlashCommandBuilder()
     .setName("loop")
-    .setDescription("Chế độ lặp")
+    .setDescription("Loop mode")
     .addStringOption((o) =>
       o
         .setName("mode")
-        .setDescription("Chế độ lặp")
+        .setDescription("Loop mode")
         .setRequired(true)
         .addChoices(
           { name: LABELS.off, value: "off" },

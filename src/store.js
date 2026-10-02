@@ -4,14 +4,14 @@ import { config } from "./config.js";
 
 const file = path.join(config.dataDir, "settings.json");
 
-// stay247: { voiceChannelId, textChannelId, radio } khi bật chế độ 24/7
+// stay247: { voiceChannelId, textChannelId, radio } when 24/7 mode is on
 const DEFAULTS = { djRoleId: null, defaultVolume: 100, vcStatus: true, fairQueue: false, stay247: null, contributions: false };
 
 let data = {};
 try {
   data = JSON.parse(readFileSync(file, "utf8"));
 } catch (error) {
-  if (error.code !== "ENOENT") console.error(`Không đọc được ${file}, dùng cài đặt mặc định:`, error.message);
+  if (error.code !== "ENOENT") console.error(`Could not read ${file}, using default settings:`, error.message);
 }
 
 export function getSettings(guildId) {
@@ -25,7 +25,7 @@ export function allSettings() {
 export function updateSettings(guildId, patch) {
   data[guildId] = { ...data[guildId], ...patch };
 
-  // Ghi ra file tạm rồi đổi tên để không bị hỏng file nếu tiến trình bị dừng giữa chừng
+  // Write to a temp file then rename so the file is not corrupted if the process stops midway
   mkdirSync(config.dataDir, { recursive: true });
   const tmp = `${file}.tmp`;
   writeFileSync(tmp, JSON.stringify(data, null, 2));

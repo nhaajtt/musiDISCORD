@@ -29,7 +29,7 @@ async function fromSidecar(rel) {
       const buffer = await readFile(`${base}${ext}`);
       if (buffer.length <= MAX_LRC_BYTES) return parseLrc(buffer.toString("utf8"));
     } catch {
-      // không có file lời bên cạnh
+      // no lyrics file alongside
     }
   }
   return null;
@@ -79,8 +79,8 @@ async function fromOnline(track, rel, key) {
 }
 
 /**
- * Lấy lời bài hát theo thứ tự: file .lrc cạnh bài, lời nhúng trong thẻ, bộ nhớ đệm / LRCLIB.
- * Trả về { parsed, source } hoặc null nếu không có lời.
+ * Get song lyrics in this order: .lrc file next to the track, lyrics embedded in tags, cache / LRCLIB.
+ * Returns { parsed, source } or null if there are no lyrics.
  */
 export async function getLyrics(track) {
   const rel = localRelativePath(track.info);
@@ -90,7 +90,7 @@ export async function getLyrics(track) {
     const sidecar = await fromSidecar(rel);
     if (hasLines(sidecar)) return { parsed: sidecar, source: "file .lrc" };
     const tags = await fromTags(rel);
-    if (hasLines(tags)) return { parsed: tags, source: "thẻ trong file" };
+    if (hasLines(tags)) return { parsed: tags, source: "file tags" };
   }
 
   if (config.lyricsLookup) {

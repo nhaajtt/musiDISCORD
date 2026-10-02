@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { heartbeatFile } from "./heartbeatFile.js";
 
-// Docker gọi file này định kỳ: thoát 0 nếu bot vừa báo "khoẻ" trong vòng 60 giây
+// Docker calls this file periodically: exits 0 if the bot reported "healthy" within the last 60 seconds
 const MAX_AGE_MS = 60_000;
 
 try {

@@ -37,14 +37,14 @@ const { config } = await import("../src/config.js");
 
 test.after(() => rmSync(root, { recursive: true, force: true }));
 
-test("đoán tên bài từ tên file", () => {
+test("guess the title from the file name", () => {
   assert.deepEqual(L.guessFromName("01-vung-vay"), { artist: null, title: "vung vay" });
   assert.deepEqual(L.guessFromName("MRT - TINH HÀ SAY HI"), { artist: "MRT", title: "TINH HÀ SAY HI" });
   assert.deepEqual(L.guessFromName("Hơi Ảo #7"), { artist: null, title: "Hơi Ảo #7" });
   assert.deepEqual(L.guessFromName("Rock - Pop - Mix"), { artist: "Rock", title: "Pop - Mix" });
 });
 
-test("quét thư mục, bỏ file không phải nhạc, dùng thẻ hoặc tên file", async () => {
+test("scan the folder, skip non-music files, use tags or the file name", async () => {
   const count = await L.scan();
   assert.equal(count, 8);
   assert.equal(L.get("ghi-chu.txt"), undefined);
@@ -56,7 +56,7 @@ test("quét thư mục, bỏ file không phải nhạc, dùng thẻ hoặc tên 
   assert.equal(L.get("01-vung-vay.mp3").hasTags, false);
 });
 
-test("tìm kiếm không phân biệt dấu và hoa thường", () => {
+test("search ignores diacritics and case", () => {
   assert.equal(L.search("lac troi")[0].file, "Sơn Tùng/Sky Tour/02 - Lạc trôi.flac");
   assert.equal(L.search("SON TUNG").length, 3);
   assert.equal(L.search("mrt hà").length, 1);
@@ -65,7 +65,7 @@ test("tìm kiếm không phân biệt dấu và hoa thường", () => {
   assert.ok(L.search("", 2).length <= 2);
 });
 
-test("album và nghệ sĩ", () => {
+test("albums and artists", () => {
   const sky = L.findAlbum("sky tour");
   assert.equal(sky.tracks.length, 3);
   assert.deepEqual(
@@ -78,7 +78,7 @@ test("album và nghệ sĩ", () => {
   assert.ok(L.searchArtists("mrt")[0].name === "MRT");
 });
 
-test("quét lại dùng bộ nhớ đệm khi file không đổi", async () => {
+test("rescan uses the cache when files are unchanged", async () => {
   const before = L.get("01-vung-vay.mp3");
   await L.scan();
   assert.deepEqual(L.get("01-vung-vay.mp3"), before);
@@ -87,7 +87,7 @@ test("quét lại dùng bộ nhớ đệm khi file không đổi", async () => {
   assert.ok(L.get("Mới/Bài mới.mp3"));
 });
 
-test("chuẩn hoá track local: điền tên, nghệ sĩ, album từ chỉ mục", () => {
+test("normalize a local track: fill in title, artist, album from the index", () => {
   const track = {
     info: { sourceName: "local", identifier: `${config.musicDir}/Sơn Tùng/Sky Tour/02 - Lạc trôi.flac`, title: "Unknown title", author: "Unknown artist" },
   };
@@ -101,34 +101,34 @@ test("chuẩn hoá track local: điền tên, nghệ sĩ, album từ chỉ mục
   assert.equal(web.info.title, "Unknown title");
 });
 
-test("không có ảnh bìa thì trả null", async () => {
+test("no cover art returns null", async () => {
   assert.equal(await L.getCover("01-vung-vay.mp3"), null);
 });
 
 const mk = (id, artist) => ({ info: { sourceName: "local", identifier: `/music/${id}.mp3`, author: artist, title: id } });
 
-test("xáo trộn thông minh: đủ mọi bài đúng một lần", () => {
+test("smart shuffle: every track exactly once", () => {
   const tracks = Array.from({ length: 40 }, (_, i) => mk(`t${i}`, `a${i % 5}`));
   const out = smartOrder(tracks);
   assert.equal(out.length, 40);
   assert.equal(new Set(out.map((t) => t.info.identifier)).size, 40);
 });
 
-test("xáo trộn thông minh: tránh cùng nghệ sĩ liền nhau khi có thể", () => {
+test("smart shuffle: avoid the same artist back to back when possible", () => {
   const tracks = Array.from({ length: 60 }, (_, i) => mk(`t${i}`, `a${i % 6}`));
   for (let round = 0; round < 50; round++) {
     const out = smartOrder(tracks);
-    for (let i = 1; i < out.length; i++) assert.notEqual(out[i].info.author, out[i - 1].info.author, `vòng ${round}, vị trí ${i}`);
+    for (let i = 1; i < out.length; i++) assert.notEqual(out[i].info.author, out[i - 1].info.author, `round ${round}, position ${i}`);
   }
 });
 
-test("xáo trộn thông minh: không treo khi chỉ có một nghệ sĩ", () => {
+test("smart shuffle: does not hang with a single artist", () => {
   const tracks = Array.from({ length: 10 }, (_, i) => mk(`t${i}`, "same"));
   assert.equal(smartOrder(tracks).length, 10);
   assert.equal(smartOrder([]).length, 0);
 });
 
-test("xáo trộn thông minh: bài được thích lên đầu thường hơn, bài bị chê xuống cuối", () => {
+test("smart shuffle: liked tracks come first more often, disliked ones go last", () => {
   const tracks = Array.from({ length: 20 }, (_, i) => mk(`t${i}`, `a${i}`));
   const scores = new Map([[trackKey(tracks[0]), 6], [trackKey(tracks[1]), -6]]);
   let lovedFirstHalf = 0;
@@ -138,8 +138,8 @@ test("xáo trộn thông minh: bài được thích lên đầu thường hơn, 
     if (out.indexOf("/music/t0.mp3") < 10) lovedFirstHalf++;
     if (out.indexOf("/music/t1.mp3") < 10) hatedFirstHalf++;
   }
-  assert.ok(lovedFirstHalf > 300, `yêu thích: ${lovedFirstHalf}/400`);
-  assert.ok(hatedFirstHalf < 200, `bị chê: ${hatedFirstHalf}/400`);
+  assert.ok(lovedFirstHalf > 300, `loved: ${lovedFirstHalf}/400`);
+  assert.ok(hatedFirstHalf < 200, `disliked: ${hatedFirstHalf}/400`);
   assert.equal(weightFor(0), 1);
   assert.equal(weightFor(100), 4);
   assert.equal(weightFor(-100), 0.25);

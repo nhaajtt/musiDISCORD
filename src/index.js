@@ -29,12 +29,12 @@ for (const file of readdirSync(path.join(__dirname, "events")).filter((f) => f.e
 
 process.on("unhandledRejection", (error) => console.error("Unhandled rejection:", error));
 
-// Khi Docker dừng container: rời các kênh thoại gọn gàng rồi mới thoát
+// When Docker stops the container: leave voice channels cleanly, then exit
 let closing = false;
 async function shutdown(signal) {
   if (closing) return;
   closing = true;
-  console.log(`Nhận ${signal}, đang tắt bot...`);
+  console.log(`Received ${signal}, shutting down...`);
   saveAndFreeze(client.lavalink);
   for (const player of [...client.lavalink.players.values()]) {
     await player.destroy("Shutdown").catch(() => {});

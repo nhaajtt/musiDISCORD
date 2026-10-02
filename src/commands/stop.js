@@ -4,11 +4,11 @@ import { requirePlayer } from "../utils/guards.js";
 import { stopPlayback } from "../utils/actions.js";
 
 export default {
-  data: new SlashCommandBuilder().setName("stop").setDescription("Dừng phát và xoá hàng chờ"),
+  data: new SlashCommandBuilder().setName("stop").setDescription("Stop playback and clear the queue"),
   async execute(interaction) {
     const player = await requirePlayer(interaction);
     if (!player) return;
     await stopPlayback(player);
-    await interaction.reply({ embeds: [infoEmbed("⏹️ Đã dừng và xoá hàng chờ.")] });
+    await interaction.reply({ embeds: [infoEmbed("⏹️ Stopped and cleared the queue.")] });
   },
 };

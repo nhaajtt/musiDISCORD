@@ -1,6 +1,6 @@
 #!/bin/sh
-# Sao lưu data/ (chạy trên máy chủ). Bản nén nằm ở data/backups; nếu đặt BACKUP_RCLONE_REMOTE trong .env
-# (ví dụ gdrive:musidiscord) và đã cài rclone thì đẩy lên đó luôn.
+# Back up data/ (run on the host). The archive goes to data/backups; if BACKUP_RCLONE_REMOTE is set in .env
+# (e.g. gdrive:musidiscord) and rclone is installed, it is also uploaded there.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -12,5 +12,5 @@ if [ -f .env ]; then
 fi
 if [ -n "$remote" ] && command -v rclone >/dev/null 2>&1; then
   rclone copy data/backups "$remote" --include "musidiscord-*.tar.gz"
-  echo "Đã đẩy bản sao lưu lên $remote"
+  echo "Backup uploaded to $remote"
 fi

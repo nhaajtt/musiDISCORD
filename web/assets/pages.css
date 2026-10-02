@@ -169,3 +169,34 @@ a.card:focus-visible {
     white-space: normal;
   }
 }
+
+/* language switcher */
+.lang {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  border: 1px solid var(--line-dim);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+.lang a {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 100%;
+  padding-inline: 6px;
+  text-decoration: none;
+  color: var(--ink-dim);
+}
+.lang a + a {
+  border-left: 1px solid var(--line-dim);
+}
+.lang a:hover {
+  color: var(--ink);
+}
+.lang a[aria-current="true"] {
+  background: var(--line);
+  color: var(--paper-2);
+  font-weight: 600;
+}

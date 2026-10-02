@@ -7,8 +7,8 @@ const UNKNOWN_TITLE = /^unknown title$/i;
 const UNKNOWN_ARTIST = /^unknown artist$/i;
 
 /**
- * Điền tên bài, nghệ sĩ, album cho file local từ chỉ mục thư viện (thẻ tên hoặc tên file).
- * Chỉnh tại chỗ và trả lại chính track đó; track không phải file local giữ nguyên.
+ * Fill in title, artist and album for a local file from the library index (tags or filename).
+ * Edits in place and returns the same track; non-local tracks are left unchanged.
  */
 export function normalizeLocalTrack(track) {
   const info = track?.info;
@@ -19,12 +19,12 @@ export function normalizeLocalTrack(track) {
 
   if (!info.title || UNKNOWN_TITLE.test(info.title)) {
     const source = info.identifier || info.uri || "";
-    info.title = entry?.title ?? (path.posix.basename(source, path.posix.extname(source)) || "File nhạc");
+    info.title = entry?.title ?? (path.posix.basename(source, path.posix.extname(source)) || "Music file");
   }
   if (!info.author || UNKNOWN_ARTIST.test(info.author)) {
     const source = info.identifier || info.uri || "";
     const folder = path.posix.basename(path.posix.dirname(source));
-    const fallback = folder && folder !== path.posix.basename(config.musicDir) ? folder : "Thư mục music";
+    const fallback = folder && folder !== path.posix.basename(config.musicDir) ? folder : "Music folder";
     info.author = entry?.artist ?? fallback;
   }
   info.album ??= entry?.album ?? null;

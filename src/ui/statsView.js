@@ -9,18 +9,18 @@ export const currentYear = () => Number(localDay(Date.now()).slice(0, 4));
 
 const hours = (ms) => (ms / 3_600_000).toFixed(1).replace(".", ",");
 
-/** Dựng và gửi thẻ thống kê (ảnh) của `target` cho một lượt `interaction` đã deferReply. */
+/** Builds and sends the stats card (image) of `target` for an `interaction` that was already deferred. */
 export async function replyWithCard(interaction, { kind, year, target }) {
   const guildId = interaction.guildId;
 
   if (isOptedOut(target.id)) {
-    return interaction.editReply({ embeds: [infoEmbed(`**${target.username}** đã tắt thống kê nên không có dữ liệu để hiển thị.`)] });
+    return interaction.editReply({ embeds: [infoEmbed(`**${target.username}** has turned off stats, so there is no data to show.`)] });
   }
 
   const stats = userStats(guildId, target.id, { year: kind === "wrapped" ? year : undefined });
   if (!stats.totalPlays) {
     return interaction.editReply({
-      embeds: [errorEmbed(kind === "wrapped" ? `Chưa có dữ liệu nghe nhạc năm ${year} của ${target.username}.` : `${target.username} chưa nghe bài nào cùng bot ở server này.`)],
+      embeds: [errorEmbed(kind === "wrapped" ? `No listening data for ${year} for ${target.username}.` : `${target.username} hasn't listened to anything with the bot on this server yet.`)],
     });
   }
 
@@ -43,6 +43,6 @@ export async function replyWithCard(interaction, { kind, year, target }) {
   });
 
   const name = kind === "wrapped" ? `wrapped-${year}.png` : "mystats.png";
-  const summary = `📊 **${target.username}**: ${hours(stats.totalListenMs)} giờ nghe • ${stats.totalPlays} bài${kind === "wrapped" ? ` • năm ${year}` : ""}`;
+  const summary = `📊 **${target.username}**: ${hours(stats.totalListenMs)} hours listened • ${stats.totalPlays} tracks${kind === "wrapped" ? ` • ${year}` : ""}`;
   return interaction.editReply({ content: summary, files: [new AttachmentBuilder(png, { name })], allowedMentions: { parse: [] } });
 }

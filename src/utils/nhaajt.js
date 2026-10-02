@@ -7,7 +7,7 @@ const CONCURRENCY = 8;
 
 const cloneTrack = (track) => ({ ...track, info: { ...track.info } });
 
-/** Nạp metadata của các file (đường dẫn tương đối trong thư mục music) qua Lavalink, bỏ qua file lỗi. */
+/** Loads metadata for files (relative paths in the music folder) via Lavalink, skipping files that fail. */
 export async function loadLibrary(player, files, requester) {
   const tracks = new Array(files.length);
   let next = 0;
@@ -24,7 +24,7 @@ export async function loadLibrary(player, files, requester) {
   return tracks.filter(Boolean);
 }
 
-/** Thêm một vòng mới vào hàng chờ: xáo trộn có trọng số theo đánh giá, tránh lặp ngay bài đang phát. */
+/** Adds a new round to the queue: weighted shuffle by ratings, avoiding an immediate repeat of the current track. */
 export async function refillNhaajt(player) {
   const library = player.getData("nhaajtTracks");
   if (!library?.length) return;
@@ -41,7 +41,7 @@ export function stopNhaajt(player) {
   player.setData("nhaajt", false);
 }
 
-/** Bắt đầu chế độ phát ngẫu nhiên vô hạn toàn bộ `files`. Trả về số bài nạp được. */
+/** Starts endless random playback of all `files`. Returns the number of tracks loaded. */
 export async function startNhaajt(player, files, requester) {
   stopNhaajt(player);
   if (player.queue.current || player.queue.tracks.length) await player.stopPlaying(true, false);
@@ -57,7 +57,7 @@ export async function startNhaajt(player, files, requester) {
   return tracks.length;
 }
 
-/** Thêm các file vào hàng chờ (có thể xáo trộn thông minh) và phát nếu đang rảnh. Trả về số bài thêm được. */
+/** Adds files to the queue (optionally smart-shuffled) and plays if idle. Returns the number of tracks added. */
 export async function queueFiles(player, files, requester, { shuffle = false } = {}) {
   let tracks = await loadLibrary(player, files, requester);
   if (!tracks.length) return 0;

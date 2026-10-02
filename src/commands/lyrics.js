@@ -6,8 +6,8 @@ import { requirePlayer } from "../utils/guards.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("lyrics")
-    .setDescription("Lời bài đang phát (từ file .lrc, thẻ trong file hoặc LRCLIB)")
-    .addBooleanOption((o) => o.setName("live").setDescription("Hiện dạng karaoke, tô sáng dòng đang hát")),
+    .setDescription("Lyrics for the current track (from .lrc files, embedded tags or LRCLIB)")
+    .addBooleanOption((o) => o.setName("live").setDescription("Show karaoke-style, highlighting the line being sung")),
 
   async execute(interaction) {
     const player = await requirePlayer(interaction, { dj: false });
@@ -15,7 +15,7 @@ export default {
 
     const live = interaction.options.getBoolean("live") ?? false;
     if (live && stopLive(player)) {
-      return interaction.reply({ embeds: [infoEmbed("📜 Đã tắt lời bài hát trực tiếp.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [infoEmbed("📜 Live lyrics turned off.")], flags: MessageFlags.Ephemeral });
     }
 
     await interaction.deferReply({ flags: live ? MessageFlags.Ephemeral : undefined });

@@ -4,7 +4,7 @@ import { errorEmbed, infoEmbed } from "../utils/embeds.js";
 import { requirePlayer } from "../utils/guards.js";
 
 export default {
-  data: new SlashCommandBuilder().setName("skip").setDescription("Bỏ qua bài đang phát (nhiều người nghe thì cần bỏ phiếu)"),
+  data: new SlashCommandBuilder().setName("skip").setDescription("Skip the current track (needs a vote when several people are listening)"),
   async execute(interaction) {
     const player = await requirePlayer(interaction, { dj: false });
     if (!player) return;

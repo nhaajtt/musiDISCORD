@@ -3,14 +3,14 @@ import { errorEmbed, infoEmbed } from "../utils/embeds.js";
 import { requirePlayer } from "../utils/guards.js";
 
 export default {
-  data: new SlashCommandBuilder().setName("shuffle").setDescription("Xáo trộn hàng chờ"),
+  data: new SlashCommandBuilder().setName("shuffle").setDescription("Shuffle the queue"),
   async execute(interaction) {
     const player = await requirePlayer(interaction);
     if (!player) return;
     if (player.queue.tracks.length < 2) {
-      return interaction.reply({ embeds: [errorEmbed("Hàng chờ cần ít nhất 2 bài để xáo trộn.")] });
+      return interaction.reply({ embeds: [errorEmbed("The queue needs at least 2 tracks to shuffle.")] });
     }
     await player.queue.shuffle();
-    await interaction.reply({ embeds: [infoEmbed("🔀 Đã xáo trộn hàng chờ.")] });
+    await interaction.reply({ embeds: [infoEmbed("🔀 Queue shuffled.")] });
   },
 };

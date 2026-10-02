@@ -4,7 +4,7 @@ import { heartbeatFile } from "./heartbeatFile.js";
 const BEAT_MS = 15_000;
 
 function beat(client) {
-  // Chỉ báo "khoẻ" khi vừa đăng nhập Discord vừa nối được Lavalink
+  // Only report "healthy" when both logged in to Discord and connected to Lavalink
   const node = client.lavalink.nodeManager.leastUsedNodes()[0];
   if (!client.isReady() || !node?.connected) return;
 

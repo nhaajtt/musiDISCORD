@@ -9,15 +9,15 @@ import {
 } from "../src/lyrics/lrclib.js";
 
 describe("parseLrc", () => {
-  test("các dạng timestamp", () => {
+  test("timestamp forms", () => {
     const p = parseLrc("[00:12.34]a\n[01:02.5]b\n[3:04]c\n[00:05.123]d\n[01:00:01.00]e");
     assert.equal(p.synced, true);
     const m = Object.fromEntries(p.lines.map((l) => [l.text, l.timeMs]));
     assert.deepEqual(m, { a: 12340, b: 62500, c: 184000, d: 5123, e: 3601000 });
-    assert.equal(p.lines[0].text, "d"); // đã sắp xếp
+    assert.equal(p.lines[0].text, "d"); // already sorted
   });
 
-  test("nhiều timestamp trên một dòng", () => {
+  test("multiple timestamps on one line", () => {
     const p = parseLrc("[00:12.00][01:30.50]hello");
     assert.deepEqual(p.lines, [
       { timeMs: 12000, text: "hello" },
@@ -25,7 +25,7 @@ describe("parseLrc", () => {
     ]);
   });
 
-  test("offset (dương = sớm hơn) và kẹp về 0", () => {
+  test("offset (positive = earlier) clamped to 0", () => {
     const p = parseLrc("[offset:+500]\n[00:00.20]x\n[00:02.00]y");
     assert.equal(p.offsetMs, 500);
     assert.deepEqual(p.lines.map((l) => l.timeMs), [0, 1500]);
@@ -33,59 +33,59 @@ describe("parseLrc", () => {
     assert.equal(q.lines[0].timeMs, 1300);
   });
 
-  test("thẻ ID đi vào meta, không là dòng lời", () => {
+  test("ID tags go into meta, not lyric lines", () => {
     const p = parseLrc("[ti:Tên]\n[ar:Ca sĩ]\n[al:Album]\n[by:me]\n[length: 03:20]\n[00:01.00]lời");
     assert.deepEqual(p.meta, { ti: "Tên", ar: "Ca sĩ", al: "Album", by: "me", length: "03:20" });
     assert.equal(p.lines.length, 1);
   });
 
-  test("thẻ từng chữ bị bỏ, giữ chữ", () => {
+  test("per-word tags are dropped, the words are kept", () => {
     const p = parseLrc("[00:12.00]<00:12.00>Xin <00:12.50>chào  <00:13.00>bạn");
     assert.equal(p.lines[0].text, "Xin chào bạn");
   });
 
-  test("CRLF, CR, BOM, khoảng trắng", () => {
+  test("CRLF, CR, BOM, whitespace", () => {
     const p = parseLrc("﻿[00:01.00]  a  \r\n[00:02.00]b\r[00:03.00]c\n");
     assert.deepEqual(p.lines.map((l) => l.text), ["a", "b", "c"]);
   });
 
-  test("dòng timestamp rỗng được giữ", () => {
+  test("empty timestamp lines are kept", () => {
     const p = parseLrc("[00:01.00]a\n[00:05.00]\n[00:09.00]b");
     assert.deepEqual(p.lines[1], { timeMs: 5000, text: "" });
     assert.equal(p.lines.length, 3);
   });
 
-  test("sắp xếp ổn định khi trùng thời gian", () => {
+  test("stable sort on equal timestamps", () => {
     const p = parseLrc("[00:01.00]b\n[00:01.00]a\n[00:00.50]z");
     assert.deepEqual(p.lines.map((l) => l.text), ["z", "b", "a"]);
   });
 
-  test("văn bản thường", () => {
+  test("plain text", () => {
     const p = parseLrc("\n\nDòng 1\nDòng 2\n\n\n\n\nDòng 3\n\n");
     assert.equal(p.synced, false);
     assert.ok(p.lines.every((l) => l.timeMs === null));
     assert.deepEqual(p.lines.map((l) => l.text), ["Dòng 1", "Dòng 2", "", "Dòng 3"]);
   });
 
-  test("[Chorus] không bị coi là thẻ", () => {
+  test("[Chorus] is not treated as a tag", () => {
     const p = parseLrc("[Chorus]\nla la");
     assert.equal(p.lines[0].text, "[Chorus]");
     assert.equal(p.synced, false);
   });
 
-  test("giữ tiếng Việt", () => {
+  test("keeps Vietnamese text", () => {
     const p = parseLrc("[00:01.00]Đừng như thế, em ơi ♪ Ừ");
     assert.equal(p.lines[0].text, "Đừng như thế, em ơi ♪ Ừ");
   });
 
-  test("đầu vào rác không ném lỗi", () => {
+  test("garbage input does not throw", () => {
     for (const x of [null, undefined, 5, {}, [], "", "\u0000\u0001\u0002", "[", "]", "[[[[", "[00:"]) {
       const p = parseLrc(x);
       assert.ok(Array.isArray(p.lines));
     }
   });
 
-  test("đầu vào đối nghịch chạy nhanh", () => {
+  test("adversarial input runs fast", () => {
     const cases = [
       "[".repeat(1_000_000),
       "[00:01.00]".repeat(100_000),
@@ -100,14 +100,14 @@ describe("parseLrc", () => {
     for (const c of cases) {
       const t0 = performance.now();
       parseLrc(c);
-      assert.ok(performance.now() - t0 < 1500, "quá chậm");
+      assert.ok(performance.now() - t0 < 1500, "too slow");
     }
   });
 });
 
 describe("currentLineIndex", () => {
   const lines = parseLrc("[00:01.00]a\n[00:02.00]b\n[00:04.00]c").lines;
-  test("tìm nhị phân", () => {
+  test("binary search", () => {
     assert.equal(currentLineIndex(lines, 0), -1);
     assert.equal(currentLineIndex(lines, 999), -1);
     assert.equal(currentLineIndex(lines, 1000), 0);
@@ -115,7 +115,7 @@ describe("currentLineIndex", () => {
     assert.equal(currentLineIndex(lines, 4000), 2);
     assert.equal(currentLineIndex(lines, 1e9), 2);
   });
-  test("không đồng bộ / rác", () => {
+  test("unsynced / garbage", () => {
     assert.equal(currentLineIndex(parseLrc("a\nb").lines, 5000), -1);
     assert.equal(currentLineIndex([], 5), -1);
     assert.equal(currentLineIndex(null, 5), -1);
@@ -125,12 +125,12 @@ describe("currentLineIndex", () => {
 
 describe("lyricsWindow", () => {
   const lines = parseLrc("[00:01.00]a\n[00:02.00]b\n[00:03.00]c\n[00:04.00]d\n[00:05.00]e").lines;
-  test("giữa bài", () => {
+  test("mid-track", () => {
     const w = lyricsWindow(lines, 2);
     assert.deepEqual(w.map((x) => x.text), ["b", "c", "d", "e"]);
     assert.deepEqual(w.map((x) => x.current), [false, true, false, false]);
   });
-  test("biên đầu/cuối", () => {
+  test("start/end boundaries", () => {
     assert.deepEqual(lyricsWindow(lines, 0).map((x) => x.text), ["a", "b", "c"]);
     assert.deepEqual(lyricsWindow(lines, 4).map((x) => x.text), ["d", "e"]);
   });
@@ -139,12 +139,12 @@ describe("lyricsWindow", () => {
     assert.deepEqual(w.map((x) => x.text), ["a", "b", "c"]);
     assert.ok(w.every((x) => !x.current));
   });
-  test("dòng trống hiện ♪ và bị bỏ qua ở dòng khác", () => {
+  test("blank line shows ♪ and is skipped elsewhere", () => {
     const l = parseLrc("[00:01.00]a\n[00:02.00]\n[00:03.00]\n[00:04.00]b").lines;
     assert.equal(lyricsWindow(l, 1).find((x) => x.current).text, "♪");
     assert.deepEqual(lyricsWindow(l, 0).map((x) => x.text), ["a", "b"]);
   });
-  test("không vượt before+1+after", () => {
+  test("never exceeds before+1+after", () => {
     assert.equal(lyricsWindow(lines, 2, { before: 0, after: 0 }).length, 1);
     assert.ok(lyricsWindow(lines, 2, { before: 5, after: 5 }).length <= 11);
     assert.deepEqual(lyricsWindow([], 0), []);
@@ -152,32 +152,32 @@ describe("lyricsWindow", () => {
 });
 
 describe("paginateLyrics", () => {
-  test("không vượt maxChars, ngắt giữa các dòng", () => {
+  test("never exceeds maxChars, breaks between lines", () => {
     const lines = Array.from({ length: 200 }, (_, i) => ({ timeMs: i * 1000, text: `Dòng số ${i} xin chào` }));
     const pages = paginateLyrics(lines, 100);
     assert.ok(pages.length > 1);
     for (const p of pages) assert.ok(p.length <= 100 && p.trim());
     assert.equal(pages.join("\n").split("\n").length, 200);
   });
-  test("cắt cứng dòng quá dài", () => {
+  test("hard-split overly long lines", () => {
     const pages = paginateLyrics([{ timeMs: null, text: "x".repeat(450) }], 100);
     assert.equal(pages.length, 5);
     assert.ok(pages.every((p) => p.length <= 100));
     assert.equal(pages.join(""), "x".repeat(450));
   });
-  test("giữ dòng trống làm ngắt đoạn, không trang rỗng", () => {
+  test("blank lines kept as paragraph breaks, no empty pages", () => {
     const p = parseLrc("a\n\n\nb\n\n");
     assert.deepEqual(paginateLyrics(p.lines, 100), ["a\n\nb"]);
     assert.deepEqual(paginateLyrics([], 100), []);
     assert.deepEqual(paginateLyrics([{ timeMs: 1, text: "" }], 100), []);
   });
-  test("giữ tiếng Việt", () => {
+  test("keeps Vietnamese text", () => {
     assert.deepEqual(paginateLyrics([{ timeMs: 0, text: "Ơi người ơi" }]), ["Ơi người ơi"]);
   });
 });
 
 describe("cleanTitleForSearch / guessArtistTitle", () => {
-  test("làm sạch tiêu đề", () => {
+  test("clean up titles", () => {
     const c = cleanTitleForSearch;
     assert.equal(c("01 - Shape of You"), "Shape of You");
     assert.equal(c("01. Shape of You"), "Shape of You");
@@ -198,7 +198,7 @@ describe("cleanTitleForSearch / guessArtistTitle", () => {
     assert.equal(c("  "), "");
     assert.equal(c(null), "");
   });
-  test("đoán nghệ sĩ - tên bài", () => {
+  test("guess artist - title", () => {
     assert.deepEqual(guessArtistTitle("Ed Sheeran - Shape of You (Official Video)"), {
       artist: "Ed Sheeran",
       title: "Shape of You",
@@ -241,7 +241,7 @@ const meta = { title: "Shape of You", artist: "Ed Sheeran", durationMs: 234000 }
 describe("fetchLyricsFromLrclib", () => {
   beforeEach(() => clearLyricsCache());
 
-  test("thành công qua /api/get", async () => {
+  test("success via /api/get", async () => {
     const f = makeFetch(() => res(200, rec()));
     const r = await fetchLyricsFromLrclib({ ...meta, album: "÷" }, { fetchImpl: f });
     assert.equal(r.source, "lrclib");
@@ -254,14 +254,14 @@ describe("fetchLyricsFromLrclib", () => {
     assert.match(f.calls[0].opts.headers["User-Agent"], /musiDISCORD/);
   });
 
-  test("không gửi album/duration khi không có", async () => {
+  test("does not send album/duration when absent", async () => {
     const f = makeFetch(() => res(200, rec()));
     await fetchLyricsFromLrclib({ title: "Shape of You", artist: "Ed Sheeran" }, { fetchImpl: f });
     assert.equal(f.calls[0].url.searchParams.has("album_name"), false);
     assert.equal(f.calls[0].url.searchParams.has("duration"), false);
   });
 
-  test("404 rồi fallback /search chọn kết quả tốt nhất", async () => {
+  test("404 then fallback to /search picking the best result", async () => {
     const f = makeFetch((u) =>
       u.pathname === "/api/get"
         ? res(404, { message: "nf" })
@@ -278,12 +278,12 @@ describe("fetchLyricsFromLrclib", () => {
     assert.equal(f.calls[1].url.pathname, "/api/search");
   });
 
-  test("từ chối sai thời lượng", async () => {
+  test("reject wrong duration", async () => {
     const f = makeFetch((u) => (u.pathname === "/api/get" ? res(404, {}) : res(200, [rec({ duration: 400 })])));
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: f }), null);
   });
 
-  test("từ chối khớp yếu (sai bài/sai nghệ sĩ)", async () => {
+  test("reject weak matches (wrong track/wrong artist)", async () => {
     const f = makeFetch((u) =>
       u.pathname === "/api/get"
         ? res(404, {})
@@ -292,7 +292,7 @@ describe("fetchLyricsFromLrclib", () => {
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: f }), null);
   });
 
-  test("so khớp bỏ dấu tiếng Việt", async () => {
+  test("matching strips Vietnamese diacritics", async () => {
     const f = makeFetch((u) =>
       u.pathname === "/api/get" ? res(404, {}) : res(200, [rec({ trackName: "Lac Troi", artistName: "Son Tung M-TP" })]),
     );
@@ -300,7 +300,7 @@ describe("fetchLyricsFromLrclib", () => {
     assert.ok(r);
   });
 
-  test("chỉ có tiêu đề: tìm thẳng /search", async () => {
+  test("title only: go straight to /search", async () => {
     const f = makeFetch(() => res(200, [rec()]));
     const r = await fetchLyricsFromLrclib({ title: "Shape of You" }, { fetchImpl: f });
     assert.ok(r);
@@ -308,20 +308,20 @@ describe("fetchLyricsFromLrclib", () => {
     assert.equal(f.calls[0].url.pathname, "/api/search");
   });
 
-  test("bài instrumental", async () => {
+  test("instrumental track", async () => {
     const f = makeFetch(() => res(200, rec({ instrumental: true, plainLyrics: null, syncedLyrics: null })));
     const r = await fetchLyricsFromLrclib(meta, { fetchImpl: f });
     assert.equal(r.instrumental, true);
     assert.equal(r.syncedLyrics, null);
   });
 
-  test("429: null, không thử tiếp", async () => {
+  test("429: null, no retry", async () => {
     const f = makeFetch(() => res(429, "slow down"));
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: f }), null);
     assert.equal(f.calls.length, 1);
   });
 
-  test("tối đa 2 request mỗi lần gọi", async () => {
+  test("at most 2 requests per call", async () => {
     const f = makeFetch(() => res(404, {}));
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: f }), null);
     assert.equal(f.calls.length, 2);
@@ -336,12 +336,12 @@ describe("fetchLyricsFromLrclib", () => {
     assert.ok(Date.now() - t0 < 1000);
   });
 
-  test("timeout khi fetch bỏ qua signal", async () => {
+  test("timeout when fetch ignores the signal", async () => {
     const f = makeFetch(() => new Promise(() => {}));
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: f, timeoutMs: 50 }), null);
   });
 
-  test("JSON hỏng / lỗi mạng không ném lỗi", async () => {
+  test("broken JSON / network error does not throw", async () => {
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: makeFetch(() => res(200, "{not json")) }), null);
     clearLyricsCache();
     const boom = makeFetch(() => {
@@ -354,7 +354,7 @@ describe("fetchLyricsFromLrclib", () => {
     assert.equal(await fetchLyricsFromLrclib(meta, { fetchImpl: makeFetch(() => null) }), null);
   });
 
-  test("cache: lần hai không gọi mạng", async () => {
+  test("cache: second call makes no network request", async () => {
     const f = makeFetch(() => res(200, rec()));
     await fetchLyricsFromLrclib(meta, { fetchImpl: f });
     await fetchLyricsFromLrclib({ ...meta, title: "  shape OF you " }, { fetchImpl: f });
@@ -364,14 +364,14 @@ describe("fetchLyricsFromLrclib", () => {
     assert.equal(f.calls.length, 2);
   });
 
-  test("cache kết quả âm (404)", async () => {
+  test("cache negative results (404)", async () => {
     const g = makeFetch(() => res(404, {}));
     await fetchLyricsFromLrclib({ title: "Nope", artist: "Nobody" }, { fetchImpl: g });
     await fetchLyricsFromLrclib({ title: "Nope", artist: "Nobody" }, { fetchImpl: g });
-    assert.equal(g.calls.length, 2); // 2 request của lần đầu, lần hai từ cache
+    assert.equal(g.calls.length, 2); // 2 requests from the first call, the second comes from the cache
   });
 
-  test("đầu vào xấu: không gọi mạng hoặc cắt độ dài", async () => {
+  test("bad input: no network call or the length is truncated", async () => {
     const f = makeFetch(() => res(200, rec()));
     for (const m of [undefined, null, {}, { title: "" }, { title: "   " }, { title: 5 }, { title: {} }]) {
       assert.equal(await fetchLyricsFromLrclib(m, { fetchImpl: f }), null);
@@ -388,7 +388,7 @@ describe("fetchLyricsFromLrclib", () => {
     assert.equal(u.searchParams.has("duration"), false);
   });
 
-  test("phần tử rác trong kết quả search", async () => {
+  test("garbage items in search results", async () => {
     const junk = [null, 1, "x", [], {}, { trackName: 5 }];
     const f = makeFetch((u) => (u.pathname === "/api/get" ? res(404, {}) : res(200, [...junk, rec()])));
     assert.ok(await fetchLyricsFromLrclib(meta, { fetchImpl: f }));

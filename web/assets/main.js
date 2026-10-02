@@ -6,6 +6,8 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
   const wideMq = window.matchMedia("(min-width: 900px)");
+  const EN = root.lang === "en";
+  const T = (vi, en) => (EN ? en : vi);
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const ease = (t) => 1 - Math.pow(1 - t, 3);
   const easeBack = (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
@@ -121,7 +123,7 @@
     if (metaTheme) metaTheme.setAttribute("content", THEME_COLOR[theme]);
     if (themeBtn) {
       themeBtn.setAttribute("aria-pressed", String(theme === "light"));
-      themeBtn.setAttribute("aria-label", theme === "light" ? "Chuyển sang giao diện tối" : "Chuyển sang giao diện sáng");
+      themeBtn.setAttribute("aria-label", theme === "light" ? T("Chuyển sang giao diện tối", "Switch to dark theme") : T("Chuyển sang giao diện sáng", "Switch to light theme"));
     }
   }
   applyTheme(root.dataset.theme === "light" ? "light" : "dark");
@@ -136,6 +138,43 @@
         /* storage may be blocked */
       }
     });
+  }
+
+  /* ---------- language switcher: remember the choice (no automatic redirect) ---------- */
+
+  $$(".lang a[hreflang]").forEach((a) => {
+    a.addEventListener("click", () => {
+      try {
+        localStorage.setItem("musi-lang", a.getAttribute("hreflang"));
+      } catch (e) {
+        /* storage may be blocked */
+      }
+    });
+  });
+  /* Vietnamese home page only: a quiet link for visitors whose browser is not set to Vietnamese */
+  if (!EN && $(".hero__cta") && !/^vi/i.test(navigator.language || "vi")) {
+    let saved = null;
+    try {
+      saved = localStorage.getItem("musi-lang");
+    } catch (e) {
+      /* storage may be blocked */
+    }
+    if (saved !== "vi") {
+      const a = document.createElement("a");
+      a.className = "link";
+      a.href = "en/index.html";
+      a.hreflang = "en";
+      a.lang = "en";
+      a.textContent = "Read in English";
+      a.addEventListener("click", () => {
+        try {
+          localStorage.setItem("musi-lang", "en");
+        } catch (e) {
+          /* storage may be blocked */
+        }
+      });
+      $(".hero__cta").appendChild(a);
+    }
   }
 
   /* ---------- frame zone marks (A-F down the sides, 1-8 along the top and bottom) ---------- */
@@ -466,8 +505,8 @@
         }
         ta.remove();
       }
-      btn.textContent = "Đã chép";
-      setTimeout(() => (btn.textContent = "Chép"), 1600);
+      btn.textContent = T("Đã chép", "Copied");
+      setTimeout(() => (btn.textContent = T("Chép", "Copy")), 1600);
     });
   });
 
@@ -656,7 +695,7 @@
   if (penBtn) {
     const paintPen = () => {
       penBtn.setAttribute("aria-pressed", String(penOn));
-      penBtn.setAttribute("aria-label", penOn ? "Tắt bút vẽ theo con trỏ" : "Bật bút vẽ theo con trỏ");
+      penBtn.setAttribute("aria-label", penOn ? T("Tắt bút vẽ theo con trỏ", "Turn off cursor pen") : T("Bật bút vẽ theo con trỏ", "Turn on cursor pen"));
       if (ink.cv) ink.cv.style.display = penOn ? "" : "none";
     };
     paintPen();
@@ -742,7 +781,7 @@
       const p = document.createElement("div");
       p.className = "pull";
       p.setAttribute("aria-hidden", "true");
-      p.textContent = "Rút tờ bản vẽ mới";
+      p.textContent = T("Rút tờ bản vẽ mới", "Pulling a new sheet");
       document.body.appendChild(p);
       void p.offsetWidth;
       p.classList.add("go");
@@ -900,9 +939,9 @@
     const xv = $("#xv");
     if (!xv) return;
     const songs = [
-      { t: "Giai điệu số 7", a: "Nghệ sĩ mẫu, Album Một", d: 222, h: 200 },
-      { t: "Đêm ở ga cuối", a: "Nghệ sĩ mẫu, Album Hai", d: 185, h: 332 },
-      { t: "Lúc cà phê nguội", a: "Nghệ sĩ khác, Album Ba", d: 252, h: 38 },
+      { t: T("Giai điệu số 7", "Melody No. 7"), a: T("Nghệ sĩ mẫu, Album Một", "Sample Artist, Album One"), d: 222, h: 200 },
+      { t: T("Đêm ở ga cuối", "Night at the Last Station"), a: T("Nghệ sĩ mẫu, Album Hai", "Sample Artist, Album Two"), d: 185, h: 332 },
+      { t: T("Lúc cà phê nguội", "When the Coffee Went Cold"), a: T("Nghệ sĩ khác, Album Ba", "Another Artist, Album Three"), d: 252, h: 38 },
     ];
     const SPEED = 8;
     let si = 0;
@@ -922,20 +961,20 @@
       loop: $("#xv-loop"),
     };
     const fmt = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
-    const loopNames = ["tắt lặp", "lặp bài", "lặp hàng chờ"];
+    const loopNames = T(["tắt lặp", "lặp bài", "lặp hàng chờ"], ["loop off", "loop track", "loop queue"]);
     const loopTags = ["", "1", "all"];
     const say = (s) => (el.note.textContent = s);
     function paintSong() {
       const s = songs[si];
       xv.style.setProperty("--hue", s.h);
       if (xv.dataset.mode === "now") {
-        el.kicker.textContent = "Đang phát";
+        el.kicker.textContent = T("Đang phát", "Now playing");
         el.title.textContent = s.t;
         el.artist.textContent = s.a;
       } else {
-        el.kicker.textContent = "Hàng chờ";
-        el.title.textContent = "Trang 1 / 3";
-        el.artist.textContent = "10 bài mỗi trang";
+        el.kicker.textContent = T("Hàng chờ", "Queue");
+        el.title.textContent = T("Trang 1 / 3", "Page 1 / 3");
+        el.artist.textContent = T("10 bài mỗi trang", "10 tracks per page");
       }
       lastSec = -1;
       render();
@@ -984,36 +1023,36 @@
       if (act === "pp") {
         playing = !playing;
         xv.classList.toggle("is-playing", playing);
-        say(playing ? "tiếp tục phát" : "đã tạm dừng");
+        say(playing ? T("tiếp tục phát", "resumed") : T("đã tạm dừng", "paused"));
         sync();
       } else if (act === "skip") {
         next();
-        say("bỏ qua, sang bài kế (đủ phiếu rồi)");
+        say(T("bỏ qua, sang bài kế (đủ phiếu rồi)", "skipped to the next track (enough votes)"));
       } else if (act === "stop") {
         pos = 0;
         playing = false;
         xv.classList.remove("is-playing");
         render();
-        say("đã dừng và xóa hàng chờ");
+        say(T("đã dừng và xóa hàng chờ", "stopped and cleared the queue"));
         sync();
       } else if (act === "loop") {
         loopMode = (loopMode + 1) % 3;
         el.loop.textContent = loopTags[loopMode];
-        say("chế độ lặp: " + loopNames[loopMode]);
+        say(T("chế độ lặp: ", "loop mode: ") + loopNames[loopMode]);
       } else if (act === "shuffle") {
-        say("đã xáo trộn hàng chờ");
+        say(T("đã xáo trộn hàng chờ", "queue shuffled"));
       } else if (act === "up" || act === "down") {
         const other = $(`[data-act="${act === "up" ? "down" : "up"}"]`, xv);
         const on = b.getAttribute("aria-pressed") !== "true";
         b.setAttribute("aria-pressed", String(on));
         if (on) other.setAttribute("aria-pressed", "false");
-        say(on ? (act === "up" ? "đã ghi 👍, bài này sẽ lên điểm" : "đã ghi 👎, bài này sẽ ít xuất hiện") : "đã bỏ đánh giá");
+        say(on ? (act === "up" ? T("đã ghi 👍, bài này sẽ lên điểm", "logged 👍, this track will score higher") : T("đã ghi 👎, bài này sẽ ít xuất hiện", "logged 👎, this track will come up less often")) : T("đã bỏ đánh giá", "rating removed"));
       } else if (act === "fav") {
         const on = b.getAttribute("aria-pressed") !== "true";
         b.setAttribute("aria-pressed", String(on));
-        say(on ? "đã thêm vào /favorites của bạn" : "đã bỏ khỏi /favorites");
+        say(on ? T("đã thêm vào /favorites của bạn", "added to your /favorites") : T("đã bỏ khỏi /favorites", "removed from /favorites"));
       } else if (act === "lyrics") {
-        say("lời bài hát chạy theo giọng nằm ở bản vẽ S-08");
+        say(T("lời bài hát chạy theo giọng nằm ở bản vẽ S-08", "synced lyrics live on sheet S-07"));
       }
     });
     $$("[data-xv-mode]", xv).forEach((b) =>
@@ -1156,7 +1195,7 @@
         x.li.classList.toggle("is-pick", x === pick);
         x.li.classList.toggle("is-out", last !== null && x.artist === last);
       });
-      $("#wt-out").textContent = `Bài kế: ${$("b", pick.li).textContent} (${pick.artist}), chiếm ${Math.round((pick.w / total) * 100)}% cơ hội trong lượt này.`;
+      $("#wt-out").textContent = T(`Bài kế: ${$("b", pick.li).textContent} (${pick.artist}), chiếm ${Math.round((pick.w / total) * 100)}% cơ hội trong lượt này.`, `Next track: ${$("b", pick.li).textContent} (${pick.artist}), ${Math.round((pick.w / total) * 100)}% chance this round.`);
       last = pick.artist;
     });
   })();
@@ -1178,8 +1217,8 @@
     const meEl = $("#qz-me");
     const answerBtn = $("#qz-answer");
     const hintBtn = $("#qz-hbtn");
-    const ANSWER = "Đêm ở ga cuối";
-    const HINTS = ["Chữ cái đầu của bài là Đ.", "Tên bài có bốn từ.", "Từ cuối cùng là cuối."];
+    const ANSWER = T("Đêm ở ga cuối", "Night at the Last Station");
+    const HINTS = T(["Chữ cái đầu của bài là Đ.", "Tên bài có bốn từ.", "Từ cuối cùng là cuối."], ["The title starts with the letter N.", "The title has five words.", "The last word is Station."]);
     const norm = (s) =>
       s
         .normalize("NFD")
@@ -1201,7 +1240,7 @@
       if (state !== "run") return;
       t += dt;
       draw();
-      if (t > 22) end("HẾT GIỜ", "không ai kịp trả lời");
+      if (t > 22) end(T("HẾT GIỜ", "TIME UP"), T("không ai kịp trả lời", "nobody answered in time"));
     });
     function draw() {
       const p = pts();
@@ -1229,7 +1268,7 @@
       t = 0;
       hints = 0;
       state = "run";
-      hint.textContent = "Chưa xin gợi ý. Mỗi gợi ý trừ 150 điểm.";
+      hint.textContent = T("Chưa xin gợi ý. Mỗi gợi ý trừ 150 điểm.", "No hint used yet. Each hint costs 150 points.");
       stamp.classList.remove("show");
       pop.hidden = true;
       draw();
@@ -1274,22 +1313,22 @@
         meEl.textContent = String(score);
         meEl.closest("li").classList.add("bump");
         setTimeout(() => meEl.closest("li").classList.remove("bump"), 1200);
-        const note = streak ? `chuỗi ${streak + 1}, thưởng ${streak * 10}%` : "câu đầu của chuỗi";
+        const note = streak ? T(`chuỗi ${streak + 1}, thưởng ${streak * 10}%`, `streak ${streak + 1}, bonus ${streak * 10}%`) : T("câu đầu của chuỗi", "first question of the streak");
         streak += 1;
         streakEl.textContent = String(streak);
-        end("ĐÚNG +" + gain, note);
+        end(T("ĐÚNG +", "CORRECT +") + gain, note);
       } else {
         streak = 0;
         streakEl.textContent = "0";
         state = "run";
-        show("SAI", "chuỗi về 0, thử lại");
+        show(T("SAI", "WRONG"), T("chuỗi về 0, thử lại", "streak back to 0, try again"));
         answerBtn.focus({ preventScroll: true });
       }
     });
     hintBtn.addEventListener("click", () => {
       if (state !== "run" || hints >= HINTS.length) return;
       hints += 1;
-      hint.textContent = `Gợi ý ${hints}/3 (đã trừ ${hints * 150} điểm): ${HINTS[hints - 1]}`;
+      hint.textContent = T(`Gợi ý ${hints}/3 (đã trừ ${hints * 150} điểm): ${HINTS[hints - 1]}`, `Hint ${hints}/3 (-${hints * 150} points): ${HINTS[hints - 1]}`);
       draw();
     });
     $("#qz-reset").addEventListener("click", reset);
@@ -1312,7 +1351,7 @@
         const l = makeLoop((t) => {
           if (t < t0) return;
           const u = clamp((t - t0) / 1900);
-          cnt.textContent = Math.round(target * ease(u)).toLocaleString("vi-VN");
+          cnt.textContent = Math.round(target * ease(u)).toLocaleString(EN ? "en-US" : "vi-VN");
           if (u >= 1) {
             l.active = false;
             loops.delete(l);
@@ -1433,7 +1472,7 @@
       logEl.prepend(li);
       while (logEl.children.length > 4) logEl.lastChild.remove();
     };
-    const statusText = () => (!botIn || !swSt.checked ? "" : swRadio.checked && sw247.checked ? "Radio: cả thư mục nhạc, phát không ngừng" : "Đang phát: Giai điệu số 7");
+    const statusText = () => (!botIn || !swSt.checked ? "" : swRadio.checked && sw247.checked ? T("Radio: cả thư mục nhạc, phát không ngừng", "Radio: the whole music folder, nonstop") : T("Đang phát: Giai điệu số 7", "Now playing: Melody No. 7"));
     function type(text) {
       clearTimeout(typeTimer);
       if (text === shown) return;
@@ -1460,19 +1499,19 @@
       if (!statusText()) stEl.classList.add("off");
     };
     swSt.addEventListener("change", () => {
-      log(swSt.checked ? "đã bật /settings vc-status: tên bài hiện trên kênh" : "đã tắt vc-status: kênh không còn dòng tên bài");
+      log(swSt.checked ? T("đã bật /settings vc-status: tên bài hiện trên kênh", "/settings vc-status on: the track name shows on the channel") : T("đã tắt vc-status: kênh không còn dòng tên bài", "vc-status off: the channel no longer shows a track name"));
       paint();
     });
     sw247.addEventListener("change", () => {
       vc.dataset["247"] = sw247.checked ? "on" : "off";
       swRadio.disabled = !sw247.checked;
       if (!sw247.checked) swRadio.checked = false;
-      log(sw247.checked ? "đã bật /247: bot ở lại kể cả khi vắng người" : "đã tắt /247: vắng người thì bot rời sau 60 giây");
+      log(sw247.checked ? T("đã bật /247: bot ở lại kể cả khi vắng người", "/247 on: the bot stays even when the channel is empty") : T("đã tắt /247: vắng người thì bot rời sau 60 giây", "/247 off: the bot leaves 60 seconds after everyone is gone"));
       if (!sw247.checked && alone && botIn) scheduleLeave();
       paint();
     });
     swRadio.addEventListener("change", () => {
-      log(swRadio.checked ? "radio bật: bot phát cả thư mục không ngừng" : "radio tắt");
+      log(swRadio.checked ? T("radio bật: bot phát cả thư mục không ngừng", "radio on: the bot plays the whole folder nonstop") : T("radio tắt", "radio off"));
       paint();
     });
     function scheduleLeave() {
@@ -1480,7 +1519,7 @@
       botTimer = setTimeout(() => {
         if (alone && !sw247.checked && botIn) {
           botIn = false;
-          log("hết 60 giây (bản mẫu rút còn vài giây): bot rời kênh");
+          log(T("hết 60 giây (bản mẫu rút còn vài giây): bot rời kênh", "60 seconds up (shortened in this demo): the bot leaves the channel"));
           paint();
         }
       }, 2600);
@@ -1488,26 +1527,26 @@
     leaveBtn.addEventListener("click", () => {
       alone = !alone;
       people.forEach((p) => p.classList.toggle("gone", alone));
-      leaveBtn.textContent = alone ? "Mọi người quay lại" : "Mọi người rời kênh";
+      leaveBtn.textContent = alone ? T("Mọi người quay lại", "Everyone comes back") : T("Mọi người rời kênh", "Everyone leaves");
       if (alone) {
-        if (sw247.checked) log("kênh vắng nhưng bot vẫn ở lại, đèn vẫn sáng");
+        if (sw247.checked) log(T("kênh vắng nhưng bot vẫn ở lại, đèn vẫn sáng", "channel empty but the bot stays, light still on"));
         else {
-          log("kênh vắng, bot đếm ngược 60 giây");
+          log(T("kênh vắng, bot đếm ngược 60 giây", "channel empty, the bot counts down 60 seconds"));
           scheduleLeave();
         }
       } else {
         clearTimeout(botTimer);
-        log(botIn ? "mọi người quay lại, nhạc vẫn đang phát" : "mọi người quay lại nhưng bot đã rời, gõ /play để gọi lại");
+        log(botIn ? T("mọi người quay lại, nhạc vẫn đang phát", "everyone is back, the music is still playing") : T("mọi người quay lại nhưng bot đã rời, gõ /play để gọi lại", "everyone is back but the bot has left, type /play to call it again"));
       }
     });
     restartBtn.addEventListener("click", () => {
       if (bot.classList.contains("restarting")) return;
       bot.classList.add("restarting");
-      log("bot đang khởi động lại...");
+      log(T("bot đang khởi động lại...", "the bot is restarting..."));
       setTimeout(() => {
         bot.classList.remove("restarting");
         botIn = sw247.checked;
-        log(botIn ? "bot tự vào lại kênh nhờ /247" : "bot không tự vào lại, vì /247 đang tắt");
+        log(botIn ? T("bot tự vào lại kênh nhờ /247", "the bot rejoins the channel by itself thanks to /247") : T("bot không tự vào lại, vì /247 đang tắt", "the bot does not rejoin, because /247 is off"));
         paint();
       }, 1600);
     });
@@ -1550,7 +1589,7 @@
       { n: 2, name: "Lavalink", x: 3.6, z: -0.8, w: 1.9, d: 1.9, h: 1.3 },
       { n: 3, name: "music/", x: -3.6, z: -1.8, w: 2.0, d: 1.4, h: 0.8 },
       { n: 4, name: "data/", x: -3.4, z: 2.0, w: 1.7, d: 1.5, h: 0.55 },
-      { n: 5, name: "Kênh thoại", x: 3.5, z: 2.9, w: 2.2, d: 1.5, h: 0.9 },
+      { n: 5, name: T("Kênh thoại", "Voice channel"), x: 3.5, z: 2.9, w: 2.2, d: 1.5, h: 0.9 },
       { n: 6, name: "LRCLIB", x: 0, z: 3.6, w: 1.5, d: 1.1, h: 0.55, dashed: true },
     ];
     const links = [
@@ -1780,7 +1819,7 @@
       lastX = e.clientX;
       vel = 0;
       cv.setPointerCapture(e.pointerId);
-      if (hint) hint.textContent = "Thả ra để mâm tự quay tiếp";
+      if (hint) hint.textContent = T("Thả ra để mâm tự quay tiếp", "Let go and the platter spins on its own");
     });
     cv.addEventListener("pointermove", (e) => {
       if (!dragging) return;
@@ -1845,7 +1884,7 @@
     const bell = $("#g-bell");
     const bellc = $("#g-bellc");
     const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
-    const files = ["Đêm ở ga cuối.mp3", "Remix cuối tuần.mp3", "Bài lạ chưa rõ nguồn.mp3"];
+    const files = T(["Đêm ở ga cuối.mp3", "Remix cuối tuần.mp3", "Bài lạ chưa rõ nguồn.mp3"], ["Night at the Last Station.mp3", "Weekend Remix.mp3", "Unknown Track, Source Unclear.mp3"]);
     let n = 0;
     let cur = null;
     let notified = 0;
@@ -1872,40 +1911,40 @@
       cur = files[n % files.length];
       n += 1;
       $("#g-file").textContent = cur;
-      $("#g-state").textContent = "đang chờ duyệt";
-      $("#g-dm").textContent = "chủ bot nhận DM có nút Duyệt, Từ chối";
+      $("#g-state").textContent = T("đang chờ duyệt", "awaiting review");
+      $("#g-dm").textContent = T("chủ bot nhận DM có nút Duyệt, Từ chối", "the bot owner gets a DM with Approve and Reject buttons");
       step("#g-s1", true);
       step("#g-s2", true);
       step("#g-s3", false);
-      say("đã gửi " + cur + ", file nằm trong hàng chờ duyệt");
+      say(T("đã gửi " + cur + ", file nằm trong hàng chờ duyệt", "submitted " + cur + ", the file sits in the review queue"));
       sync();
     });
     ok.addEventListener("click", () => {
       if (!cur) return;
       const f = cur;
       cur = null;
-      $("#g-state").textContent = "đã duyệt";
-      $("#g-dm").textContent = "người gửi được báo qua DM";
+      $("#g-state").textContent = T("đã duyệt", "approved");
+      $("#g-dm").textContent = T("người gửi được báo qua DM", "the sender is notified by DM");
       step("#g-s3", true);
       const e = $(".empty", lib);
       if (e) e.remove();
       const li = document.createElement("li");
       li.textContent = f;
       lib.appendChild(li);
-      mark("ĐÃ DUYỆT");
-      say(f + " được duyệt, chuyển vào music/Đóng góp/");
+      mark(T("ĐÃ DUYỆT", "APPROVED"));
+      say(T(f + " được duyệt, chuyển vào music/Contributions/", f + " approved, moved into music/Contributions/ "));
       const key = norm(f.replace(/\.mp3$/, ""));
       $$("#g-board li").forEach((r) => {
         if (r.dataset.match === key && !r.classList.contains("done")) {
           r.classList.add("done");
-          $(".st", r).textContent = "đã có trong kho";
+          $(".st", r).textContent = T("đã có trong kho", "already in the library");
           const votes = +$("b", r).textContent;
           notified += votes;
           bellc.textContent = String(notified);
           bell.classList.remove("ring");
           void bell.offsetWidth;
           bell.classList.add("ring");
-          say("có file khớp, báo " + votes + " người đã đề xuất hoặc bầu qua DM");
+          say(T("có file khớp, báo " + votes + " người đã đề xuất hoặc bầu qua DM", "matching file found, notifying " + votes + " people who requested or voted, by DM"));
         }
       });
       sync();
@@ -1914,11 +1953,11 @@
       if (!cur) return;
       const f = cur;
       cur = null;
-      $("#g-state").textContent = "bị từ chối";
-      $("#g-dm").textContent = "file tạm bị xóa, người gửi được báo lý do";
+      $("#g-state").textContent = T("bị từ chối", "rejected");
+      $("#g-dm").textContent = T("file tạm bị xóa, người gửi được báo lý do", "the temp file is deleted, the sender is told why");
       step("#g-s3", false);
       mark("TỪ CHỐI");
-      say(f + " bị từ chối, file tạm đã xóa");
+      say(T(f + " bị từ chối, file tạm đã xóa", f + " rejected, temp file deleted"));
       sync();
     });
     $("#g-board").addEventListener("click", (e) => {
@@ -1927,7 +1966,7 @@
       const c = $("b", b);
       c.textContent = String(+c.textContent + 1);
       b.disabled = true;
-      say("đã thêm một phiếu bầu, mỗi người một phiếu cho mỗi đề xuất");
+      say(T("đã thêm một phiếu bầu, mỗi người một phiếu cho mỗi đề xuất", "vote added, one vote per person per request"));
     });
     sync();
   })();
@@ -1938,7 +1977,7 @@
 
   function encore() {
     if (root.classList.contains("encore")) return;
-    toast("Mở khóa REV E (chưa chính thức): thêm hai tấn bass. Đùa thôi, bot không có lệnh /bass.", 6000);
+    toast(T("Mở khóa REV E (chưa chính thức): thêm hai tấn bass. Đùa thôi, bass thật thì dùng /filter.", "Unlocked REV E (unofficial): two extra tons of bass. Just kidding, for real bass use /filter."), 6000);
     if (isStatic()) return;
     root.classList.add("encore");
     const glyphs = ["♪", "♫", "♩", "♬"];

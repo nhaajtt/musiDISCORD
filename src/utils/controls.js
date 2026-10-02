@@ -8,22 +8,22 @@ import { errorEmbed, infoEmbed } from "./embeds.js";
 import { requirePlayer } from "./guards.js";
 import { trackKey } from "./trackKey.js";
 
-const LOOP_LABELS = { off: "Tắt lặp", track: "Lặp bài hiện tại", queue: "Lặp cả hàng chờ" };
+const LOOP_LABELS = { off: "Loop off", track: "Loop track", queue: "Loop queue" };
 
 const ephemeral = (message) => ({ embeds: [infoEmbed(message)], flags: MessageFlags.Ephemeral });
 const ephemeralError = (message) => ({ embeds: [errorEmbed(message)], flags: MessageFlags.Ephemeral });
 
-/** Các nút chỉ cần ở cùng kênh thoại, không cần role DJ. */
+/** Buttons that only require being in the same voice channel, no DJ role needed. */
 const OPEN_ACTIONS = new Set(["skip", "up", "down", "fav", "lyrics"]);
 
-/** Xử lý bấm nút dưới tin nhắn "Đang phát" (customId dạng "np:<hành động>"). */
+/** Handles button presses under the "Now playing" message (customId like "np:<action>"). */
 export async function handleControl(interaction) {
   const action = interaction.customId.slice(3);
 
   const player = interaction.client.lavalink.getPlayer(interaction.guildId);
-  if (!player) return interaction.reply(ephemeralError("Phiên phát này đã kết thúc."));
+  if (!player) return interaction.reply(ephemeralError("This playback session has ended."));
 
-  // Cùng kiểm tra như lệnh: ở cùng kênh thoại, và có quyền DJ với các nút điều khiển
+  // Same checks as commands: same voice channel, and DJ permission for control buttons
   if (!(await requirePlayer(interaction, { dj: !OPEN_ACTIONS.has(action) }))) return;
 
   const track = player.queue.current;
@@ -36,7 +36,7 @@ export async function handleControl(interaction) {
 
     case "skip": {
       const result = await requestSkip(player, interaction.member);
-      // Phiếu bầu thì báo riêng cho người bấm; bỏ qua thật sự thì báo cả kênh
+      // Votes are reported only to the presser; an actual skip is announced to the channel
       if (result.status === "skipped") return interaction.reply({ embeds: [infoEmbed(describeSkip(result))] });
       return interaction.reply(ephemeral(describeSkip(result)));
     }
@@ -44,7 +44,7 @@ export async function handleControl(interaction) {
     case "stop":
       await interaction.deferUpdate();
       await stopPlayback(player);
-      return interaction.followUp(ephemeral("⏹️ Đã dừng và xoá hàng chờ."));
+      return interaction.followUp(ephemeral("⏹️ Stopped and cleared the queue."));
 
     case "loop": {
       const mode = await cycleLoop(player);
@@ -53,35 +53,35 @@ export async function handleControl(interaction) {
     }
 
     case "shuffle":
-      if (player.queue.tracks.length < 2) return interaction.reply(ephemeralError("Hàng chờ cần ít nhất 2 bài để xáo trộn."));
+      if (player.queue.tracks.length < 2) return interaction.reply(ephemeralError("The queue needs at least 2 tracks to shuffle."));
       await player.queue.shuffle();
-      return interaction.reply(ephemeral("🔀 Đã xáo trộn hàng chờ."));
+      return interaction.reply(ephemeral("🔀 Queue shuffled."));
 
     case "up":
     case "down": {
-      if (!track) return interaction.reply(ephemeralError("Không có bài nào đang phát."));
+      if (!track) return interaction.reply(ephemeralError("Nothing is playing."));
       if (isOptedOut(interaction.user.id)) {
-        return interaction.reply(ephemeralError("Bạn đang tắt thống kê nên không đánh giá được. Bật lại bằng `/privacy stats` nếu muốn."));
+        return interaction.reply(ephemeralError("You have stats turned off, so ratings are unavailable. Turn them back on with `/privacy stats` if you like."));
       }
       const value = toggleRating(interaction.guildId, interaction.user.id, trackKey(track), action === "up" ? 1 : -1);
       await refreshNowPlaying(player, interaction);
-      await interaction.followUp(ephemeral(value === 0 ? "Đã bỏ đánh giá." : value > 0 ? `👍 Bạn thích **${track.info.title}**` : `👎 Bạn không thích **${track.info.title}**`));
+      await interaction.followUp(ephemeral(value === 0 ? "Rating removed." : value > 0 ? `👍 You liked **${track.info.title}**` : `👎 You disliked **${track.info.title}**`));
       return announceBadges(interaction.client, player, interaction.user.id);
     }
 
     case "fav": {
-      if (!track) return interaction.reply(ephemeralError("Không có bài nào đang phát."));
+      if (!track) return interaction.reply(ephemeralError("Nothing is playing."));
       const key = trackKey(track);
       if (isFavorite(interaction.user.id, key)) {
         removeFavorite(interaction.user.id, key);
-        return interaction.reply(ephemeral(`💔 Đã bỏ **${track.info.title}** khỏi danh sách yêu thích.`));
+        return interaction.reply(ephemeral(`💔 Removed **${track.info.title}** from your favorites.`));
       }
       addFavorite(interaction.user.id, key, track.info.title, track.info.author);
-      return interaction.reply(ephemeral(`❤️ Đã thêm **${track.info.title}** vào danh sách yêu thích. Dùng \`/favorites play\` để nghe lại.`));
+      return interaction.reply(ephemeral(`❤️ Added **${track.info.title}** to your favorites. Use \`/favorites play\` to listen again.`));
     }
 
     case "lyrics":
-      if (stopLive(player)) return interaction.reply(ephemeral("📜 Đã tắt lời bài hát trực tiếp."));
+      if (stopLive(player)) return interaction.reply(ephemeral("📜 Turned off live lyrics."));
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       return showLyrics(interaction, player, { live: true });
   }

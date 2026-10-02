@@ -32,13 +32,13 @@ export const countSince = (userId, since) => Number(q.sinceByUser.get(userId, si
 export const pendingBytes = () => Number(q.pendingBytes.get().n);
 export const hashTaken = (sha256) => q.hashTaken.get(sha256) ?? null;
 
-/** Giành quyền xử lý một đóng góp đang chờ (tránh hai lần duyệt cùng lúc). Trả về true nếu giành được. */
+/** Claim a pending contribution for handling (prevents two simultaneous approvals). Returns true if claimed. */
 export const claimPending = (id) => Number(q.claim.run(id).changes) === 1;
 export const markApproved = (id, ownerId, finalPath) => q.approved.run(ownerId, Date.now(), finalPath, id);
 export const revertToPending = (id) => q.revert.run(id);
 export const markRejected = (id, ownerId, reason) => Number(q.rejected.run(ownerId, Date.now(), reason ?? null, id).changes) === 1;
 
-/** Chuyển các đóng góp chờ quá lâu sang "expired" và trả về chúng để dọn file tạm. */
+/** Move contributions pending for too long to "expired" and return them so temp files can be cleaned up. */
 export function expireStale(cutoff) {
   const rows = q.stale.all(cutoff);
   for (const row of rows) q.expire.run(Date.now(), row.id);

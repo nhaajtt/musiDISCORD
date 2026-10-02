@@ -11,37 +11,37 @@ const ephemeral = (embed, extra = {}) => ({ embeds: [embed], flags: MessageFlags
 export default {
   data: new SlashCommandBuilder()
     .setName("contribute")
-    .setDescription("Gửi file nhạc của bạn để chủ bot duyệt và thêm vào thư viện")
+    .setDescription("Submit your music file for the bot owner to review and add to the library")
     .setDMPermission(false)
     .addSubcommand((s) =>
       s
         .setName("submit")
-        .setDescription("Gửi một file nhạc của bạn")
-        .addAttachmentOption((o) => o.setName("file").setDescription("File nhạc (mp3, flac, ogg, opus, m4a, wav...)").setRequired(true))
-        .addBooleanOption((o) => o.setName("confirm").setDescription("Chọn True nếu bạn sở hữu hoặc được phép chia sẻ file này").setRequired(true)),
+        .setDescription("Submit one of your music files")
+        .addAttachmentOption((o) => o.setName("file").setDescription("Music file (mp3, flac, ogg, opus, m4a, wav...)").setRequired(true))
+        .addBooleanOption((o) => o.setName("confirm").setDescription("Choose True if you own this file or are allowed to share it").setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("pending").setDescription("(Chủ bot) Xem các file đang chờ duyệt"))
-    .addSubcommand((s) => s.setName("stats").setDescription("(Chủ bot) Thống kê đóng góp")),
+    .addSubcommand((s) => s.setName("pending").setDescription("(Bot owner) View files awaiting review"))
+    .addSubcommand((s) => s.setName("stats").setDescription("(Bot owner) Contribution stats")),
 
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
 
     if (sub === "pending" || sub === "stats") {
       if (!(await isOwner(interaction.client, interaction.user.id))) {
-        return interaction.reply(ephemeral(errorEmbed("Chỉ chủ bot dùng được lệnh này.")));
+        return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command.")));
       }
       if (sub === "stats") {
         const c = contributionCounts();
         const embed = new EmbedBuilder()
           .setColor(0xf5a524)
-          .setTitle("🎁 Thống kê đóng góp")
-          .setDescription(`Chờ duyệt: **${c.pending ?? 0}**\nĐã duyệt: **${c.approved ?? 0}**\nĐã từ chối: **${c.rejected ?? 0}**\nHết hạn: **${c.expired ?? 0}**`);
+          .setTitle("🎁 Contribution stats")
+          .setDescription(`Pending: **${c.pending ?? 0}**\nApproved: **${c.approved ?? 0}**\nRejected: **${c.rejected ?? 0}**\nExpired: **${c.expired ?? 0}**`);
         return interaction.reply(ephemeral(embed));
       }
 
       const rows = listPending(5);
-      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("Không có đóng góp nào đang chờ duyệt.")));
-      await interaction.reply(ephemeral(infoEmbed(`Đang hiện ${rows.length} đóng góp chờ lâu nhất.`)));
+      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("No contributions are awaiting review.")));
+      await interaction.reply(ephemeral(infoEmbed(`Showing the ${rows.length} longest-waiting contributions.`)));
       for (const row of rows) {
         await interaction.followUp({ embeds: [contributionEmbed(row)], components: [reviewButtons(row.id)], flags: MessageFlags.Ephemeral });
       }
@@ -49,13 +49,13 @@ export default {
     }
 
     if (!config.contributions.enabled) {
-      return interaction.reply(ephemeral(errorEmbed("Tính năng đóng góp đang tắt trên bot này.")));
+      return interaction.reply(ephemeral(errorEmbed("Contributions are turned off on this bot.")));
     }
     if (!getSettings(interaction.guildId).contributions) {
-      return interaction.reply(ephemeral(errorEmbed("Server này chưa bật đóng góp. Quản trị viên dùng `/settings contributions`.")));
+      return interaction.reply(ephemeral(errorEmbed("Contributions aren't enabled on this server. An admin can use `/settings contributions`.")));
     }
     if (!interaction.options.getBoolean("confirm", true)) {
-      return interaction.reply(ephemeral(errorEmbed("Bạn cần xác nhận mình sở hữu hoặc được phép chia sẻ file này (chọn confirm là True).")));
+      return interaction.reply(ephemeral(errorEmbed("You must confirm you own this file or are allowed to share it (set confirm to True).")));
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -70,13 +70,13 @@ export default {
       await interaction.editReply({
         embeds: [
           infoEmbed(
-            `✅ Đã nhận **${result.title}** (đóng góp #${result.id}). Chủ bot sẽ xem và bạn sẽ được báo qua DM khi có kết quả.${delivered ? "" : "\n(Chủ bot chưa nhận được thông báo ngay, file vẫn nằm trong danh sách chờ.)"}${result.similar ? "\n⚠️ Có vẻ bài này đã có trong thư viện, chủ bot sẽ cân nhắc." : ""}`,
+            `✅ Received **${result.title}** (contribution #${result.id}). The bot owner will review it and you'll get a DM with the result.${delivered ? "" : "\n(The bot owner couldn't be notified right away, but the file is still in the pending list.)"}${result.similar ? "\n⚠️ This track seems to be in the library already; the bot owner will take that into account." : ""}`,
           ),
         ],
       });
     } catch (error) {
-      if (!(error instanceof ContribError)) console.error("Nhận đóng góp lỗi:", error);
-      await interaction.editReply({ embeds: [errorEmbed(error instanceof ContribError ? error.message : "Có lỗi khi nhận file, bạn thử lại sau.")] });
+      if (!(error instanceof ContribError)) console.error("Failed to receive contribution:", error);
+      await interaction.editReply({ embeds: [errorEmbed(error instanceof ContribError ? error.message : "Something went wrong receiving the file, please try again later.")] });
     }
   },
 };

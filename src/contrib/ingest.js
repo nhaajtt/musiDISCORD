@@ -36,66 +36,66 @@ function checkAttachment(attachment) {
   try {
     url = new URL(attachment.url);
   } catch {
-    throw new ContribError("host", "Đường dẫn file không hợp lệ.");
+    throw new ContribError("host", "Invalid file URL.");
   }
   if (url.protocol !== "https:" || !ALLOWED_HOSTS.has(url.hostname)) {
-    throw new ContribError("host", "Chỉ nhận file đính kèm trực tiếp từ Discord.");
+    throw new ContribError("host", "Only files attached directly in Discord are accepted.");
   }
 
   const ext = path.extname(String(attachment.name ?? "")).toLowerCase();
   if (!AUDIO_EXT.has(ext)) {
-    throw new ContribError("ext", `Định dạng không được hỗ trợ. Chỉ nhận: ${[...AUDIO_EXT].join(", ")}.`);
+    throw new ContribError("ext", `Unsupported format. Accepted: ${[...AUDIO_EXT].join(", ")}.`);
   }
-  if (!attachment.size || attachment.size <= 0) throw new ContribError("empty", "File rỗng.");
+  if (!attachment.size || attachment.size <= 0) throw new ContribError("empty", "The file is empty.");
   if (attachment.size > config.contributions.maxBytes) {
-    throw new ContribError("too_big", `File quá lớn (tối đa ${Math.round(config.contributions.maxBytes / 1048576)} MB).`);
+    throw new ContribError("too_big", `File too large (max ${Math.round(config.contributions.maxBytes / 1048576)} MB).`);
   }
   return { url, ext };
 }
 
 function checkQuotas(userId, now) {
   if (countPendingByUser(userId) >= LIMITS.pendingPerUser) {
-    throw new ContribError("quota_pending", `Bạn đang có ${LIMITS.pendingPerUser} file chờ duyệt, hãy đợi chủ bot xử lý trước.`);
+    throw new ContribError("quota_pending", `You already have ${LIMITS.pendingPerUser} files awaiting review; wait for the bot owner to handle them first.`);
   }
   if (countSince(userId, now - 86_400_000) >= LIMITS.perDay) {
-    throw new ContribError("quota_daily", `Mỗi ngày chỉ gửi tối đa ${LIMITS.perDay} file.`);
+    throw new ContribError("quota_daily", `You can submit at most ${LIMITS.perDay} files per day.`);
   }
   if (pendingBytes() >= LIMITS.pendingTotalBytes) {
-    throw new ContribError("quota_total", "Hàng chờ duyệt đang đầy, hãy thử lại sau.");
+    throw new ContribError("quota_total", "The review queue is full, please try again later.");
   }
 }
 
-/** Tải file về `tmp`, giới hạn dung lượng khi đang tải và tính SHA-256. */
+/** Download the file to `tmp`, enforcing the size limit while downloading and computing SHA-256. */
 async function download(url, tmp, fetchImpl) {
   let res;
   try {
     res = await fetchImpl(url, { redirect: "error", signal: AbortSignal.timeout(LIMITS.downloadTimeoutMs) });
   } catch {
-    throw new ContribError("download", "Không tải được file từ Discord.");
+    throw new ContribError("download", "Could not download the file from Discord.");
   }
-  if (!res.ok || !res.body) throw new ContribError("download", "Không tải được file từ Discord.");
+  if (!res.ok || !res.body) throw new ContribError("download", "Could not download the file from Discord.");
 
   const declared = Number(res.headers.get("content-length"));
-  if (declared > config.contributions.maxBytes) throw new ContribError("too_big", "File quá lớn.");
+  if (declared > config.contributions.maxBytes) throw new ContribError("too_big", "File too large.");
 
   const hash = createHash("sha256");
   let total = 0;
   const counter = new Transform({
     transform(chunk, _encoding, callback) {
       total += chunk.length;
-      if (total > config.contributions.maxBytes) return callback(new ContribError("too_big", "File quá lớn."));
+      if (total > config.contributions.maxBytes) return callback(new ContribError("too_big", "File too large."));
       hash.update(chunk);
       callback(null, chunk);
     },
   });
   await pipeline(Readable.fromWeb(res.body), counter, createWriteStream(tmp));
-  if (total === 0) throw new ContribError("empty", "File rỗng.");
+  if (total === 0) throw new ContribError("empty", "The file is empty.");
   return { sha256: hash.digest("hex"), size: total };
 }
 
 /**
- * Nhận một file đính kèm Discord làm đóng góp: kiểm tra, tải về thư mục tạm, xác minh là audio thật và ghi vào hàng chờ duyệt.
- * Trả về { id, title, artist, durationMs, sizeBytes, sha256, similar }.
+ * Accept a Discord attachment as a contribution: validate it, download it to a temp folder, verify it is real audio and add it to the review queue.
+ * Returns { id, title, artist, durationMs, sizeBytes, sha256, similar }.
  */
 export async function ingestAttachment({ attachment, userId, guildId, fetchImpl = fetch, now = Date.now() }) {
   const { url, ext } = checkAttachment(attachment);
@@ -106,18 +106,18 @@ export async function ingestAttachment({ attachment, userId, guildId, fetchImpl 
 
   try {
     const { sha256, size } = await download(url, tmp, fetchImpl);
-    if (hashTaken(sha256)) throw new ContribError("duplicate", "File này đã có hoặc đang chờ duyệt.");
+    if (hashTaken(sha256)) throw new ContribError("duplicate", "This file already exists or is awaiting review.");
 
     let tags;
     try {
       tags = await parseFile(tmp, { duration: true, skipCovers: true });
     } catch {
-      throw new ContribError("not_audio", "File không phải âm thanh hợp lệ.");
+      throw new ContribError("not_audio", "The file is not valid audio.");
     }
     const seconds = tags?.format?.duration;
-    if (!seconds) throw new ContribError("not_audio", "Không đọc được thời lượng, có thể file hỏng.");
-    if (seconds < LIMITS.minSeconds) throw new ContribError("too_short", `File quá ngắn (tối thiểu ${LIMITS.minSeconds} giây).`);
-    if (seconds > LIMITS.maxSeconds) throw new ContribError("too_long", `File quá dài (tối đa ${LIMITS.maxSeconds / 60} phút).`);
+    if (!seconds) throw new ContribError("not_audio", "Could not read the duration; the file may be corrupt.");
+    if (seconds < LIMITS.minSeconds) throw new ContribError("too_short", `File too short (minimum ${LIMITS.minSeconds} seconds).`);
+    if (seconds > LIMITS.maxSeconds) throw new ContribError("too_long", `File too long (maximum ${LIMITS.maxSeconds / 60} minutes).`);
 
     const entry = buildEntry(String(attachment.name), tags);
     const similarEntry = search(`${entry.artist ?? ""} ${entry.title}`.trim(), 3).find((e) => e.title.toLowerCase() === entry.title.toLowerCase());

@@ -51,7 +51,7 @@ const stmt = {
 
 export const isOptedOut = (userId) => Boolean(stmt.optedOut.get(userId));
 
-/** Ghi lại một lượt phát. Người đã tắt thống kê không được ghi (cả người nghe lẫn người yêu cầu). */
+/** Records a play. Users who turned stats off are not recorded (neither listeners nor requesters). */
 export function recordPlay({ guildId, requesterId, skippedBy, trackKey, title, artist, durationMs, listenedMs, listenerIds, at = Date.now() }) {
   const keep = (id) => (id && !isOptedOut(id) ? id : null);
   const listeners = [...new Set(listenerIds ?? [])].filter((id) => keep(id));
@@ -71,14 +71,14 @@ export function recordPlay({ guildId, requesterId, skippedBy, trackKey, title, a
   return Number(lastInsertRowid);
 }
 
-// ---------- Quyền riêng tư
+// ---------- Privacy
 
 export function setStatsEnabled(userId, enabled) {
   if (enabled) stmt.clearOptOut.run(userId);
   else stmt.setOptOut.run(userId);
 }
 
-/** Xoá toàn bộ dữ liệu của một người dùng (giữ lại các lượt phát nhưng ẩn danh). */
+/** Deletes all of a user's data (keeps the plays but anonymized). */
 export function deleteUserData(userId) {
   db.exec("BEGIN");
   try {
@@ -88,7 +88,7 @@ export function deleteUserData(userId) {
     for (const table of ["ratings", "favorites", "quiz_scores", "badges", "request_votes"]) {
       db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
     }
-    // Đề xuất và đóng góp được giữ lại nhưng ẩn danh
+    // Suggestions and contributions are kept but anonymized
     db.prepare("UPDATE song_requests SET created_by = NULL WHERE created_by = ?").run(userId);
     db.prepare("UPDATE contributions SET user_id = NULL WHERE user_id = ?").run(userId);
     db.exec("COMMIT");
@@ -98,9 +98,9 @@ export function deleteUserData(userId) {
   }
 }
 
-// ---------- Đánh giá
+// ---------- Ratings
 
-/** Bấm 👍/👎: bấm lại cùng loại thì bỏ đánh giá. Trả về giá trị mới (1, -1 hoặc 0). */
+/** Press 👍/👎: pressing the same one again removes the rating. Returns the new value (1, -1 or 0). */
 export function toggleRating(guildId, userId, trackKey, value) {
   const current = stmt.getRating.get(guildId, userId, trackKey)?.value;
   if (current === value) {
@@ -116,19 +116,19 @@ export function ratingTotals(guildId, trackKey) {
   return { up: Number(row.up), down: Number(row.down) };
 }
 
-/** Điểm yêu thích của từng bài trong server (👍 trừ 👎), dùng để chỉnh xác suất khi xáo trộn. */
+/** Favorite score of each track in the server (👍 minus 👎), used to adjust probabilities when shuffling. */
 export function ratingScores(guildId) {
   return new Map(stmt.ratingScores.all(guildId).map((r) => [r.track_key, Number(r.score)]));
 }
 
-// ---------- Yêu thích
+// ---------- Favorites
 
 export const addFavorite = (userId, key, title, artist) => stmt.addFavorite.run(userId, key, title, artist ?? null, Date.now());
 export const removeFavorite = (userId, key) => Number(stmt.removeFavorite.run(userId, key).changes) > 0;
 export const listFavorites = (userId) => stmt.listFavorites.all(userId);
 export const isFavorite = (userId, key) => Boolean(stmt.isFavorite.get(userId, key));
 
-// ---------- Đố nhạc
+// ---------- Music quiz
 
 export function addQuizResult(guildId, userId, { points, correct, bestStreak }) {
   stmt.quizUpsert.run(guildId, userId, points, correct, bestStreak);
@@ -136,7 +136,7 @@ export function addQuizResult(guildId, userId, { points, correct, bestStreak }) 
 export const quizLeaderboard = (guildId, limit = 10) => stmt.quizTop.all(guildId, limit);
 export const quizScore = (guildId, userId) => stmt.quizOne.get(guildId, userId) ?? { points: 0, games: 0, correct: 0, best_streak: 0 };
 
-// ---------- Thống kê
+// ---------- Stats
 
 function rangeFor(year) {
   return year ? yearRange(year) : [0, Number.MAX_SAFE_INTEGER];
@@ -156,7 +156,7 @@ function longestStreak(days) {
   return best;
 }
 
-/** Tổng hợp thống kê của một người trong một server (có thể giới hạn theo năm). */
+/** Aggregates one user's stats in a server (optionally limited to a year). */
 export function userStats(guildId, userId, { year } = {}) {
   const [from, to] = rangeFor(year);
   const base = [guildId, userId, from, to];
@@ -225,7 +225,7 @@ export function userStats(guildId, userId, { year } = {}) {
   };
 }
 
-/** Bảng xếp hạng của server. */
+/** The server's leaderboard. */
 export function guildLeaderboard(guildId, limit = 5) {
   const topListeners = db
     .prepare(
@@ -265,7 +265,7 @@ export function guildLeaderboard(guildId, limit = 5) {
   return { topListeners, topRequesters, topTracks, mostLoved };
 }
 
-// ---------- Huy hiệu
+// ---------- Badges
 
 export function getEarnedBadges(guildId, userId) {
   return new Set(stmt.getBadges.all(guildId, userId).map((r) => r.badge));

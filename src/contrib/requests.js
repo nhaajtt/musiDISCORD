@@ -31,14 +31,14 @@ const stmt = {
 };
 
 /**
- * Phân tích nội dung đề xuất thành { key, display, isLink }. Chỉ nhận tên bài hoặc link YouTube/Spotify/SoundCloud,
- * và KHÔNG bao giờ truy cập link (chỉ rút ra mã bài để nhận diện trùng). Trả về null nếu không hợp lệ.
+ * Parse a suggestion into { key, display, isLink }. Only accepts a track name or a YouTube/Spotify/SoundCloud link,
+ * and NEVER visits the link (it only extracts the track ID to detect duplicates). Returns null if invalid.
  */
 export function parseRequest(input) {
   const text = String(input ?? "").replace(/\s+/g, " ").trim();
   if (!text || text.length > MAX_TEXT) return null;
 
-  // Các scheme khác (ftp://, file://...) không phải tên bài
+  // Other schemes (ftp://, file://...) are not track names
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(text) && !/^https?:\/\//i.test(text)) return null;
 
   if (/^https?:\/\//i.test(text)) {
@@ -72,7 +72,7 @@ export function parseRequest(input) {
   return norm.length >= 2 ? { key: `q:${norm}`, display: text, isLink: false } : null;
 }
 
-/** Hiển thị an toàn trong tin nhắn Discord (link bọc <> để không bung xem trước, chữ thường thì bỏ định dạng markdown). */
+/** Safe display in a Discord message (links wrapped in <> so no preview unfurls, plain text has markdown stripped). */
 export function displayOf(request) {
   return request.key.startsWith("q:") ? safeText(request.display, 120) : `<${request.display}>`;
 }
@@ -80,7 +80,7 @@ export function displayOf(request) {
 const withVotes = (row) => (row ? { ...row, votes: Number(stmt.voteCount.get(row.id).n) } : null);
 
 /**
- * Thêm một đề xuất. Trả về { status, request?, entry? } với status:
+ * Add a suggestion. Returns { status, request?, entry? } with status:
  * "added" | "voted" | "already-voted" | "in-library" | "fulfilled" | "dismissed" | "invalid" | "limit".
  */
 export function addRequest({ input, guildId, channelId, userId, now = Date.now() }) {
@@ -109,7 +109,7 @@ export function addRequest({ input, guildId, channelId, userId, now = Date.now()
   return { status: "added", request: withVotes(stmt.byId.get(lastInsertRowid)) };
 }
 
-/** Bỏ phiếu cho một đề xuất đang mở theo id. */
+/** Vote for an open suggestion by id. */
 export function voteRequest(id, userId) {
   const request = stmt.byId.get(id);
   if (!request || request.status !== "open") return { status: "none" };
@@ -127,14 +127,14 @@ export function closeRequest(id, status, file = null) {
   return Number(stmt.setStatus.run(status, file, id).changes) > 0;
 }
 
-/** Những người cần được báo khi đề xuất được đáp ứng: người tạo và mọi người đã bỏ phiếu. */
+/** People to notify when a suggestion is fulfilled: the creator and everyone who voted. */
 export function peopleOf(request) {
   const ids = new Set(stmt.voters.all(request.id).map((r) => r.user_id));
   if (request.created_by) ids.add(request.created_by);
   return [...ids];
 }
 
-/** So khớp các bài trong thư viện với đề xuất bằng tên đang mở. Đánh dấu đã đáp ứng và trả về [{ request, entry }]. */
+/** Match library tracks against open name-based suggestions. Marks them fulfilled and returns [{ request, entry }]. */
 export function fulfilMatches(entries) {
   const fulfilled = [];
   for (const request of stmt.openTextual.all()) {
@@ -145,10 +145,10 @@ export function fulfilMatches(entries) {
   return fulfilled;
 }
 
-/** Nhắn cho từng người liên quan khi đề xuất đã có trong thư viện. `notify(userId, text, channelId)`. */
+/** Message each person involved once the suggestion is in the library. `notify(userId, text, channelId)`. */
 export async function notifyFulfilled(notify, pairs) {
   for (const { request, entry } of pairs) {
-    const text = `🎉 Bài bạn đề xuất (**${safeText(request.display, 80)}**) đã có trong thư viện: **${safeText(entry.title, 120)}**. Dùng \`/local\` để nghe.`;
+    const text = `🎉 The track you suggested (**${safeText(request.display, 80)}**) is now in the library: **${safeText(entry.title, 120)}**. Use \`/local\` to listen.`;
     for (const userId of peopleOf(request)) await notify(userId, text, request.channel_id);
   }
 }

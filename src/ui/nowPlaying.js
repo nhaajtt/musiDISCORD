@@ -14,14 +14,14 @@ import { localRelativePath } from "../utils/trackKey.js";
 import { controlRows } from "./rows.js";
 
 const TICK_MS = 15_000;
-const LOOP_LABELS = { off: "", track: " • 🔂 lặp bài", queue: " • 🔁 lặp hàng chờ" };
+const LOOP_LABELS = { off: "", track: " • 🔂 loop track", queue: " • 🔁 loop queue" };
 const EXT = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif" };
 
 export const V2 = MessageFlags.IsComponentsV2;
 
 const trim = (text, max) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
-/** Màu nhấn riêng cho từng bài, suy ra từ tên bài và nghệ sĩ. */
+/** Per-track accent color, derived from the title and artist. */
 export function accentFor(seed) {
   let hash = 0;
   for (const ch of seed) hash = (hash * 31 + ch.codePointAt(0)) >>> 0;
@@ -34,7 +34,7 @@ export function accentFor(seed) {
   return (f(0) << 16) | (f(8) << 8) | f(4);
 }
 
-/** Xác định ảnh bìa: file đính kèm (ảnh nhúng/ảnh trong thư mục) hoặc đường dẫn web của nguồn. */
+/** Determines the cover image: an attached file (embedded or folder image) or the source's web URL. */
 export async function resolveCover(track) {
   const rel = localRelativePath(track.info);
   if (rel !== null) {
@@ -47,14 +47,14 @@ export async function resolveCover(track) {
 }
 
 /**
- * Bố cục "Đang phát" (Components V2). `state` = { track, coverRef, finished? }.
- * `finished` bỏ hàng nút và thanh tiến trình, giữ lại thẻ để làm lịch sử.
+ * "Now playing" layout (Components V2). `state` = { track, coverRef, finished? }.
+ * `finished` drops the button row and progress bar, keeping the card as history.
  */
 export function buildNowPlaying(player, state) {
   const { track, coverRef, finished } = state;
   const info = track.info;
-  const label = finished ? "ĐÃ PHÁT" : player.paused ? "TẠM DỪNG" : "ĐANG PHÁT";
-  const lines = [`-# ${label}`, `### ${trim(info.title, 120)}`, `${trim(info.author || "Không rõ", 80)}${info.album ? ` • ${trim(info.album, 60)}` : ""}`];
+  const label = finished ? "PLAYED" : player.paused ? "PAUSED" : "NOW PLAYING";
+  const lines = [`-# ${label}`, `### ${trim(info.title, 120)}`, `${trim(info.author || "Unknown", 80)}${info.album ? ` • ${trim(info.album, 60)}` : ""}`];
 
   const container = new ContainerBuilder().setAccentColor(accentFor(`${info.title}${info.author}`));
   const head = new TextDisplayBuilder().setContent(lines.join("\n"));
@@ -79,8 +79,8 @@ export function buildNowPlaying(player, state) {
   }
 
   const queued = player.queue.tracks.length;
-  const who = track.requester?.username ? `Yêu cầu bởi ${track.requester.username}` : "";
-  const footer = [who, !finished && queued ? `${queued} bài đang chờ` : ""].filter(Boolean).join(" • ");
+  const who = track.requester?.username ? `Requested by ${track.requester.username}` : "";
+  const footer = [who, !finished && queued ? `${queued} in queue` : ""].filter(Boolean).join(" • ");
   if (footer) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${footer}`));
 
   return { components: [container], flags: V2 };
@@ -91,7 +91,7 @@ const stopTicker = (player) => {
   player.setData("npTicker", undefined);
 };
 
-/** Cập nhật lại tin nhắn "Đang phát" (thanh tiến trình, nút bấm). Có `interaction` thì trả lời trực tiếp lượt bấm nút. */
+/** Refreshes the "Now playing" message (progress bar, buttons). With `interaction`, replies directly to the button press. */
 export async function refreshNowPlaying(player, interaction = null) {
   const state = player.getData("npState");
   const message = player.getData("npMessage");
@@ -102,13 +102,13 @@ export async function refreshNowPlaying(player, interaction = null) {
     if (interaction) await interaction.update(payload);
     else await message.edit(payload);
   } catch {
-    // tin nhắn đã bị xoá hoặc bot mất quyền: bỏ qua
+    // message was deleted or the bot lost permission: ignore
   }
 }
 
 /**
- * Kết thúc tin nhắn "Đang phát" cũ và dừng cập nhật: mặc định biến thành thẻ lịch sử (không còn nút),
- * `remove` thì xoá luôn để kênh không bị đầy khi phát liên tục.
+ * Ends the old "Now playing" message and stops updating it: by default turns it into a history card (no buttons),
+ * `remove` deletes it instead so the channel does not fill up during continuous playback.
  */
 export async function finalizeNowPlaying(player, { remove = false } = {}) {
   stopTicker(player);
@@ -124,7 +124,7 @@ export async function finalizeNowPlaying(player, { remove = false } = {}) {
   await message.edit(buildNowPlaying(player, { ...state, finished: true })).catch(() => {});
 }
 
-/** Gửi tin nhắn "Đang phát" mới cho bài vừa bắt đầu và bật cập nhật định kỳ. */
+/** Sends a new "Now playing" message for the track that just started and enables periodic updates. */
 export async function sendNowPlaying(client, player, track) {
   await finalizeNowPlaying(player, { remove: true });
 
@@ -149,7 +149,7 @@ export async function sendNowPlaying(client, player, track) {
   );
 }
 
-/** Dựng payload "Đang phát" để trả lời một lệnh (kèm ảnh bìa nếu có). */
+/** Builds the "Now playing" payload to reply to a command (with cover art if available). */
 export async function nowPlayingReply(player) {
   const track = player.queue.current;
   if (!track) return null;

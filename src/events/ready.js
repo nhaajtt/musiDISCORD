@@ -13,7 +13,7 @@ const LIBRARY_REFRESH_MS = 5 * 60_000;
 
 function updatePresence(client) {
   const active = [...client.lavalink.players.values()].filter((p) => p.playing).length;
-  const status = active ? `${active} server đang nghe • /help` : "/help để xem lệnh";
+  const status = active ? `${active} servers listening • /help` : "/help to see commands";
   client.user.setActivity({ name: status, type: ActivityType.Listening });
 }
 
@@ -22,25 +22,25 @@ export default {
   once: true,
   async execute(client) {
     await client.lavalink.init({ id: client.user.id, username: client.user.username });
-    console.log(`Đã đăng nhập: ${client.user.tag}`);
+    console.log(`Logged in: ${client.user.tag}`);
 
-    // Mỗi lần thư viện được quét: bài mới khớp đề xuất nào thì báo người đề xuất
+    // Each time the library is scanned: notify the suggester when a new track matches their suggestion
     const notify = createNotifier(client);
     library.onScanned((entries) => {
       const pairs = fulfilMatches(entries);
-      if (pairs.length) notifyFulfilled(notify, pairs).catch((error) => console.error("Báo đề xuất lỗi:", error));
+      if (pairs.length) notifyFulfilled(notify, pairs).catch((error) => console.error("Suggestion notification failed:", error));
     });
 
     startWorker();
     startDisplayServer(client);
 
-    library.scan().catch((error) => console.error("Quét thư viện lỗi:", error));
+    library.scan().catch((error) => console.error("Library scan failed:", error));
     getOwnerIds(client).catch(() => {});
 
-    // Quét lại định kỳ (chỉ đọc thẻ file mới hoặc đã đổi) và dọn đóng góp chờ quá lâu
+    // Rescan periodically (only reads tags of new or changed files) and clean up contributions pending too long
     setInterval(() => {
-      library.scan().catch((error) => console.error("Quét thư viện lỗi:", error));
-      expirePending().catch((error) => console.error("Dọn đóng góp lỗi:", error));
+      library.scan().catch((error) => console.error("Library scan failed:", error));
+      expirePending().catch((error) => console.error("Contribution cleanup failed:", error));
     }, LIBRARY_REFRESH_MS).unref();
 
     startAutosave(client);

@@ -1,5 +1,5 @@
 [Unit]
-Description=musiDISCORD: kiem tra ban moi hang ngay
+Description=musiDISCORD: daily check for new version
 
 [Timer]
 OnCalendar=*-*-* 05:00:00

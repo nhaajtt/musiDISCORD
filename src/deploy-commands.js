@@ -19,4 +19,4 @@ const route = config.guildId
   : Routes.applicationCommands(config.clientId);
 
 await rest.put(route, { body });
-console.log(`Đã đăng ký ${body.length} lệnh (${config.guildId ? "server " + config.guildId : "toàn cầu"}).`);
+console.log(`Registered ${body.length} commands (${config.guildId ? "server " + config.guildId : "global"}).`);

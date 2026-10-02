@@ -11,7 +11,7 @@ lavalink:
   server:
     password: "${LAVALINK_PASSWORD:youshallnotpass}"
     sources:
-      # YouTube do plugin xử lý
+      # YouTube is handled by the plugin
       youtube: false
       bandcamp: false
       soundcloud: true
@@ -41,7 +41,7 @@ plugins:
       - MUSIC
       - WEB
       - ANDROID_VR
-    # YouTube hay chặn IP VPS ("This video requires login"), nên dùng đăng nhập OAuth (xem README)
+    # YouTube often blocks VPS IPs ("This video requires login"), so use OAuth login (see README)
     oauth:
       enabled: true
       refreshToken: "${YOUTUBE_REFRESH_TOKEN:}"
@@ -69,7 +69,7 @@ plugins:
 logging:
   file:
     path: ./logs/
-  # Tắt log từng yêu cầu (rất dài) và hạ mức log để đỡ ghi đĩa
+  # Disable per-request logging (very verbose) and lower the log level to reduce disk writes
   request:
     enabled: false
   level:

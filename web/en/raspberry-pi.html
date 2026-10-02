@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploying on a Raspberry Pi 5, musiDISCORD</title>
+<meta name="description" content="How I deploy and run a Discord music bot on a Raspberry Pi 5: Docker, backups, self-updates with rollback, Uptime Kuma, Tailscale and a 3.5 inch TFT screen on the GPIO header.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/raspberry-pi.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/raspberry-pi.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/raspberry-pi.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>P-01</b></span>
+  <span class="strip__name">Raspberry Pi 5</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html" aria-current="page">Pi 5</a>
+    <a href="features.html">Features</a>
+    <a href="commands.html">Commands</a>
+    <a href="setup.html">Setup</a>
+    <a href="devlog.html">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../raspberry-pi.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="raspberry-pi.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="content">
+<h1 class="sr">Deploying musiDISCORD on a Raspberry Pi 5</h1>
+
+<section class="sheet sheet--short" id="hardware" data-sheet="S-01|Hardware and software" aria-labelledby="h-hardware">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-hardware">What it runs on</h2>
+      <p class="sheet__scale">One Pi 5 at home<br>no rented server</p>
+    </header>
+    <div class="table-wrap">
+      <table class="plain">
+        <caption class="sr">Hardware and software setup</caption>
+        <thead><tr><th scope="col">Component</th><th scope="col">Details</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Board</th><td>Raspberry Pi 5, 8 GB RAM, Kali Linux (aarch64), Raspberry Pi 6.12 kernel</td></tr>
+          <tr><th scope="row">Storage</th><td>117 GB SD card. This is the weak spot: for long-term use, move to a USB SSD</td></tr>
+          <tr><th scope="row">Services</th><td>Docker 28 and Compose 2.40, three containers: bot (Node.js 22), Lavalink v4, Uptime Kuma</td></tr>
+          <tr><th scope="row">Second screen</th><td>3.5 inch 480×320 resistive touch TFT on the SPI bus, ILI9486 controller, plugged straight onto the 40-pin GPIO header</td></tr>
+          <tr><th scope="row">Network</th><td>Home LAN; Tailscale for remote access without opening router ports</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="flow" data-sheet="S-02|Data flow" aria-labelledby="h-flow">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-flow">How the parts talk to each other</h2>
+      <p class="sheet__scale">The bot gives orders<br>Lavalink handles the audio</p>
+    </header>
+    <div class="code"><pre><code>Discord  &lt;--&gt;  bot (Node.js)  &lt;--&gt;  Lavalink  &lt;--  music/ folder
+                |
+                +-- data/        SQLite and JSON (settings, stats, queues)
+                +-- API :8787    bound to 127.0.0.1 only, token required
+                |      +-- Tailscale serve  -->  phone, computer
+                |      +-- display.py       -->  TFT screen (framebuffer, touch)
+                +-- cron         backup at 4:30, self-update at 5:00</code></pre></div>
+    <p>The bot does not play audio itself: it sends commands to Lavalink, which decodes the files in <code>music/</code> and streams them into the voice channel. Splitting it this way keeps the bot light, while the heavy part lives on its own and restarts independently.</p>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="deploy" data-sheet="S-03|Deployment sequence" aria-labelledby="h-deploy">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
+      <h2 id="h-deploy">Deploying step by step</h2>
+      <p class="sheet__scale">From a blank Pi<br>to a bot running 24/7</p>
+    </header>
+    <ol class="build">
+      <li>
+        <h3>SSH with a key, no passwords</h3>
+        <p>Generate a key on your main machine and copy it to the Pi. Note: if you set a passphrase, non-interactive mode will silently refuse it, so a key meant for automation should have no passphrase.</p>
+        <div class="code"><pre><code>ssh-keygen -t ed25519
+ssh-copy-id nhaajt@&lt;Pi address&gt;</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Install Docker and set permissions</h3>
+        <p>Install Docker and Compose v2, then add your user to the <code>docker</code> group so you do not need <code>sudo</code> every time. Anything that needs root, I run separately.</p>
+        <div class="code"><pre><code>sudo apt install -y docker.io git
+sudo usermod -aG docker $USER</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Get the code, music and config</h3>
+        <p>Clone the repo, then copy over the <code>music/</code> folder and the <code>.env</code> file (it holds the token and is not in git). The Lavalink plugin is a Java file, so copy it straight from your main machine if the Maven server is unreachable.</p>
+        <div class="code"><pre><code>git clone https://github.com/nhaajtt/musiDISCORD.git</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Build and run</h3>
+        <p>One command builds all three containers. The bot only starts once Lavalink reports healthy, thanks to <code>depends_on</code> with a healthcheck.</p>
+        <div class="code"><pre><code>docker compose up -d --build</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Remote access with Tailscale</h3>
+        <p>Install Tailscale, enable the service at boot (a step I once forgot), then use <code>serve</code> to get a private HTTPS address for the status page and Kuma.</p>
+        <div class="code"><pre><code>sudo systemctl enable --now tailscaled
+tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Schedules and the screen</h3>
+        <p>Add cron entries for backups and self-updates, plus an <code>@reboot</code> entry to bring up the TFT screen when the Pi starts.</p>
+      </li>
+    </ol>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="operations" data-sheet="S-04|Operations" aria-labelledby="h-operations">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-04</span>
+      <h2 id="h-operations">Keeping it alive</h2>
+      <p class="sheet__scale">Running is not enough<br>it has to recover on its own</p>
+    </header>
+    <div class="table-wrap">
+      <table class="plain">
+        <caption class="sr">Automated operations tasks</caption>
+        <thead><tr><th scope="col">Task</th><th scope="col">How it works</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Backups</th><td>Every day at 4:30. Uses <code>VACUUM INTO</code> to get a consistent SQLite copy even while the bot is writing, compresses it, keeps 14 copies, and can optionally push to the cloud with rclone.</td></tr>
+          <tr><th scope="row">Self-update</th><td>Every day at 5:00: fetch the new commit, accept fast-forward only, rebuild, wait for the bot to be healthy; if it breaks, roll back to the previous version and report through Discord.</td></tr>
+          <tr><th scope="row">Monitoring</th><td>Uptime Kuma checks the bot and Lavalink and reports to a Discord channel through a webhook.</td></tr>
+          <tr><th scope="row">Remote access</th><td>Tailscale with <code>serve</code>: an HTTPS address that only devices on my account can reach.</td></tr>
+          <tr><th scope="row">Easing SD card wear</th><td>The "still alive" heartbeat is written to RAM, periodic queue saving is turned off, and Docker logs rotate.</td></tr>
+          <tr><th scope="row">Auto restart</th><td>Docker's <code>restart</code> policy, system services set to <code>enable</code>, and <code>@reboot</code> for the TFT screen.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="tft" data-sheet="S-05|TFT screen" aria-labelledby="h-tft">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-05</span>
+      <h2 id="h-tft">A screen on the GPIO header</h2>
+      <p class="sheet__scale">The hardest part of the project<br>the full story is in the devlog</p>
+    </header>
+    <p>The 3.5 inch resistive touch TFT shows what is playing: a large title, the artist, a progress bar, stylus-operated controls, and my avatar bleeding to the edge like a magazine cover. The <code>display.py</code> program reads the bot's status API and draws straight to the framebuffer, reading touch input through <code>evdev</code>.</p>
+    <p>What I learned most was how to break a hardware problem into testable hypotheses instead of trying things at random:</p>
+    <div class="table-wrap">
+      <table class="plain">
+        <caption class="sr">TFT screen experiments and results</caption>
+        <thead><tr><th scope="col">What I tried</th><th scope="col">What I saw</th><th scope="col">Takeaway</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Vendor overlay (<code>tft35a</code>, old fbtft driver)</th><td>White screen, even when filling the framebuffer with a solid color</td><td>The vendor only supports the Pi 3B and 4B</td></tr>
+          <tr><th scope="row">Official <code>piscreen,drm</code> overlay at 24 MHz</th><td>Black screen</td><td>The panel accepted the init commands but showed no pixels</td></tr>
+          <tr><th scope="row">Reading the SPI byte counter</th><td>Exactly 307,222 bytes added per frame</td><td>The Pi sends all the data, so suspect the speed</td></tr>
+          <tr><th scope="row">Lowering SPI to 8 MHz</th><td>The image appeared</td><td>24 MHz is too high for this panel</td></tr>
+          <tr><th scope="row">Sending the full frame twice per second</th><td>About 614 KB per second, laggy</td><td>The 8 MHz bus handles roughly 1 MB per second</td></tr>
+          <tr><th scope="row">Sending only the changed region</th><td>Choppier</td><td>Many small writes cost more than one big write</td></tr>
+          <tr><th scope="row">Redrawing once per second, no animation</th><td>About 307 KB per second, smooth</td><td>The design has to follow the hardware limits</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="display" data-sheet="S-06|The /display page" aria-labelledby="h-display">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-06</span>
+      <h2 id="h-display">A status page for phones and big screens</h2>
+      <p class="sheet__scale">The same data<br>two interfaces</p>
+    </header>
+    <p>The bot has a small status API and a <code>/display</code> page: a spinning disc that pulses to the track's real BPM (measured by the bot itself), a page color that changes with each song, and a ruler along the bottom made of beat ticks you can tap to seek. The page runs on a phone, tablet or big screen.</p>
+    <ul>
+      <li>Only exposed on <code>127.0.0.1</code> on the machine running the bot; reached from outside through Tailscale.</li>
+      <li>Controls need <code>DISPLAY_TOKEN</code>; without a token you can only view.</li>
+      <li>No Discord IDs or requester names are exposed; the page hides itself during a music quiz.</li>
+      <li>A strict CSP: no inline scripts, no external resources.</li>
+    </ul>
+    <p><a class="link" href="devlog.html">Read the devlog to see everything I tripped over while building these parts</a></p>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="P-01|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot, running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>P-01</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source code</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

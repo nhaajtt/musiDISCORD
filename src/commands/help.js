@@ -1,26 +1,26 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 const GROUPS = [
-  ["🎵 Phát nhạc", ["play", "local", "album", "artist", "favorites", "nhaajt", "vibe", "similar"]],
-  ["🎛️ Điều khiển", ["pause", "resume", "skip", "stop", "leave", "seek", "volume", "loop", "shuffle", "remove", "bump", "247"]],
-  ["📜 Thông tin", ["queue", "nowplaying", "lyrics", "stats", "help"]],
-  ["🎮 Giải trí", ["quiz"]],
-  ["🎁 Đóng góp", ["contribute", "request"]],
-  ["📊 Thống kê", ["mystats", "leaderboard", "wrapped", "privacy"]],
-  ["⚙️ Quản trị", ["settings", "library"]],
+  ["🎵 Playback", ["play", "search", "local", "album", "artist", "favorites", "nhaajt", "vibe", "similar"]],
+  ["🎛️ Controls", ["pause", "resume", "skip", "stop", "leave", "seek", "volume", "loop", "shuffle", "filter", "remove", "bump", "247"]],
+  ["📜 Info", ["queue", "nowplaying", "lyrics", "stats", "help"]],
+  ["🎮 Fun", ["quiz"]],
+  ["🎁 Contribute", ["contribute", "request"]],
+  ["📊 Stats", ["mystats", "leaderboard", "wrapped", "privacy"]],
+  ["⚙️ Admin", ["settings", "library"]],
 ];
 
 export default {
-  data: new SlashCommandBuilder().setName("help").setDescription("Danh sách lệnh và cách dùng"),
+  data: new SlashCommandBuilder().setName("help").setDescription("List of commands and how to use them"),
 
   async execute(interaction) {
     const { commands } = interaction.client;
 
     const embed = new EmbedBuilder()
       .setColor(0x5865f2)
-      .setTitle("Hướng dẫn sử dụng")
+      .setTitle("How to use")
       .setDescription(
-        "Vào một kênh thoại rồi dùng `/play` hoặc `/local` để bắt đầu. Bấm nút dưới tin nhắn \"Đang phát\" để điều khiển nhanh, đánh giá 👍👎, thêm ❤️ yêu thích hay bật lời bài hát 📜.",
+        "Join a voice channel and use `/play` or `/local` to get started. Use the buttons under the \"Now Playing\" message for quick controls, to rate 👍👎, add to your ❤️ favorites, or show lyrics 📜.",
       );
 
     for (const [title, names] of GROUPS) {

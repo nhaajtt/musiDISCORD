@@ -7,9 +7,9 @@ import { queueAndPlay } from "../utils/playback.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("local")
-    .setDescription("Phát một bài trong thư viện nhạc của bot (tìm theo tên, nghệ sĩ, album)")
+    .setDescription("Play a track from the bot's music library (search by title, artist, album)")
     .addStringOption((o) =>
-      o.setName("file").setDescription("Tên bài, nghệ sĩ hoặc album").setRequired(true).setAutocomplete(true),
+      o.setName("file").setDescription("Track, artist or album name").setRequired(true).setAutocomplete(true),
     ),
 
   async autocomplete(interaction) {
@@ -28,7 +28,7 @@ export default {
     const entry = library.resolve(interaction.options.getString("file", true));
     if (!entry) {
       return interaction.reply({
-        embeds: [errorEmbed("Không tìm thấy bài nào khớp trong thư viện nhạc.")],
+        embeds: [errorEmbed("No matching track found in the music library.")],
         flags: MessageFlags.Ephemeral,
       });
     }

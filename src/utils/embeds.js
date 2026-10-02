@@ -3,8 +3,8 @@ import { EmbedBuilder, escapeMarkdown } from "discord.js";
 const COLOR = 0x5865f2;
 
 /**
- * Chuẩn bị chữ do người dùng đặt để hiển thị trong tin nhắn Discord: thoát markdown và cả [ ] ( ) < >
- * (escapeMarkdown không thoát link kiểu [chữ](url) và cú pháp nhắc tên <@id>).
+ * Prepares user-supplied text for display in a Discord message: escapes markdown as well as [ ] ( ) < >
+ * (escapeMarkdown does not escape [text](url) links or <@id> mention syntax).
  */
 export function safeText(text, max = 200) {
   return escapeMarkdown(String(text ?? "")).replace(/[\[\]()<>]/g, "\\$&").slice(0, max);
@@ -22,25 +22,25 @@ export function formatDuration(ms) {
 
 const isHttp = (uri) => /^https?:\/\//i.test(uri ?? "");
 
-/** Tên bài, kèm link nếu bài có link web (file local thì chỉ có đường dẫn nên không gắn link). */
+/** Track title, linked if the track has a web URL (local files only have a path, so no link). */
 export function trackLabel(track) {
   const { title, uri } = track.info;
   return isHttp(uri) ? `[${title}](${uri})` : title;
 }
 
-export function trackEmbed(track, title = "Đang phát") {
+export function trackEmbed(track, title = "Now playing") {
   const info = track.info;
   const embed = new EmbedBuilder()
     .setColor(COLOR)
     .setAuthor({ name: title })
     .setTitle(info.title)
     .addFields(
-      { name: "Tác giả", value: info.author || "Không rõ", inline: true },
-      { name: "Thời lượng", value: info.isStream ? "LIVE" : formatDuration(info.duration), inline: true },
+      { name: "Author", value: info.author || "Unknown", inline: true },
+      { name: "Duration", value: info.isStream ? "LIVE" : formatDuration(info.duration), inline: true },
     );
   if (isHttp(info.uri)) embed.setURL(info.uri);
   if (info.artworkUrl) embed.setThumbnail(info.artworkUrl);
-  if (track.requester?.id) embed.setFooter({ text: `Yêu cầu bởi ${track.requester.username ?? track.requester.id}` });
+  if (track.requester?.id) embed.setFooter({ text: `Requested by ${track.requester.username ?? track.requester.id}` });
   return embed;
 }
 

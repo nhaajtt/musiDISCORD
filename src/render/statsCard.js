@@ -1,4 +1,4 @@
-// Thẻ thống kê (Wrapped / hồ sơ) kiểu bản vẽ cyanotype, xuất PNG qua resvg.
+// Stats card (Wrapped / profile) styled as a cyanotype blueprint, exported as PNG via resvg.
 import { Resvg } from "@resvg/resvg-js";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -13,8 +13,8 @@ const FONT_FILES = [
 
 const M = "IBM Plex Mono";
 const C = "Barlow Condensed";
-const MONO_ADV = 0.6; // độ rộng ký tự / cỡ chữ của Plex Mono
-const COND_ADV = 0.54; // ước lượng thận trọng cho Barlow Condensed
+const MONO_ADV = 0.6; // character width / font size for Plex Mono
+const COND_ADV = 0.54; // conservative estimate for Barlow Condensed
 
 const PAL = {
   dark: {
@@ -27,7 +27,7 @@ const PAL = {
   },
 };
 
-// ---------- tiện ích văn bản ----------
+// ---------- text utilities ----------
 
 const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" };
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ESC[c]);
@@ -44,7 +44,7 @@ function allowed(c) {
   );
 }
 
-// Chỉ giữ ký tự font vẽ được; khoảng trắng gộp lại; rỗng thì dùng placeholder
+// Keep only characters the font can draw; collapse whitespace; use the placeholder if empty
 function clean(s, placeholder = "") {
   const t = (typeof s === "string" ? s : s == null ? "" : String(s)).normalize("NFC");
   let out = "";
@@ -72,14 +72,14 @@ function num(v) {
   return Number.isFinite(n) && n > 0 ? Math.min(n, 1e15) : 0;
 }
 
-const group = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const group = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const fmtInt = (n) => group(String(Math.round(num(n))));
 
 function fmtTime(ms) {
   const h = num(ms) / 3.6e6;
-  if (h < 1) return { value: group(String(Math.round(h * 60))), unit: "phút" };
+  if (h < 1) return { value: group(String(Math.round(h * 60))), unit: "min" };
   const [i, d] = h.toFixed(1).split(".");
-  return { value: group(i) + "," + d, unit: "giờ" };
+  return { value: group(i) + "." + d, unit: "hrs" };
 }
 
 function hashOf(s) {
@@ -91,12 +91,12 @@ function hashOf(s) {
 function fmtDate(v) {
   let d = v == null ? new Date() : new Date(v);
   if (Number.isNaN(d.getTime())) d = new Date();
-  const L = new Date(d.getTime() + 7 * 3.6e6); // giờ Việt Nam
+  const L = new Date(d.getTime() + 7 * 3.6e6); // Vietnam time (UTC+7)
   const p = (n) => String(n).padStart(2, "0");
   return `${p(L.getUTCDate())}.${p(L.getUTCMonth() + 1)}.${L.getUTCFullYear()}`;
 }
 
-// ---------- phần tử SVG cơ bản ----------
+// ---------- basic SVG elements ----------
 
 function text(x, y, s, o = {}) {
   const { size = 16, w = 400, f = M, fill, anchor = "start", ls = 0, op = 1 } = o;
@@ -118,7 +118,7 @@ function arrowTip(x, y, d, color) {
   return `<path d="M${r2(x)} ${r2(y)}L${r2(x - 7 * d)} ${r2(y - 2.6)}L${r2(x - 7 * d)} ${r2(y + 2.6)}Z" fill="${color}"/>`;
 }
 
-// Đường kích thước ngang có mũi tên, nhãn ở giữa (chừa khoảng hở)
+// Horizontal dimension line with arrowheads and a centered label (leaves a gap)
 function dimH(x1, x2, y, label, p, o = {}) {
   const { size = 14, tick = 6 } = o;
   let s = line(x1, y - tick, x1, y + tick, p.ink, 1, 'stroke-opacity="0.8"') +
@@ -135,7 +135,7 @@ function dimH(x1, x2, y, label, p, o = {}) {
   return s + arrowTip(x1, y, -1, p.ink).replace("<path", '<path fill-opacity="0.9"') + arrowTip(x2, y, 1, p.ink);
 }
 
-// ---------- ký hiệu huy hiệu (vẽ trong ô -12..12) ----------
+// ---------- badge glyphs (drawn in a -12..12 cell) ----------
 
 const strip = (s) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "d").toLowerCase();
@@ -158,12 +158,12 @@ const GLYPHS = {
 
 const GLYPH_KEYS = [
   ["quiz", ["do nhac", "quiz", "dap an"]],
-  ["heart", ["fan cung", "fan", "yeu thich"]],
-  ["phones", ["thinh phong"]],
-  ["star", ["phe binh"]],
+  ["heart", ["fan cung", "fan", "yeu thich", "favorite", "favourite"]],
+  ["phones", ["thinh phong", "audiophile", "concert"]],
+  ["star", ["phe binh", "critic"]],
   ["queue", ["hang cho", "queue", "bac thay", "yeu cau", "request"]],
-  ["moon", ["cu dem", "dem", "night", "khuya"]],
-  ["bolt", ["tan nhan", "nhan", "bolt"]],
+  ["moon", ["cu dem", "dem", "night", "owl", "khuya"]],
+  ["bolt", ["tan nhan", "nhan", "bolt", "ruthless"]],
   ["skip", ["bo qua", "skip"]],
   ["flame", ["chuoi", "streak", "lua"]],
   ["sun", ["som", "dawn", "sang"]],
@@ -192,7 +192,7 @@ function badgeSymbol(x, y, rad, name, index, p) {
   );
 }
 
-// ---------- nền, khung, vạch gấp ----------
+// ---------- background, frame, fold lines ----------
 
 function backdrop(W, H, p, cols, rows, folds) {
   const out = [];
@@ -210,7 +210,7 @@ function backdrop(W, H, p, cols, rows, folds) {
     rect(0, 0, W, H, 'fill="url(#vg)"'),
   );
 
-  // vạch gấp
+  // fold lines
   for (const f of folds) {
     if (f.h !== undefined) {
       out.push(rect(54, f.h - 1, W - 108, 3, `fill="${p.shade}" fill-opacity="0.12"`));
@@ -223,7 +223,7 @@ function backdrop(W, H, p, cols, rows, folds) {
     }
   }
 
-  // khung đôi + dải chia vùng
+  // double frame + zone divider strip
   out.push(
     `<path fill-rule="evenodd" d="M18 18H${W - 18}V${H - 18}H18Z M54 54V${H - 54}H${W - 54}V54Z" fill="${p.shade}" fill-opacity="0.16"/>`,
     rect(18, 18, W - 36, H - 36, `fill="none" stroke="${p.ink}" stroke-width="1.4"`),
@@ -249,7 +249,7 @@ function backdrop(W, H, p, cols, rows, folds) {
     const L = String.fromCharCode(65 + i);
     out.push(text(36, y, L, t), text(W - 36, y, L, t));
   }
-  // dấu căn giữa + dấu đăng ký ở bốn góc
+  // centering marks + registration marks at the four corners
   out.push(
     line(W / 2, 4, W / 2, 18, p.ink, 2), line(W / 2, H - 18, W / 2, H - 4, p.ink, 2),
     line(4, H / 2, 18, H / 2, p.ink, 2), line(W - 18, H / 2, W - 4, H / 2, p.ink, 2),
@@ -287,7 +287,7 @@ function sectionHead(x, y, w, n, label, p) {
   );
 }
 
-// ---------- các khối dữ liệu ----------
+// ---------- data blocks ----------
 
 function trackRows(o, tracks, p) {
   const { x, right, y0, pitch, n, barMax, tSize } = o;
@@ -296,7 +296,7 @@ function trackRows(o, tracks, p) {
   if (!items.length) {
     out.push(
       rect(x, y0 + 4, right - x, Math.min(n, 3) * pitch - 14, `fill="none" stroke="${p.dim}" stroke-width="1.4" stroke-dasharray="9 6" stroke-opacity="0.8"`),
-      text((x + right) / 2, y0 + (Math.min(n, 3) * pitch) / 2 - 2, "CHƯA CÓ BÀI NÀO TRONG BẢN VẼ", { size: 18, w: 700, fill: p.dim, anchor: "middle", ls: 2 }),
+      text((x + right) / 2, y0 + (Math.min(n, 3) * pitch) / 2 - 2, "NO TRACKS ON THE DRAWING YET", { size: 18, w: 700, fill: p.dim, anchor: "middle", ls: 2 }),
     );
     return out.join("");
   }
@@ -319,7 +319,7 @@ function trackRows(o, tracks, p) {
       );
     } else out.push(line(tx, by + 6, tx + 24, by + 6, p.dim, 1.4, 'stroke-dasharray="4 3"'));
     const dy = by + 21;
-    const label = `${fmtInt(t.plays)} lượt`;
+    const label = `${fmtInt(t.plays)} plays`;
     const lw = mw(label, 15, 0.5);
     const end = tx + Math.max(len, 24);
     out.push(dimH(tx, end, dy, "", p, { tick: 4 }));
@@ -333,7 +333,7 @@ function artistLegend(x, right, y0, pitch, artists, n, p) {
   const items = artists.slice(0, n);
   if (!items.length) {
     return rect(x, y0 - 22, right - x, Math.min(n, 4) * pitch, `fill="none" stroke="${p.dim}" stroke-width="1.4" stroke-dasharray="9 6" stroke-opacity="0.8"`) +
-      text((x + right) / 2, y0 + (Math.min(n, 4) * pitch) / 2 - 22, "CHƯA CÓ NGHỆ SĨ", { size: 18, w: 700, fill: p.dim, anchor: "middle", ls: 2 });
+      text((x + right) / 2, y0 + (Math.min(n, 4) * pitch) / 2 - 22, "NO ARTISTS YET", { size: 18, w: 700, fill: p.dim, anchor: "middle", ls: 2 });
   }
   items.forEach((a, i) => {
     const yc = y0 + i * pitch;
@@ -391,7 +391,7 @@ function titleBlock(x, y, w, h, kind, dateStr, p) {
   const rh = (h - r1) / 2;
   const sheetTxt = kind === "wrapped" ? "01/01" : "02/02";
   out.push(line(x, y + r1, x + w, y + r1, p.ink, 1.6));
-  // logo đĩa than
+  // vinyl record logo
   const lx = x + w - r1 / 2 - 4, ly = y + r1 / 2;
   out.push(circle(lx, ly, r1 * 0.36, `${st} stroke-width="1.6"`), circle(lx, ly, r1 * 0.22, `${st} stroke-width="1" stroke-opacity="0.8"`), circle(lx, ly, 3, `fill="${p.ink}"`));
   out.push(kind === "wrapped" ? lab(x + 12, y + 18, "PROJECT") : "", text(x + 12, y + r1 - 9, "musiDISCORD", { size: kind === "wrapped" ? 36 : 21, w: 700, f: C, fill: p.text, ls: 1 }));
@@ -424,7 +424,7 @@ function titleBlock(x, y, w, h, kind, dateStr, p) {
   return out.join("");
 }
 
-// ---------- bố cục ----------
+// ---------- layout ----------
 
 function normalize(data) {
   const d = data && typeof data === "object" ? data : {};
@@ -434,30 +434,30 @@ function normalize(data) {
   return {
     kind: d.kind === "profile" ? "profile" : "wrapped",
     year: yr,
-    userName: clean(d.userName, "Người nghe ẩn danh"),
-    guildName: clean(d.guildName, "Máy chủ ẩn danh"),
+    userName: clean(d.userName, "Anonymous listener"),
+    guildName: clean(d.guildName, "Anonymous server"),
     totalListenMs: num(d.totalListenMs),
     totalPlays: num(d.totalPlays),
     totalSkips: num(d.totalSkips),
     totalRequests: num(d.totalRequests),
     topTracks: (Array.isArray(d.topTracks) ? d.topTracks : []).slice(0, 5).map((t) => ({
-      title: clean(t && t.title, "Không rõ tên bài"),
-      artist: clean(t && t.artist, "Không rõ"),
+      title: clean(t && t.title, "Unknown track"),
+      artist: clean(t && t.artist, "Unknown"),
       plays: num(t && t.plays),
     })),
     topArtists: (Array.isArray(d.topArtists) ? d.topArtists : []).slice(0, 5).map((a) => ({
-      name: clean(a && a.name, "Không rõ"),
+      name: clean(a && a.name, "Unknown"),
       plays: num(a && a.plays),
     })),
     hours: hrs,
     busiest: bh === null && hrs && Math.max(...hrs) > 0 ? hrs.indexOf(Math.max(...hrs)) : bh,
     streak: Math.round(num(d.streakDays)),
-    badges: (Array.isArray(d.badges) ? d.badges : []).slice(0, 6).map((b) => ({ name: clean(b && b.name, "Huy hiệu") })),
+    badges: (Array.isArray(d.badges) ? d.badges : []).slice(0, 6).map((b) => ({ name: clean(b && b.name, "Badge") })),
     date: fmtDate(d.generatedAt),
   };
 }
 
-// số lớn cùng đơn vị nhỏ, tự co để không tràn ô
+// large number with a small unit, shrinks to avoid overflowing the cell
 function bigValue(x, y, value, unit, maxW, size, p, anchor = "start") {
   const uw = unit ? mw(unit, size * 0.26) + 10 : 0;
   const s = Math.min(size, (maxW - uw) / (Array.from(value).length * COND_ADV));
@@ -469,10 +469,10 @@ function bigValue(x, y, value, unit, maxW, size, p, anchor = "start") {
 function kpis(d, x0, x1, yLabel, yVal, size, firstWide, p) {
   const t = fmtTime(d.totalListenMs);
   const cells = [
-    ["GIỜ NGHE", t.value, t.unit],
-    ["LƯỢT PHÁT", fmtInt(d.totalPlays), ""],
-    ["BỎ QUA", fmtInt(d.totalSkips), ""],
-    ["YÊU CẦU", fmtInt(d.totalRequests), ""],
+    ["LISTEN TIME", t.value, t.unit],
+    ["PLAYS", fmtInt(d.totalPlays), ""],
+    ["SKIPS", fmtInt(d.totalSkips), ""],
+    ["REQUESTS", fmtInt(d.totalRequests), ""],
   ];
   const total = x1 - x0;
   const w0 = firstWide ? total * 0.36 : total / 4;
@@ -496,35 +496,35 @@ function wrapped(d, p) {
   const rot = -(5 + (hashOf(d.userName + d.year) % 5));
   const nameMax = maxChars(640, 38);
   out.push(
-    text(74, 92, "BẢN VẼ KỸ THUẬT  ·  HỒ SƠ NGHE NHẠC", { size: 15, w: 700, fill: p.dim, ls: 3 }),
+    text(74, 92, "TECHNICAL DRAWING  ·  LISTENING RECORD", { size: 15, w: 700, fill: p.dim, ls: 3 }),
     text(70, 232, "WRAPPED", { size: 176, w: 700, f: C, fill: p.text, ls: 2 }),
     text(74, 286, trunc(d.userName, nameMax), { size: 38, w: 700, fill: p.text }),
-    text(74, 318, trunc("MÁY CHỦ · " + d.guildName, maxChars(640, 20)), { size: 20, fill: p.dim }),
-    stamp(858, 176, 280, 112, rot, "ĐÃ NGHE", String(d.year), p),
-    dimH(74, 1006, 346, `TỔNG QUAN NĂM ${d.year}`, p),
+    text(74, 318, trunc("SERVER · " + d.guildName, maxChars(640, 20)), { size: 20, fill: p.dim }),
+    stamp(858, 176, 280, 112, rot, "LISTENED", String(d.year), p),
+    dimH(74, 1006, 346, `${d.year} OVERVIEW`, p),
     kpis(d, 74, 1006, 392, 468, 84, true, p),
   );
   out.push(
-    sectionHead(74, 536, 932, 1, "HÌNH 1  ·  TOP BÀI HÁT (MẶT ĐỨNG)", p),
+    sectionHead(74, 536, 932, 1, "FIG. 1  ·  TOP TRACKS (ELEVATION)", p),
     trackRows({ x: 74, right: 1006, y0: 556, pitch: 56, n: 5, barMax: 690, tSize: 22 }, d.topTracks, p),
   );
   out.push(
-    sectionHead(74, 874, 470, 2, "HÌNH 2  ·  TOP NGHỆ SĨ", p),
+    sectionHead(74, 874, 470, 2, "FIG. 2  ·  TOP ARTISTS", p),
     artistLegend(74, 544, 916, 44, d.topArtists, 5, p),
-    sectionHead(580, 874, 426, 3, "HÌNH 3  ·  NHỊP 24 GIỜ", p),
+    sectionHead(580, 874, 426, 3, "FIG. 3  ·  24-HOUR RHYTHM", p),
     dial(872, 1006, 40, 94, d.hours, d.busiest, p, 114),
   );
   const hr = d.busiest === null ? "--:--" : String(d.busiest).padStart(2, "0") + ":00";
   out.push(
-    text(590, 924, "GIỜ CAO ĐIỂM", { size: 14, w: 700, fill: p.dim, ls: 2 }),
+    text(590, 924, "PEAK HOUR", { size: 14, w: 700, fill: p.dim, ls: 2 }),
     bigValue(588, 984, hr, "", 150, 58, p),
-    text(590, 1040, "CHUỖI DÀI NHẤT", { size: 14, w: 700, fill: p.dim, ls: 2 }),
-    bigValue(588, 1100, fmtInt(d.streak), d.streak === 1 ? "ngày" : "ngày", 150, 58, p),
+    text(590, 1040, "LONGEST STREAK", { size: 14, w: 700, fill: p.dim, ls: 2 }),
+    bigValue(588, 1100, fmtInt(d.streak), d.streak === 1 ? "day" : "days", 150, 58, p),
     line(590, 1002, 700, 1002, p.ink, 1, 'stroke-opacity="0.5" stroke-dasharray="3 4"'),
   );
-  // huy hiệu
-  out.push(sectionHead(74, 1166, 520, 4, "HUY HIỆU  ·  KÝ HIỆU", p));
-  if (!d.badges.length) out.push(text(74, 1228, "CHƯA CÓ HUY HIỆU", { size: 16, w: 700, fill: p.dim, ls: 2 }));
+  // badges
+  out.push(sectionHead(74, 1166, 520, 4, "BADGES  ·  LEGEND", p));
+  if (!d.badges.length) out.push(text(74, 1228, "NO BADGES YET", { size: 16, w: 700, fill: p.dim, ls: 2 }));
   d.badges.forEach((b, i) => {
     const bx = 74 + (i % 2) * 262, by = 1204 + Math.floor(i / 2) * 36;
     out.push(badgeSymbol(bx + 16, by, 15, b.name, i, p), text(bx + 42, by + 6, trunc(b.name, maxChars(214, 17)), { size: 17, w: 700, fill: p.text }));
@@ -538,29 +538,29 @@ function profile(d, p) {
   const out = [backdrop(W, H, p, 8, 4, [{ v: 540 }])];
   const rot = -(5 + (hashOf(d.userName + d.year) % 5));
   out.push(
-    text(74, 82, "BẢN VẼ KỸ THUẬT  ·  HỒ SƠ NGƯỜI NGHE", { size: 15, w: 700, fill: p.dim, ls: 3 }),
-    text(72, 166, "HỒ SƠ NGHE NHẠC", { size: 84, w: 700, f: C, fill: p.text, ls: 2 }),
+    text(74, 82, "TECHNICAL DRAWING  ·  LISTENER PROFILE", { size: 15, w: 700, fill: p.dim, ls: 3 }),
+    text(72, 166, "MUSIC PROFILE", { size: 84, w: 700, f: C, fill: p.text, ls: 2 }),
     text(74, 204, trunc(d.userName, maxChars(640, 30)), { size: 30, w: 700, fill: p.text }),
-    text(74, 230, trunc("MÁY CHỦ · " + d.guildName, maxChars(640, 18)), { size: 18, fill: p.dim }),
-    stamp(880, 140, 250, 96, rot, "ĐÃ NGHE", String(d.year), p),
-    dimH(74, 1006, 256, "TỔNG QUAN", p),
+    text(74, 230, trunc("SERVER · " + d.guildName, maxChars(640, 18)), { size: 18, fill: p.dim }),
+    stamp(880, 140, 250, 96, rot, "LISTENED", String(d.year), p),
+    dimH(74, 1006, 256, "OVERVIEW", p),
     kpis(d, 74, 1006, 296, 352, 62, false, p),
   );
   out.push(
-    sectionHead(74, 400, 440, 1, "HÌNH 1  ·  TOP BÀI HÁT", p),
+    sectionHead(74, 400, 440, 1, "FIG. 1  ·  TOP TRACKS", p),
     trackRows({ x: 74, right: 512, y0: 416, pitch: 50, n: 3, barMax: 250, tSize: 19 }, d.topTracks, p),
-    sectionHead(560, 400, 446, 2, "HÌNH 2  ·  NHỊP 24 GIỜ", p),
+    sectionHead(560, 400, 446, 2, "FIG. 2  ·  24-HOUR RHYTHM", p),
     dial(622, 494, 26, 54, d.hours, d.busiest, p, 70),
   );
   const hr = d.busiest === null ? "--:--" : String(d.busiest).padStart(2, "0") + ":00";
   out.push(
-    text(724, 424, "CAO ĐIỂM", { size: 13, w: 700, fill: p.dim, ls: 2 }),
+    text(724, 424, "PEAK", { size: 13, w: 700, fill: p.dim, ls: 2 }),
     bigValue(724, 462, hr, "", 130, 40, p),
-    text(868, 424, "CHUỖI NGÀY", { size: 13, w: 700, fill: p.dim, ls: 2 }),
+    text(868, 424, "STREAK", { size: 13, w: 700, fill: p.dim, ls: 2 }),
     bigValue(868, 462, fmtInt(d.streak), "", 130, 40, p),
   );
   d.badges.slice(0, 6).forEach((b, i) => out.push(badgeSymbol(740 + i * 44, 486, 14, b.name, i, p)));
-  if (!d.badges.length) out.push(text(724, 491, "CHƯA CÓ HUY HIỆU", { size: 14, w: 700, fill: p.dim, ls: 2 }));
+  if (!d.badges.length) out.push(text(724, 491, "NO BADGES YET", { size: 14, w: 700, fill: p.dim, ls: 2 }));
   out.push(titleBlock(690, 508, 336, 78, "profile", d.date, p));
   return { W, H, body: out.join("") };
 }
@@ -588,5 +588,5 @@ export async function renderStatsCard(data, options = {}) {
   return Buffer.from(png);
 }
 
-// chỉ dùng cho kiểm thử
+// for tests only
 export const _internals = { clean, trunc, build, fmtInt, fmtTime };

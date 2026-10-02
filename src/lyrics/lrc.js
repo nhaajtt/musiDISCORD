@@ -1,4 +1,4 @@
-// Phân tích lời bài hát dạng LRC / văn bản thường (hàm thuần, không I/O)
+// Parse song lyrics in LRC / plain text format (pure functions, no I/O)
 
 const MAX_INPUT = 2_000_000;
 const MAX_LINES = 50_000;
@@ -65,7 +65,7 @@ export function parseLrc(input) {
       tags++;
       pos = end + 1;
       if (!tm) {
-        // thẻ meta: bỏ cả dòng
+        // meta tag: drop the whole line
         break;
       }
     }
@@ -88,7 +88,7 @@ export function parseLrc(input) {
     return result;
   }
 
-  // văn bản thường: gộp dòng trống liên tiếp, bỏ trống đầu/cuối
+  // plain text: merge consecutive blank lines, trim leading/trailing blanks
   const out = [];
   let blanks = 0;
   const flush = () => {
@@ -164,7 +164,7 @@ export function paginateLyrics(lines, maxChars = 1800) {
   const limit = Math.max(10, Math.floor(Number(maxChars)) || 1800);
   if (!Array.isArray(lines)) return [];
 
-  // chuẩn bị dòng: bỏ timestamp, tách dòng quá dài, gộp dòng trống liên tiếp
+  // prepare lines: strip timestamps, split overly long lines, merge consecutive blank lines
   const items = [];
   let lastBlank = true;
   for (const l of lines) {

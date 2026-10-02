@@ -8,7 +8,7 @@ import { ensurePlayer } from "../utils/playback.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("nhaajt")
-    .setDescription("Phát ngẫu nhiên toàn bộ nhạc trong thư mục music, lặp mãi cho tới khi /stop"),
+    .setDescription("Shuffle-play all music in the music folder on repeat until /stop"),
 
   async execute(interaction) {
     if (!canControl(interaction.member, interaction.guildId)) return denyDj(interaction);
@@ -19,18 +19,18 @@ export default {
     if (library.size() === 0) await library.scan();
     const files = library.all().map((e) => e.file);
     if (!files.length) {
-      return interaction.editReply({ embeds: [errorEmbed("Thư mục music đang trống.")] });
+      return interaction.editReply({ embeds: [errorEmbed("The music folder is empty.")] });
     }
 
     const count = await startNhaajt(player, files, interaction.user);
     if (!count) {
-      return interaction.editReply({ embeds: [errorEmbed("Không đọc được file nhạc nào trong thư mục music.")] });
+      return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files in the music folder.")] });
     }
 
     await interaction.editReply({
       embeds: [
         infoEmbed(
-          `🔀 Đang phát ngẫu nhiên **${count}** bài trong thư mục music, hết vòng sẽ xáo trộn lại và phát tiếp. Bài được 👍 nhiều sẽ lên sớm hơn, bài bị 👎 xuống cuối.\nDùng \`/stop\` hoặc \`/leave\` để dừng.`,
+          `🔀 Shuffle-playing **${count}** tracks from the music folder; when the round ends it reshuffles and keeps going. Tracks with more 👍 come up sooner, 👎 tracks go to the end.\nUse \`/stop\` or \`/leave\` to stop.`,
         ),
       ],
     });

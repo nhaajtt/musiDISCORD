@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of use, musiDISCORD</title>
+<meta name="description" content="Terms for using the musiDISCORD bot: what the bot does, responsibility for what is played, behavior that is not allowed, and the bot maintainer's rights.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/terms.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/terms.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/terms.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>P-03</b></span>
+  <span class="strip__name">Terms</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="features.html">Features</a>
+    <a href="commands.html">Commands</a>
+    <a href="setup.html">Setup</a>
+    <a href="devlog.html">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../terms.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="terms.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="content" class="legal">
+  <div class="wrap">
+    <h1>Terms of use</h1>
+    <p class="lead">A few rules to keep the bot running smoothly for everyone. Using the bot means you agree to what follows.</p>
+    <div class="legal__meta">
+      <span>Last updated: 2026-10-02</span>
+      <span class="stamp" style="font-size:18px">rev G</span>
+    </div>
+
+    <div class="legal__body">
+      <section class="clause">
+        <h2>Agreeing to the terms</h2>
+        <p>By inviting the bot to a server or using its commands, you agree to this page, to the <a href="privacy.html">Privacy</a> page, and to Discord's own terms.</p>
+      </section>
+      <section class="clause">
+        <h2>What the bot does</h2>
+        <p>musiDISCORD plays music into voice channels from links, track names or a library of music files, and lets you control playback with commands and buttons. Version 2.0 adds a smart music library, a music quiz, stats, Wrapped, lyrics and a 24/7 mode. The bot is provided as is: it may break, pause or change at any time, and there is no commitment on uptime.</p>
+      </section>
+      <section class="clause">
+        <h2>Music sources and copyright</h2>
+        <ul>
+          <li>You are responsible for what you ask the bot to play and for having the right to play it.</li>
+          <li>YouTube, SoundCloud and Spotify have their own terms. You are responsible for complying with them when using their links through the bot.</li>
+          <li>Files in the music folder must be files you have the right to use.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>The music library and content you add</h2>
+        <ul>
+          <li>You are responsible for the legality of every music file, cover image and lyrics file (.lrc) you put in the bot's library, and for how you use the bot to play them, especially in public servers.</li>
+          <li>The music quiz and <code>/nhaajt</code> only use music in the host's own library.</li>
+          <li>Lyrics looked up online (if enabled) belong to their owners; the bot only displays them and grants you no additional rights.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>Submitting files and suggesting tracks</h2>
+        <ul>
+          <li>Only submit through <code>/contribute</code> files that you own or are allowed to share, and you confirm this when you submit.</li>
+          <li>The bot owner may reject or remove any file from the library at any time.</li>
+          <li>The project does not provide any way to download music from third-party sites. <code>/request</code> only records a suggestion; the bot never downloads or opens the link you give it.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>Stats, badges, 24/7 mode</h2>
+        <p>Stats, leaderboards, badges and Wrapped are just for fun and have no other value. The bot stores and uses that data as described on the <a href="privacy.html">Privacy</a> page, and you can turn off or delete your part with <code>/privacy</code>. 24/7 mode may be turned off or limited depending on the machine running the bot, and there is no commitment on uptime.</p>
+      </section>
+      <section class="clause">
+        <h2>Behavior that is not allowed</h2>
+        <ul>
+          <li>Using the bot to harass others, disrupt the voice channel or spam commands.</li>
+          <li>Trying to overload the bot or the machine behind it, or looking for ways around permissions set by a server (such as the DJ role).</li>
+          <li>Violating Discord's terms or community guidelines while using the bot.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>The bot maintainer's rights</h2>
+        <p>The bot maintainer (nhaajt) may block a server or user who abuses the bot, change features, or shut the bot down, including without notice when needed to protect the bot and other users.</p>
+      </section>
+      <section class="clause">
+        <h2>Limitation of liability</h2>
+        <p>To the extent permitted by law, the bot maintainer is not liable for indirect damages arising from the use of the bot, such as an interrupted listening session or a lost queue.</p>
+      </section>
+      <section class="clause">
+        <h2>Changes to the terms</h2>
+        <p>These terms may be updated. The most recent update date is at the top of the page. Continuing to use the bot after an update means you accept the new version.</p>
+      </section>
+      <section class="clause">
+        <h2>Contact</h2>
+        <p>If you have a question about these terms, message the bot maintainer:</p>
+        <p class="contact">Instagram: <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">@nhaajt_hehee</a> &nbsp;&bull;&nbsp; GitHub: <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajtt</a> (you can also open an issue on the <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">musiDISCORD</a> repo)</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="foot" data-sheet="P-03|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot, running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>P-03</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source code</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

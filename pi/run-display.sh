@@ -1,5 +1,5 @@
 #!/bin/sh
-# Chạy màn hình trạng thái TFT và tự chạy lại nếu bị dừng. Dùng cho @reboot trong crontab hoặc systemd.
+# Run the TFT status display and restart it if it stops. Use from @reboot in crontab or from systemd.
 cd "$(dirname "$0")/.."
 set -a
 [ -f pi/display.env ] && . pi/display.env

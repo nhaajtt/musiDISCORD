@@ -1,6 +1,6 @@
 import { config } from "../config.js";
 
-/** Phần đường dẫn tương đối trong thư mục music của một file local (hoặc null nếu không phải file local). */
+/** Relative path within the music folder of a local file (or null if not a local file). */
 export function localRelativePath(info) {
   if (info?.sourceName !== "local") return null;
   const id = info.identifier || info.uri || "";
@@ -8,7 +8,7 @@ export function localRelativePath(info) {
   return id.startsWith(prefix) ? id.slice(prefix.length) : id;
 }
 
-/** Khoá ổn định để nhận diện một bài (dùng cho thống kê, đánh giá, yêu thích). */
+/** Stable key identifying a track (used for stats, ratings, favorites). */
 export function trackKey(track) {
   const info = track.info;
   const rel = localRelativePath(info);

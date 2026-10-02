@@ -1,102 +1,106 @@
 # musiDISCORD
 
-Bot phát nhạc Discord tự host, viết bằng discord.js và phát qua Lavalink v4. Điểm mạnh nằm ở **thư viện nhạc riêng**: bot đọc thẻ tên bài, ảnh bìa, lời bài hát trong thư mục `music/` của bạn và xây tính năng quanh đó (tìm kiếm, album, đố nhạc, thống kê, radio 24/7...). Ngoài ra vẫn phát được từ link YouTube, SoundCloud, Spotify.
+A self-hosted Discord music bot built with discord.js and played through Lavalink v4. Its strength is a **private music library**: the bot reads track tags, cover art and lyrics from your `music/` folder and builds features around them (search, albums, music quiz, stats, 24/7 radio...). It can also play from YouTube, SoundCloud and Spotify links.
 
-Website giới thiệu: https://musidiscord.vercel.app. Nhật ký làm dự án (những chỗ tôi vấp và cách gỡ): [docs/nhat-ky.md](docs/nhat-ky.md).
+Website: https://musidiscord.vercel.app (there is also a Vietnamese version of the website). Project devlog (the problems I hit and how I fixed them): [docs/devlog.md](docs/devlog.md).
 
-## Tính năng
+## Features
 
-- **Thư viện nhạc thông minh:** đọc thẻ (tên, nghệ sĩ, album, thể loại), tự đoán từ tên file và thư mục khi thiếu thẻ, tìm kiếm không phân biệt dấu, phát cả album hoặc nghệ sĩ, danh sách yêu thích riêng từng người.
-- **`/nhaajt`:** phát ngẫu nhiên toàn bộ thư viện, hết vòng xáo trộn lại và phát tiếp mãi. Xáo trộn có trọng số theo 👍/👎 của server và tránh cùng nghệ sĩ liền nhau.
-- **Giao diện "Đang phát" (Components V2):** ảnh bìa, màu nhấn theo bài, thanh tiến trình tự cập nhật, hai hàng nút (điều khiển, 👍 👎 ❤️ 📜).
-- **Tên bài trên kênh thoại:** tự ghi "Đang phát: ..." vào trạng thái kênh thoại.
-- **Đố nhạc:** nghe đoạn trích từ thư viện và đoán tên bài; trả lời bằng cửa sổ nhập (không cần quyền đọc tin nhắn), có gợi ý, chuỗi đúng liên tiếp, bảng xếp hạng.
-- **Hàng chờ công bằng, `/bump`, bỏ phiếu bỏ qua bài** khi đông người nghe.
-- **Thống kê:** `/mystats`, `/leaderboard`, `/wrapped` (thẻ ảnh tổng kết năm vẽ như bản thiết kế) và huy hiệu vui.
-- **Lời bài hát:** từ file `.lrc` cạnh bài, lời nhúng trong thẻ hoặc tra LRCLIB, hiện dạng karaoke tô sáng dòng đang hát.
-- **Đóng góp từ thành viên:** `/contribute` gửi file nhạc của chính mình để chủ bot duyệt, `/request` đề xuất bài chưa có và được báo khi bài xuất hiện. Bot **không** tải nhạc từ YouTube hay trang chuyển đổi nào.
-- **Tự gắn thẻ (tuỳ chọn):** bài thiếu thẻ được nhận diện bằng dấu vân âm thanh (AcoustID, MusicBrainz) rồi điền tên, nghệ sĩ, album, bìa. Thẻ lưu riêng trong `data/shared/`, **không sửa file nhạc gốc**.
-- **Phân tích âm thanh (tuỳ chọn):** ước lượng nhịp độ, năng lượng, độ sáng ngay trên máy của bạn để có `/vibe` (radio theo tâm trạng) và `/similar` (bài giống bài đang phát).
-- **Nhiều bot, màn hình trạng thái, vận hành cho Raspberry Pi:** chạy 2 đến 3 bot cùng lúc, trang `/display` cho màn hình TFT 3.5 inch, sao lưu, tự cập nhật, Uptime Kuma. Xem phần "Chạy trên Raspberry Pi".
-- **24/7:** ở lại kênh kể cả khi không có ai và sau khi khởi động lại; tuỳ chọn radio phát thư viện mãi mãi.
-- **Vận hành:** khôi phục hàng chờ sau khi khởi động lại, healthcheck, cảnh báo khi Lavalink mất kết nối, tự rời kênh khi rảnh (trừ 24/7).
+- **Smart music library:** reads tags (title, artist, album, genre), guesses from file and folder names when tags are missing, searches without caring about diacritics, plays whole albums or artists, and keeps a separate favorites list per user.
+- **`/nhaajt`:** plays the whole library in random order, reshuffles when the round ends and keeps going forever. The shuffle is weighted by the server's 👍/👎 votes and avoids repeating the same artist back to back.
+- **"Now Playing" panel (Components V2):** cover art, an accent color taken from the track, an auto-updating progress bar and two rows of buttons (playback controls, 👍 👎 ❤️ 📜).
+- **Track title on the voice channel:** writes "Now playing: ..." into the voice channel status automatically.
+- **Music quiz:** listen to a clip from the library and guess the title; answers go through a modal (no message-read permission needed), with hints, a streak counter and a leaderboard.
+- **Search and pick:** `/search` shows up to 10 results as numbered buttons so you can pick one to play.
+- **Audio filters:** `/filter` applies effects such as bass boost, nightcore, vaporwave and 8D to the current playback.
+- **Fair queue, `/bump` and skip voting** when many people are listening.
+- **Stats:** `/mystats`, `/leaderboard`, `/wrapped` (a year-in-review image card drawn like a blueprint) and fun badges.
+- **Lyrics:** from a `.lrc` file next to the track, lyrics embedded in the tags, or a LRCLIB lookup, shown karaoke-style with the current line highlighted.
+- **Member contributions:** `/contribute` lets people submit their own music files for the bot owner to approve, and `/request` suggests tracks that are not in the library yet and notifies you when they show up. The bot does **not** download music from YouTube or any converter site.
+- **Auto-tagging (optional):** tracks without tags are identified by audio fingerprint (AcoustID, MusicBrainz) and filled in with title, artist, album and cover. Tags are stored separately in `data/shared/`, and **your original music files are never modified**.
+- **Audio analysis (optional):** estimates tempo, energy and brightness on your own machine to power `/vibe` (mood radio) and `/similar` (tracks like the current one).
+- **Multiple bots, status display, Raspberry Pi operations:** run 2 or 3 bots at once, a `/display` page for a 3.5-inch TFT screen, backups, auto-update and Uptime Kuma. See "Running on a Raspberry Pi".
+- **24/7:** stays in the channel even when it is empty and after a restart; an optional radio mode plays the library forever.
+- **Operations:** queue recovery after a restart, healthcheck, an alert when Lavalink disconnects, and auto-leave when idle (except in 24/7 mode).
 
-## Lệnh
+## Commands
 
-| Lệnh | Mô tả |
+| Command | Description |
 | --- | --- |
-| `/play query [source]` | Phát theo tên hoặc link (bài, playlist, album) |
-| `/local file` | Phát một bài trong thư viện (gợi ý theo tên, nghệ sĩ, album) |
-| `/album name [shuffle]`, `/artist name [shuffle]` | Phát cả album hoặc các bài của một nghệ sĩ |
-| `/favorites add \| remove \| list \| play` | Bài yêu thích của riêng bạn |
-| `/nhaajt` | Phát ngẫu nhiên toàn bộ thư viện, lặp mãi cho tới khi `/stop` |
-| `/pause`, `/resume`, `/skip`, `/stop`, `/leave` | Điều khiển cơ bản (`/skip` cần bỏ phiếu khi từ 3 người nghe) |
-| `/queue`, `/nowplaying` | Xem hàng chờ, bài đang phát |
-| `/volume`, `/loop`, `/shuffle`, `/remove`, `/seek` | Âm lượng, lặp, xáo trộn, xoá bài, tua |
-| `/bump position` | Bỏ phiếu đưa một bài lên phát kế tiếp |
-| `/lyrics [live]` | Lời bài đang phát, `live` để hiện karaoke |
-| `/quiz start \| stop \| top` | Đố nhạc từ thư viện |
-| `/mystats`, `/leaderboard`, `/wrapped [year]` | Thống kê cá nhân, bảng xếp hạng, tổng kết năm |
-| `/privacy stats \| delete` | Tắt thống kê của bạn hoặc xoá toàn bộ dữ liệu của bạn |
-| `/247 on [radio] \| off` | Chế độ 24/7 |
-| `/contribute submit \| pending \| stats` | Gửi file nhạc của bạn để chủ bot duyệt (tắt mặc định) |
-| `/request add \| list \| vote \| mine \| remove \| done \| dismiss` | Đề xuất bài chưa có, bỏ phiếu, được báo khi bài có trong thư viện |
-| `/vibe mood` | Radio theo tâm trạng: chill, vừa phải, sôi động, hừng hực (cần `ANALYSIS=on`) |
-| `/similar [count]` | Thêm các bài giống bài đang phát vào hàng chờ (cần `ANALYSIS=on`) |
-| `/library status | run | stop | review | forget` | (Chủ bot) Gắn thẻ tự động và phân tích âm thanh |
-| `/settings view \| dj-role \| volume \| fair-queue \| vc-status \| contributions` | Quản trị (cần quyền Manage Server) |
-| `/help`, `/stats` | Hướng dẫn lệnh, tình trạng bot |
+| `/play query [source]` | Play by name or link (track, playlist, album) |
+| `/search query [source]` | Show up to 10 results as numbered buttons; pick one to play |
+| `/filter effect` | Audio effect: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, or off |
+| `/local file` | Play one track from the library (autocomplete by title, artist, album) |
+| `/album name [shuffle]`, `/artist name [shuffle]` | Play a whole album or all tracks by an artist |
+| `/favorites add \| remove \| list \| play` | Your own favorite tracks |
+| `/nhaajt` | Play the whole library in random order, looping until `/stop` |
+| `/pause`, `/resume`, `/skip`, `/stop`, `/leave` | Basic controls (`/skip` needs a vote when 3 or more people are listening) |
+| `/queue`, `/nowplaying` | Show the queue and the current track |
+| `/volume`, `/loop`, `/shuffle`, `/remove`, `/seek` | Volume, repeat, shuffle, remove a track, seek |
+| `/bump position` | Start a vote to move a track up to play next |
+| `/lyrics [live]` | Lyrics of the current track; `live` shows them karaoke-style |
+| `/quiz start \| stop \| top` | Music quiz from the library |
+| `/mystats`, `/leaderboard`, `/wrapped [year]` | Personal stats, leaderboard, year in review |
+| `/privacy stats \| delete` | Turn off your stats or delete all of your data |
+| `/247 on [radio] \| off` | 24/7 mode |
+| `/contribute submit \| pending \| stats` | Submit your music file for the bot owner to review (off by default) |
+| `/request add \| list \| vote \| mine \| remove \| done \| dismiss` | Suggest tracks that are missing, vote, and get notified when they arrive |
+| `/vibe mood` | Mood radio: chill, steady, upbeat, hype (needs `ANALYSIS=on`) |
+| `/similar [count]` | Queue tracks similar to the current one (needs `ANALYSIS=on`) |
+| `/library status \| run \| stop \| review \| forget` | (Bot owner) Auto-tagging and audio analysis |
+| `/settings view \| dj-role \| volume \| fair-queue \| vc-status \| contributions` | Administration (needs the Manage Server permission) |
+| `/help`, `/stats` | Command guide, bot status |
 
-## Chuẩn bị
+## Setup
 
-1. Vào https://discord.com/developers/applications, tạo application và thêm Bot.
-2. Lấy **Token** (tab Bot) và **Application ID**. Bot chỉ dùng slash commands, nút bấm và voice nên không cần privileged intents.
-3. Mời bot bằng link (thay `CLIENT_ID`), quyền gồm View Channel, Send Messages, Embed Links, Attach Files, Connect, Speak, Set Voice Channel Status:
+1. Go to https://discord.com/developers/applications, create an application and add a Bot.
+2. Copy the **Token** (Bot tab) and the **Application ID**. The bot only uses slash commands, buttons and voice, so it needs no privileged intents.
+3. Invite the bot with this link (replace `CLIENT_ID`). The permissions are View Channel, Send Messages, Embed Links, Attach Files, Connect, Speak and Set Voice Channel Status:
    `https://discord.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot%20applications.commands&permissions=281474979908608`
-4. Tạo app Spotify tại https://developer.spotify.com/dashboard để lấy Client ID/Secret (chỉ cần nếu muốn dùng link Spotify).
-5. `cp .env.example .env` rồi điền các giá trị.
+4. Create a Spotify app at https://developer.spotify.com/dashboard to get a Client ID and Secret (only needed if you want Spotify links).
+5. Run `cp .env.example .env` and fill in the values.
 
-## Thư viện nhạc
+## Music library
 
-Bỏ file nhạc (`.mp3`, `.flac`, `.wav`, `.ogg`, `.opus`, `.m4a`, `.aac`, `.webm`) vào thư mục `music/`. Không cần restart, bot tự quét lại.
+Drop music files (`.mp3`, `.flac`, `.wav`, `.ogg`, `.opus`, `.m4a`, `.aac`, `.webm`) into the `music/` folder. No restart is needed; the bot rescans on its own.
 
-- Nên có thẻ tên bài (ID3/Vorbis). File thiếu thẻ vẫn dùng được: tên bài lấy từ tên file, dạng `Nghệ sĩ - Tên bài` sẽ tách được nghệ sĩ.
-- Sắp xếp thư mục như `music/Nghệ sĩ/Album/01 - Tên bài.mp3` để `/album` và `/artist` hoạt động tốt kể cả khi không có thẻ.
-- Ảnh bìa lấy từ ảnh nhúng trong file hoặc từ `cover.jpg` / `folder.jpg` trong thư mục.
-- Lời bài hát: đặt `Tên bài.lrc` cạnh `Tên bài.mp3` (LRC có mốc thời gian để hiện karaoke).
-- Bạn chịu trách nhiệm về bản quyền của file nhạc đặt vào đây.
+- Tags (ID3/Vorbis) are recommended. Files without tags still work: the title comes from the file name, and a name like `Artist - Title` is split into artist and title.
+- Organize folders like `music/Artist/Album/01 - Title.mp3` so `/album` and `/artist` work well even without tags.
+- Cover art comes from the image embedded in the file or from `cover.jpg` / `folder.jpg` in the folder.
+- Lyrics: put `Title.lrc` next to `Title.mp3` (a timestamped LRC file enables karaoke mode).
+- You are responsible for the copyright of any music files you put here.
 
-## Đóng góp nhạc từ thành viên
+## Member contributions
 
-Thư viện `music/` dùng chung cho mọi server mà bot tham gia, nên **chủ bot** là người duyệt, không phải quản trị từng server.
+The `music/` library is shared by every server the bot is in, so the **bot owner** reviews submissions, not individual server admins.
 
-- **Bật:** đặt `CONTRIBUTIONS=on` trong `.env`, khởi động lại bot, rồi quản trị server dùng `/settings contributions enabled:true`. Tính năng tắt mặc định.
-- **Gửi:** thành viên dùng `/contribute submit`, đính kèm file của họ và chọn `confirm: True` để xác nhận mình sở hữu hoặc được phép chia sẻ. Bot kiểm tra file là âm thanh thật (tối đa `CONTRIB_MAX_MB` MB, 10 giây đến 20 phút), chặn trùng nội dung, giới hạn 3 file chờ và 5 file mỗi ngày cho mỗi người.
-- **Duyệt:** chủ bot nhận tin nhắn riêng có nút Duyệt / Từ chối (hoặc dùng `/contribute pending`). File được duyệt chuyển vào `music/Đóng góp/` và xuất hiện ở `/local`. File chờ quá 14 ngày tự bị xoá. Chủ bot lấy từ ứng dụng Discord của bot, hoặc đặt `OWNER_IDS`.
-- **Đề xuất:** `/request add` nhận tên bài hoặc link YouTube, Spotify, SoundCloud. Bot chỉ ghi lại để bỏ phiếu, **không mở hay tải** link đó. Khi một file khớp xuất hiện trong thư viện (từ đóng góp được duyệt hoặc do bạn tự bỏ vào `music/`), mọi người đã đề xuất và bỏ phiếu được báo qua tin nhắn riêng.
-- Container `bot` được ghi vào `music/` (Lavalink vẫn chỉ đọc); đường dẫn ghi luôn bị ép nằm trong `music/Đóng góp/`.
+- **Enable:** set `CONTRIBUTIONS=on` in `.env`, restart the bot, then have a server admin run `/settings contributions enabled:true`. The feature is off by default.
+- **Submit:** members use `/contribute submit`, attach their file and set `confirm: True` to confirm they own it or are allowed to share it. The bot checks that the file is real audio (up to `CONTRIB_MAX_MB` MB, 10 seconds to 20 minutes), rejects duplicates, and limits each person to 3 pending files and 5 files per day.
+- **Review:** the bot owner gets a direct message with Approve / Reject buttons (or uses `/contribute pending`). Approved files move into `music/Contributions/` and show up in `/local`. Files pending for more than 14 days are deleted automatically. The owner is taken from the bot's Discord application, or set `OWNER_IDS`.
+- **Requests:** `/request add` takes a track name or a YouTube, Spotify or SoundCloud link. The bot only records it for voting and **never opens or downloads** the link. When a matching file appears in the library (from an approved contribution or because you dropped it into `music/` yourself), everyone who requested or voted for it is notified by direct message.
+- The `bot` container may write to `music/` (Lavalink stays read-only); the write path is always forced to stay inside `music/Contributions/`.
 
-## Gắn thẻ và phân tích tự động
+## Auto-tagging and analysis
 
-Cả hai tắt mặc định, chạy nền, tuần tự và dừng lại khi máy bận (hợp với Raspberry Pi), và **không bao giờ sửa file trong `music/`**: kết quả nằm ở `data/shared/tags.json`, `features.json` và `covers/`.
+Both are off by default, run in the background one track at a time and pause when the machine is busy (suitable for a Raspberry Pi). They **never modify files in `music/`**: results go to `data/shared/tags.json`, `features.json` and `covers/`.
 
-- **Gắn thẻ:** `AUTOTAG=on` và `ACOUSTID_KEY` (khoá miễn phí tại https://acoustid.org/new-application). Với mỗi bài thiếu thẻ, bot tạo dấu vân bằng `fpcalc`, hỏi AcoustID, nếu không ra thì tìm MusicBrainz theo tên file. Độ tin cậy từ 85% trở lên tự áp dụng, thấp hơn thì thành gợi ý để chủ bot duyệt bằng `/library review`. Chỉ dấu vân và thời lượng (không phải file nhạc) và tên file được gửi ra ngoài; xem trang Quyền riêng tư.
-- **Phân tích:** `ANALYSIS=on`. Dùng ffmpeg giải mã 40 giây giữa mỗi bài, tính nhịp độ (BPM, chỉ là ước lượng), năng lượng và độ sáng, rồi xếp tâm trạng. Khoảng 0,2 giây mỗi bài trên PC; lần đầu với thư viện lớn trên Pi có thể mất vài chục phút.
-- `/library status` cho thấy tiến độ. Đổi `LIBRARY_WORKER=off` ở bot phụ để chỉ một bot làm việc nền.
+- **Tagging:** set `AUTOTAG=on` and `ACOUSTID_KEY` (a free key from https://acoustid.org/new-application). For each untagged track, the bot builds a fingerprint with `fpcalc` and asks AcoustID; if that finds nothing, it searches MusicBrainz by file name. A confidence of 85% or higher is applied automatically; anything lower becomes a suggestion for the bot owner to review with `/library review`. Only the fingerprint, the duration (not the music file) and the file name are sent out; see the Privacy page.
+- **Analysis:** set `ANALYSIS=on`. ffmpeg decodes the middle 40 seconds of each track, then the bot computes tempo (BPM, only an estimate), energy and brightness and assigns a mood. It takes about 0.2 seconds per track on a PC; the first run on a large library on a Pi can take tens of minutes.
+- `/library status` shows progress. Set `LIBRARY_WORKER=off` on secondary bots so only one bot does the background work.
 
-## Chạy bằng Docker (VPS)
+## Running with Docker (VPS)
 
 ```bash
 docker compose up -d --build
-docker compose run --rm bot node src/deploy-commands.js   # đăng ký slash commands (chạy 1 lần, và mỗi khi đổi lệnh)
+docker compose run --rm bot node src/deploy-commands.js   # register slash commands (run once, and again whenever commands change)
 docker compose logs -f
 ```
 
-Lần chạy đầu Lavalink tải plugin về `lavalink/plugins/`, mất khoảng một phút. Bot tự thử kết nối lại tới Lavalink trong lúc chờ.
+On the first run Lavalink downloads its plugins into `lavalink/plugins/`, which takes about a minute. The bot keeps retrying the Lavalink connection while it waits.
 
-## Chạy cục bộ (không Docker cho bot)
+## Running locally (bot without Docker)
 
-Chạy riêng Lavalink bằng compose (`docker compose up -d lavalink`, cần thêm `ports: ["2333:2333"]` cho service này), đặt `LAVALINK_HOST=localhost`, `MUSIC_DIR` và `DATA_DIR` trỏ tới thư mục thật trong `.env`, rồi:
+Run Lavalink on its own through compose (`docker compose up -d lavalink`; this service needs `ports: ["2333:2333"]` added), set `LAVALINK_HOST=localhost` in `.env`, point `MUSIC_DIR` and `DATA_DIR` at real folders, then:
 
 ```bash
 npm install
@@ -104,87 +108,87 @@ npm run deploy-commands
 npm start
 ```
 
-Cần Node.js 22 trở lên (dùng `node:sqlite` có sẵn, không cần thêm database).
+Requires Node.js 22 or newer (it uses the built-in `node:sqlite`, so no extra database is needed).
 
-## Vận hành
+## Operations
 
-- **Dữ liệu:** thư mục `data/` (mount ra ngoài container) chứa cài đặt từng server, hàng chờ đã lưu, cơ sở dữ liệu thống kê (`musidiscord.db`), bộ nhớ đệm thư viện và `shared/` (thẻ, đặc trưng âm thanh, bìa). Dùng `scripts/backup.sh` để sao lưu nhất quán (không chép tay file `.db` khi bot đang chạy).
-- **Giảm ghi đĩa (Raspberry Pi):** nhịp tim ghi vào RAM, Lavalink chỉ ghi log cảnh báo, log Docker được giới hạn dung lượng. Đặt `AUTOSAVE_SECONDS=0` trong `.env` để tắt việc lưu hàng chờ định kỳ (bot vẫn lưu khi bắt đầu mỗi bài mới và khi tắt). Nên dùng SSD/USB thay cho thẻ SD.
-- **Khôi phục hàng chờ:** trạng thái phát được lưu mỗi 15 giây và khi tắt bot; sau khi khởi động lại bot tự vào lại kênh và phát tiếp nếu còn người nghe.
-- **24/7:** `/247 on` giữ bot ở lại kênh; thêm `radio` để phát thư viện mãi mãi, kể cả sau khi khởi động lại.
-- **Kiểm tra sức khoẻ:** container bot có healthcheck (`docker compose ps` hiện `healthy`/`unhealthy`). Nếu điền `ALERT_WEBHOOK_URL` (webhook của một kênh Discord riêng), bạn nhận cảnh báo khi Lavalink mất kết nối.
-- **Múi giờ:** đặt `TIMEZONE` (mặc định `Asia/Ho_Chi_Minh`) cho thống kê giờ nghe và chuỗi ngày.
-- **Lời bài hát online:** khi file không có lời, bot gửi tên bài, nghệ sĩ và độ dài tới dịch vụ công khai LRCLIB. Đặt `LYRICS_LOOKUP=off` để tắt.
-- **Quyền riêng tư:** người dùng tự tắt thống kê bằng `/privacy stats` và xoá dữ liệu bằng `/privacy delete`. Bot không đọc nội dung tin nhắn.
+- **Data:** the `data/` folder (mounted outside the container) holds per-server settings, the saved queue, the stats database (`musidiscord.db`), the library cache and `shared/` (tags, audio features, covers). Use `scripts/backup.sh` for a consistent backup (do not copy the `.db` file by hand while the bot is running).
+- **Fewer disk writes (Raspberry Pi):** the heartbeat is written to RAM, Lavalink only logs warnings, and Docker logs are size-limited. Set `AUTOSAVE_SECONDS=0` in `.env` to turn off periodic queue saving (the bot still saves when each new track starts and on shutdown). Prefer an SSD/USB drive over an SD card.
+- **Queue recovery:** the playback state is saved every 15 seconds and on shutdown; after a restart the bot rejoins the channel and resumes playing if anyone is still listening.
+- **24/7:** `/247 on` keeps the bot in the channel; add `radio` to play the library forever, even after a restart.
+- **Health checks:** the bot container has a healthcheck (`docker compose ps` shows `healthy`/`unhealthy`). If you set `ALERT_WEBHOOK_URL` (a webhook for a dedicated Discord channel), you get an alert when Lavalink disconnects.
+- **Time zone:** set `TIMEZONE` (default `Asia/Ho_Chi_Minh`) for listening-hour stats and day streaks.
+- **Online lyrics:** when a file has no lyrics, the bot sends the title, artist and length to the public LRCLIB service. Set `LYRICS_LOOKUP=off` to disable this.
+- **Privacy:** users can turn off their stats with `/privacy stats` and delete their data with `/privacy delete`. The bot does not read message content.
 
-## Chạy trên Raspberry Pi
+## Running on a Raspberry Pi
 
-Lavalink và bot đều có bản arm64. Nên dùng SSD qua USB thay vì thẻ SD, có quạt tản nhiệt, và đặt `AUTOSAVE_SECONDS=0`.
+Both Lavalink and the bot have arm64 builds. Use an SSD over USB instead of an SD card, keep the Pi cooled with a fan, and set `AUTOSAVE_SECONDS=0`.
 
-**Cài đặt (Kali hoặc Debian/Raspberry Pi OS):**
+**Install (Kali or Debian/Raspberry Pi OS):**
 ```bash
 sudo apt update && sudo apt install -y docker.io git
-docker compose version             # nếu chưa có Compose v2, cài gói docker-compose-v2 hoặc docker-compose-plugin tuỳ bản
-sudo usermod -aG docker $USER      # đăng xuất rồi đăng nhập lại
+docker compose version             # if Compose v2 is missing, install docker-compose-v2 or docker-compose-plugin depending on your release
+sudo usermod -aG docker $USER      # log out and back in
 git clone https://github.com/nhaajtt/musiDISCORD.git && cd musiDISCORD
-cp .env.example .env               # điền token, ID, mật khẩu Lavalink
+cp .env.example .env               # fill in the token, IDs and Lavalink password
 docker compose up -d --build
 docker compose run --rm bot node src/deploy-commands.js
 ```
-Trên Kali nhớ đổi mật khẩu mặc định (`passwd`), bật SSH (`sudo systemctl enable --now ssh`); nếu Docker lỗi mạng, thử `sudo update-alternatives --set iptables /usr/sbin/iptables-legacy`.
+On Kali, remember to change the default password (`passwd`) and enable SSH (`sudo systemctl enable --now ssh`); if Docker has network errors, try `sudo update-alternatives --set iptables /usr/sbin/iptables-legacy`.
 
-**Truy cập từ xa an toàn:** cài Tailscale, bật dịch vụ tự chạy khi khởi động (mặc định trên Kali nó ở trạng thái `disabled`, nên sau khi khởi động lại sẽ mất nếu quên bước này), rồi đăng nhập:
+**Safe remote access:** install Tailscale, enable the service at boot (on Kali it is `disabled` by default, so it is gone after a reboot if you forget this step), then sign in:
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo systemctl enable --now tailscaled
 sudo tailscale up
-sudo tailscale set --operator=$USER                              # để chạy `tailscale serve` không cần sudo
-tailscale serve --bg --https=443  http://127.0.0.1:8787          # trang trạng thái
+sudo tailscale set --operator=$USER                              # so `tailscale serve` runs without sudo
+tailscale serve --bg --https=443  http://127.0.0.1:8787          # status page
 tailscale serve --bg --https=8443 http://127.0.0.1:3001          # Uptime Kuma
 ```
-Lần đầu `serve` sẽ yêu cầu bật tính năng trong trang quản trị Tailscale. Địa chỉ HTTPS tạo ra chỉ các thiết bị trong tài khoản Tailscale của bạn mới vào được.
+The first time, `serve` asks you to enable the feature in the Tailscale admin console. The resulting HTTPS address is reachable only from devices on your own Tailscale account.
 
-### Nhiều bot cùng lúc
+### Multiple bots at once
 
-Mỗi bot một ứng dụng và token riêng (Discord Developer Portal), chung Lavalink và thư mục nhạc. Dữ liệu thống kê, cài đặt, hàng chờ tách riêng từng bot; thẻ, đặc trưng âm thanh, bìa dùng chung và chỉ bot chính ghi.
+Each bot gets its own application and token (Discord Developer Portal), but they share Lavalink and the music folder. Stats, settings and queues are kept separately per bot; tags, audio features and covers are shared and only the main bot writes them.
 
 ```bash
-cp .env.bot2.example .env.bot2     # điền DISCORD_TOKEN, CLIENT_ID riêng; BOT_NAME tuỳ ý
+cp .env.bot2.example .env.bot2     # fill in its own DISCORD_TOKEN and CLIENT_ID; BOT_NAME is up to you
 docker compose --profile multi up -d --build
 docker compose run --rm bot2 node src/deploy-commands.js
 ```
-`bot3` làm tương tự với `.env.bot3`. Mặc định chỉ chạy một bot; mỗi bot thêm tốn RAM và CPU của Pi.
+`bot3` works the same way with `.env.bot3`. Only one bot runs by default; each extra bot costs the Pi more RAM and CPU.
 
-### Màn hình trạng thái và TFT 3.5 inch
+### Status display and 3.5-inch TFT
 
-Đặt `DISPLAY_PORT=8787` và `DISPLAY_TOKEN=<chuỗi ngẫu nhiên dài>` trong `.env`, khởi động lại. Docker chỉ mở cổng này trên chính máy chạy bot:
+Set `DISPLAY_PORT=8787` and `DISPLAY_TOKEN=<a long random string>` in `.env`, then restart. Docker exposes this port only on the machine running the bot:
 
-- `http://127.0.0.1:8787/display?token=...` là trang 480×320 hiện bài đang phát, có nút ⏯ ⏭ và âm lượng; mở được trên điện thoại hay máy tính bảng (qua Tailscale).
-- API: `GET /api/np`, `GET /api/cover`, `POST /api/control` (`toggle`, `skip`, `volume`, `seek`, `loop`; luôn cần token). Không có ID Discord hay tên người yêu cầu, và ẩn hoàn toàn khi đang đố nhạc. Không đặt token thì chỉ xem được, không điều khiển được.
-- **Màn TFT 3.5 inch (SPI)**, đã chạy thật trên Pi 5 + Kali với thẻ ILI9486 cảm ứng điện trở (Keyestudio KS0214, họ Waveshare 3.5 (A)). Overlay `tft35a` của hãng dùng driver fbtft cũ và **không hiện hình trên Pi 5**; dùng overlay chính thức với driver DRM, và hạ tốc độ SPI (ở 24 MHz màn chỉ đen):
+- `http://127.0.0.1:8787/display?token=...` is a 480×320 page showing the current track, with ⏯ ⏭ and volume buttons; it also works on a phone or tablet (over Tailscale).
+- API: `GET /api/np`, `GET /api/cover`, `POST /api/control` (`toggle`, `skip`, `volume`, `seek`, `loop`; always needs the token). It contains no Discord IDs or requester names, and it is fully hidden during a music quiz. Without a token the page is view-only and cannot control playback.
+- **3.5-inch TFT screen (SPI)**, tested on a Pi 5 + Kali with an ILI9486 resistive-touch board (Keyestudio KS0214, from the Waveshare 3.5 (A) family). The vendor's `tft35a` overlay uses the old fbtft driver and **shows nothing on a Pi 5**; use the official overlay with the DRM driver and lower the SPI speed (at 24 MHz the screen stays black):
 ```
 # /boot/firmware/config.txt
 dtparam=spi=on
 dtoverlay=piscreen,drm,rotate=90,speed=8000000
 ```
-  Sau khi khởi động lại có `/dev/fb1` (320×480, 32 bit); chương trình tự xoay hình 90 độ. Cảm ứng là loại điện trở nên dùng **bút**. Màn chỉ vẽ lại mỗi giây một lần (và ngay khi chạm) vì bus SPI 8 MHz chỉ chịu được khoảng 1 MB mỗi giây. Chạm vào cột nút ở đáy màn (lặp, giảm âm lượng, tạm dừng, tăng âm lượng, bỏ qua) hoặc vào thanh tiến trình để tua.
+  After a reboot you get `/dev/fb1` (320×480, 32-bit); the program rotates the picture 90 degrees on its own. The touch layer is resistive, so use a **stylus**. The screen redraws only once per second (and immediately on a touch) because an 8 MHz SPI bus can only carry about 1 MB per second. Tap the button column at the bottom of the screen (repeat, volume down, pause, volume up, skip), or the progress bar to seek.
 ```bash
 sudo apt install -y python3-pil python3-evdev python3-numpy
 python3 -m venv --system-site-packages pi/.venv && pi/.venv/bin/pip install evdev
-cp pi/display.env.example pi/display.env     # điền DISPLAY_TOKEN; chỉnh TOUCH_* nếu cảm ứng lệch (TOUCH_DEBUG=1 để xem toạ độ thô)
-# tự chạy khi khởi động (thêm vào crontab hiện có, không ghi đè):
+cp pi/display.env.example pi/display.env     # fill in DISPLAY_TOKEN; adjust TOUCH_* if the touch is off (TOUCH_DEBUG=1 prints raw coordinates)
+# start on boot (appended to your existing crontab, not overwriting it):
 (crontab -l 2>/dev/null; echo "@reboot sleep 40 && cd $PWD && setsid sh pi/run-display.sh >> /tmp/display.log 2>&1") | crontab -
 ```
-  Muốn có ảnh đại diện trên màn, đặt file ảnh tại `pi/avatar.jpg` (đã nằm trong `.gitignore`, sẽ không bị đưa lên repo công khai) và chỉnh `AVATAR_CROP` trong `pi/display.env`.
+  To show an avatar on the screen, put an image at `pi/avatar.jpg` (it is already in `.gitignore`, so it will not be pushed to the public repo) and adjust `AVATAR_CROP` in `pi/display.env`.
 
-### Sao lưu, tự cập nhật, giám sát
+### Backup, auto-update, monitoring
 
 ```bash
-sh scripts/backup.sh      # data/backups/musidiscord-*.tar.gz, giữ BACKUP_KEEP bản (mặc định 14)
-sh scripts/update.sh      # git pull (chỉ fast-forward), dựng lại, chờ healthy, hỏng thì quay về bản cũ
+sh scripts/backup.sh      # data/backups/musidiscord-*.tar.gz, keeps BACKUP_KEEP copies (default 14)
+sh scripts/update.sh      # git pull (fast-forward only), rebuild, wait for healthy, roll back to the old version on failure
 docker compose --profile ops up -d uptime-kuma   # http://localhost:3001
 ```
-Đặt `BACKUP_RCLONE_REMOTE=gdrive:musidiscord` trong `.env` (và cài, cấu hình rclone) để đẩy bản sao lưu lên cloud. Chạy định kỳ bằng systemd timer:
+Set `BACKUP_RCLONE_REMOTE=gdrive:musidiscord` in `.env` (and install and configure rclone) to push backups to the cloud. Run them on a schedule with systemd timers:
 ```bash
 for u in backup update; do
   for ext in service timer; do
@@ -193,22 +197,22 @@ for u in backup update; do
   sudo systemctl enable --now musidiscord-$u.timer
 done
 ```
-**Khôi phục:** dừng bot (`docker compose stop bot`), giải nén bản sao lưu vào `data/` (`tar -xzf data/backups/<file> -C data`), rồi `docker compose start bot`.
+**Restore:** stop the bot (`docker compose stop bot`), extract the backup into `data/` (`tar -xzf data/backups/<file> -C data`), then `docker compose start bot`.
 
-## Kiểm thử
+## Testing
 
 ```bash
 npm test
 ```
 
-## Lưu ý về YouTube
+## A note on YouTube
 
-YouTube thường chặn IP của VPS và thay đổi cách phát liên tục, nên không nên phụ thuộc vào nó. Nguồn phát ổn định nhất là thư viện nhạc riêng và SoundCloud. Nếu vẫn muốn dùng YouTube, cấu hình `oauth` trong `lavalink/application.yml` (phần `plugins.youtube`, refresh token đặt ở `YOUTUBE_REFRESH_TOKEN` trong `.env`) bằng một tài khoản Google phụ, hoặc `pot` (`token` và `visitorData`). Xem hướng dẫn mới nhất tại https://github.com/lavalink-devs/youtube-source và luôn dùng bản mới nhất của `youtube-plugin`.
+YouTube often blocks VPS IP addresses and keeps changing how playback works, so do not depend on it. The most reliable sources are your own music library and SoundCloud. If you still want YouTube, configure `oauth` in `lavalink/application.yml` (under `plugins.youtube`, with the refresh token in `YOUTUBE_REFRESH_TOKEN` in `.env`) using a secondary Google account, or use `pot` (`token` and `visitorData`). See the latest guide at https://github.com/lavalink-devs/youtube-source and always use the latest `youtube-plugin`.
 
-## Trang web
+## Website
 
-Thư mục `web/` là trang giới thiệu tĩnh (không cần build) kèm trang quyền riêng tư và điều khoản. Xem thử bằng `python -m http.server` trong thư mục `web/`.
+The `web/` folder is a static landing site (no build step) with privacy and terms pages. Preview it with `python -m http.server` inside `web/`.
 
-## Tác giả
+## Author
 
-Làm bởi nhaajt: [GitHub](https://github.com/nhaajtt) • [Instagram](https://www.instagram.com/nhaajt_hehee/). Góp ý hoặc báo lỗi bằng cách mở issue tại repo này.
+Made by nhaajt: [GitHub](https://github.com/nhaajtt) • [Instagram](https://www.instagram.com/nhaajt_hehee/). For feedback or bug reports, open an issue in this repo.

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Màn hình TFT 3.5 inch cảm ứng cho musiDISCORD: đọc /api/np, vẽ lên framebuffer, chạm (bút) để điều khiển.
+"""3.5-inch touch TFT display for musiDISCORD: reads /api/np, draws to the framebuffer, touch (stylus) to control.
 
-Thiết kế: tấm áp phích chữ. Tên bài là hình ảnh chính, cỡ chữ tự co cho vừa khung, trên nền gần đen nhuốm màu của bài.
-Một màu duy nhất (suy từ bài) cho tên nghệ sĩ, thanh tiến trình và vạch mép trái. Gần như không có chuyển động,
-vì bus SPI của màn chỉ gửi được vài khung đầy đủ mỗi giây.
+Design: a typographic poster. The track title is the main visual, auto-sized to fit its box, on a near-black
+background tinted with the track's color. A single color (derived from the track) is used for the artist name,
+the progress bar and the left edge stripe. There is almost no motion, because the display's SPI bus can only
+send a few full frames per second.
 
-Chạy trên Raspberry Pi (ngoài container). Cần: python3-pil, python3-evdev, tuỳ chọn python3-numpy.
-Biến môi trường (xem pi/display.env.example): DISPLAY_URL, DISPLAY_TOKEN, FB_DEVICE, FB_ROTATE, TOUCH_DEVICE,
+Runs on the Raspberry Pi (outside the container). Needs: python3-pil, python3-evdev, optionally python3-numpy.
+Environment variables (see pi/display.env.example): DISPLAY_URL, DISPLAY_TOKEN, FB_DEVICE, FB_ROTATE, TOUCH_DEVICE,
 TOUCH_SWAP, TOUCH_INVERT_X, TOUCH_INVERT_Y, TOUCH_X_MIN/X_MAX/Y_MIN/Y_MAX, TOUCH_DEBUG.
 """
 import json
@@ -22,14 +23,14 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 try:
     import numpy as numpy_mod
-except ImportError:  # chậm hơn nhưng vẫn chạy được
+except ImportError:  # slower, but still works
     numpy_mod = None
 
 URL = os.environ.get("DISPLAY_URL", "http://127.0.0.1:8787").rstrip("/")
 TOKEN = os.environ.get("DISPLAY_TOKEN", "")
 ROTATE = os.environ.get("FB_ROTATE", "auto")  # auto | 0 | 90 | 180 | 270
 POLL = 1.5
-W, H = 480, 320  # luôn vẽ ở dạng ngang
+W, H = 480, 320  # always drawn in landscape
 
 TOUCH_DEV = os.environ.get("TOUCH_DEVICE", "")
 SWAP = os.environ.get("TOUCH_SWAP", "0") == "1"
@@ -38,7 +39,7 @@ INV_Y = os.environ.get("TOUCH_INVERT_Y", "0") == "1"
 
 
 def find_fb():
-    """FB_DEVICE nếu đặt; không thì tìm màn SPI (ili9486, ili9341...), cuối cùng mặc định /dev/fb1."""
+    """FB_DEVICE if set; otherwise look for an SPI display (ili9486, ili9341...), finally default to /dev/fb1."""
     if os.environ.get("FB_DEVICE"):
         return os.environ["FB_DEVICE"]
     try:
@@ -55,9 +56,9 @@ def find_fb():
 
 FB = find_fb()
 
-# ---------------------------------------------------------------- phông chữ
+# ---------------------------------------------------------------- fonts
 ASSET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "fonts")
-FONT_FILES = {  # tên -> (file, độ đậm cho phông biến thiên hoặc None)
+FONT_FILES = {  # name -> (file, weight for variable fonts or None)
     "display": ("BarlowCondensed-Bold.ttf", None),
     "semi": ("BarlowCondensed-SemiBold.ttf", None),
     "mono": ("IBMPlexMono-Regular.ttf", None),
@@ -78,7 +79,7 @@ def face(name, size):
                 try:
                     f.set_variation_by_axes([weight])
                 except (OSError, AttributeError):
-                    pass  # phông không có trục độ đậm: dùng mặc định
+                    pass  # font has no weight axis: use the default
             _faces[key] = f
         except OSError:
             path = next((p for p in FALLBACK if os.path.exists(p)), None)
@@ -99,7 +100,7 @@ def fb_info():
 
 
 def rgb565(img):
-    """Ảnh PIL -> RGB565 little-endian (PIL không có bộ mã hoá 565 nên tự đổi)."""
+    """PIL image -> little-endian RGB565 (PIL has no 565 encoder, so convert by hand)."""
     if numpy_mod is not None:
         a = numpy_mod.asarray(img.convert("RGB"), dtype=numpy_mod.uint16)
         return (((a[..., 0] & 0xF8) << 8) | ((a[..., 1] & 0xFC) << 3) | (a[..., 2] >> 3)).astype("<u2").tobytes()
@@ -124,7 +125,7 @@ def to_fb_bytes(img, bpp, stride):
     return bytes(out)
 
 
-# ---------------------------------------------------------------- dữ liệu từ bot
+# ---------------------------------------------------------------- data from the bot
 def req(path, data=None):
     headers = {"x-token": TOKEN} if TOKEN else {}
     if data is not None:
@@ -139,7 +140,7 @@ class State:
         self.np = {}
         self.at = time.time()
         self.lock = threading.Lock()
-        self.wake = threading.Event()  # đặt khi cần vẽ lại ngay (sau khi chạm)
+        self.wake = threading.Event()  # set when an immediate redraw is needed (after a touch)
 
     def poll(self):
         try:
@@ -152,22 +153,23 @@ class State:
             self.np, self.at = np, time.time()
 
 
-# ---------------------------------------------------------------- vẽ
+# ---------------------------------------------------------------- drawing
 INK = (255, 246, 236)
 MARGIN = 28
 RIGHT = W - 20
-AVATAR_W = int(os.environ.get("AVATAR_W", "228"))  # ảnh bìa: tràn sát mép trên và mép phải màn, gần nửa màn
+AVATAR_W = int(os.environ.get("AVATAR_W", "228"))  # cover art: flush with the top and right edges, nearly half the screen
 AVATAR_H = int(os.environ.get("AVATAR_H", "226"))
-AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "0"))  # 0 = góc vuông (kiểu bìa tạp chí)
-AVATAR_POS = (W - AVATAR_W, 0)  # sát mép trên và mép phải
-NEXT_Y = 190  # dòng "Tiếp theo" ở đáy cột chữ
-TEXT_TOP, TEXT_BOTTOM = 70, 228  # vùng chữ (giữa đầu trang kiểu tạp chí và thanh tiến trình)
+AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "0"))  # 0 = square corners (magazine-cover look)
+AVATAR_POS = (W - AVATAR_W, 0)  # flush with the top and right edges
+NEXT_Y = 190  # "Up next" line at the bottom of the text column
+TEXT_TOP, TEXT_BOTTOM = 70, 228  # text area (between the magazine masthead and the progress bar)
 BAR_Y = 236
 BTN_Y = 282
-BTN_TOP = 258  # từ đây trở xuống là vùng nút
+BTN_TOP = 258  # everything from here down is the button area
 BUTTONS = ["loop", "vol-", "toggle", "vol+", "skip"]
 BTN_X = [W * (i + 0.5) / 5 for i in range(5)]
-WEEKDAYS = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ nhật"]
+WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 
 def mix(a, b, t):
@@ -182,7 +184,7 @@ def hex_rgb(s, default=(122, 69, 211)):
 
 
 def palette(np):
-    """Nền gần đen nhuốm màu bài, và một màu nhấn sáng cùng sắc độ."""
+    """Near-black background tinted with the track color, plus a bright accent of the same hue."""
     import colorsys
 
     hue = colorsys.rgb_to_hls(*(c / 255 for c in hex_rgb(np.get("accent", "#7a45d3"))))[0]
@@ -203,7 +205,7 @@ def ellipsize(d, text, f, max_w):
 
 
 def wrap(d, text, f, width):
-    """Ngắt dòng theo từ; từ nào dài hơn khung thì cắt theo ký tự."""
+    """Wrap by word; a word longer than the box is split by character."""
     lines, cur = [], ""
     for word in text.split():
         trial = (cur + " " + word).strip()
@@ -228,7 +230,7 @@ _fit_cache = {}
 
 
 def fit_title(d, text, avail_w, avail_h):
-    """Cỡ chữ lớn nhất để cả tên bài nằm gọn trong khung: tên ngắn thì rất to, tên dài thì nhỏ dần."""
+    """Largest font size that fits the whole title in the box: short titles are huge, long ones shrink."""
     key = (text, avail_w, avail_h)
     if key in _fit_cache:
         return _fit_cache[key]
@@ -236,11 +238,11 @@ def fit_title(d, text, avail_w, avail_h):
     for size in range(120, 27, -2):
         f = face("display", size)
         lines = wrap(d, text, f, avail_w)
-        lh = int(size * 0.98)  # đủ chỗ cho dấu tiếng Việt chồng lên dòng trên
+        lh = int(size * 0.98)  # leave room for stacked diacritics (e.g. Vietnamese) above the line
         if len(lines) * lh <= avail_h:
             result = (size, lines, lh)
             break
-    if result is None:  # quá dài: cỡ nhỏ nhất, cắt bớt
+    if result is None:  # too long: smallest size, truncate
         size = 28
         f = face("display", size)
         lh = int(size * 0.98)
@@ -254,7 +256,7 @@ def fit_title(d, text, avail_w, avail_h):
 
 
 def icon(d, name, cx, cy, ink, accent, np):
-    """Biểu tượng nét mảnh, không nền."""
+    """Thin-stroke icons, no background."""
     lw = 2
     if name == "toggle":
         d.ellipse((cx - 21, cy - 21, cx + 21, cy + 21), outline=accent, width=2)
@@ -284,8 +286,8 @@ _avatar = {"img": None, "loaded": False}
 
 
 def load_avatar():
-    """Ảnh đại diện (khung chữ nhật bo góc) từ AVATAR_PATH (mặc định pi/avatar.jpg). Không có ảnh thì bỏ qua.
-    AVATAR_CROP="x0,y0,x1,y1" chọn vùng cắt trên ảnh gốc; không đặt thì lấy phần trên, chính giữa (hợp ảnh chân dung)."""
+    """Avatar image (rounded rectangle) from AVATAR_PATH (default pi/avatar.jpg). Skipped if there is no image.
+    AVATAR_CROP="x0,y0,x1,y1" picks the crop region of the source image; if unset, the top-center part is used (suits portraits)."""
     if _avatar["loaded"]:
         return _avatar["img"]
     _avatar["loaded"] = True
@@ -300,20 +302,20 @@ def load_avatar():
             region = src.crop(box)
         else:
             region = src.crop((0, int(sh * 0.02), sw, sh))
-        # lấp đầy khung đúng tỉ lệ, giữ phần trên (đầu người) khi phải cắt bớt
+        # fill the box at the right aspect ratio, keeping the top part (the head) when cropping
         out = ImageOps.fit(region, (AVATAR_W, AVATAR_H), Image.LANCZOS, centering=(0.5, 0.25))
-        k = 4  # vẽ mặt nạ lớn rồi thu nhỏ để góc bo mịn
+        k = 4  # draw the mask large, then shrink it for smooth rounded corners
         mask = Image.new("L", (AVATAR_W * k, AVATAR_H * k), 0)
         ImageDraw.Draw(mask).rounded_rectangle((0, 0, AVATAR_W * k - 1, AVATAR_H * k - 1), radius=AVATAR_RADIUS * k, fill=255)
         _avatar["img"] = (out, mask.resize((AVATAR_W, AVATAR_H), Image.LANCZOS))
     except Exception as e:
-        print("Không đọc được ảnh đại diện:", e, file=sys.stderr)
+        print("Could not read the avatar image:", e, file=sys.stderr)
     return _avatar["img"]
 
 
 def draw_avatar(img, d, bg, seed="musiDISCORD"):
-    """Ảnh bìa tràn sát mép trên và mép phải màn, góc vuông, không khung. Mã vạch nhỏ ở góc dưới phải.
-    Trả về mép phải của cột chữ (không có ảnh thì chiếm hết bề ngang)."""
+    """Cover art flush with the top and right edges, square corners, no frame. A small barcode sits in the bottom-right corner.
+    Returns the right edge of the text column (with no image it takes the full width)."""
     av = load_avatar()
     if av is None:
         return RIGHT
@@ -324,7 +326,7 @@ def draw_avatar(img, d, bg, seed="musiDISCORD"):
 
 
 def pi_status():
-    """Nhiệt độ và thời gian đã bật của chính chiếc Pi (hiện ở màn chờ)."""
+    """Temperature and uptime of the Pi itself (shown on the idle screen)."""
     parts = []
     try:
         with open("/sys/class/thermal/thermal_zone0/temp") as f:
@@ -336,7 +338,7 @@ def pi_status():
             secs = int(float(f.read().split()[0]))
         days, rem = divmod(secs, 86400)
         hours, rem = divmod(rem, 3600)
-        parts.append(f"bật {days} ngày {hours} giờ" if days else f"bật {hours} giờ {rem // 60} phút")
+        parts.append(f"up {days}d {hours}h" if days else f"up {hours}h {rem // 60}m")
     except (OSError, ValueError, IndexError):
         pass
     return "  ".join(parts)
@@ -348,22 +350,22 @@ def fmt(ms):
 
 
 def draw_masthead(d, bg, accent, col_right, np):
-    """Đầu trang như bìa tạp chí: tên "báo" chữ có chân đậm, hai đường kẻ, và dòng số phát hành theo ngày."""
+    """Magazine-style masthead: a bold serif "newspaper" name, two rules, and a date-based issue line."""
     dim = mix(bg, INK, 0.55)
     d.text((MARGIN, 6), "musiDISCORD", fill=INK, font=face("masthead", 27))
     d.line((MARGIN, 41, col_right, 41), fill=mix(bg, INK, 0.6), width=1)
     d.line((MARGIN, 44, col_right, 44), fill=mix(bg, INK, 0.25), width=1)
     now = time.localtime()
-    d.text((MARGIN, 50), f"Số {now.tm_yday}  {now.tm_mday:02d}.{now.tm_mon:02d}.{now.tm_year}", fill=dim, font=face("mono", 10))
+    d.text((MARGIN, 50), f"No. {now.tm_yday}  {now.tm_mday:02d}.{now.tm_mon:02d}.{now.tm_year}", fill=dim, font=face("mono", 10))
     if np.get("title"):
         if np.get("paused"):
-            d.text((col_right, 50), "Tạm dừng", fill=accent, font=face("mono", 10), anchor="ra")
+            d.text((col_right, 50), "Paused", fill=accent, font=face("mono", 10), anchor="ra")
         elif np.get("bpm"):
-            d.text((col_right, 50), f"{round(np['bpm'])} nhịp/phút", fill=dim, font=face("mono", 10), anchor="ra")
+            d.text((col_right, 50), f"{round(np['bpm'])} BPM", fill=dim, font=face("mono", 10), anchor="ra")
 
 
 def draw_barcode(d, x, y, seed):
-    """Mã vạch nhỏ ở góc ảnh như bìa tạp chí. Các vạch sinh từ tên bài nên mỗi bài một mã riêng."""
+    """Small barcode in the corner of the image, like a magazine cover. The bars are generated from the track name, so each track gets its own code."""
     import hashlib
 
     w, h = 46, 26
@@ -379,18 +381,18 @@ def draw_barcode(d, x, y, seed):
 
 
 def render_idle(d, np, bg, accent, col_right):
-    """Chưa phát: đồng hồ lớn dưới đầu trang, yên tĩnh. Các trạng thái lỗi dùng cùng bố cục."""
+    """Nothing playing: a large, quiet clock under the masthead. Error states use the same layout."""
     if np.get("hidden"):
-        big, line, hint = "?", "Đang chơi đố nhạc", "Tên bài được giấu để không lộ đáp án."
+        big, line, hint = "?", "Music quiz in progress", "The title is hidden so it doesn't give away the answer."
     elif np.get("offline"):
-        big, line, hint = "—", "Mất kết nối với bot", "Màn sẽ tự thử lại sau vài giây."
+        big, line, hint = "—", "Lost connection to the bot", "The screen will retry in a few seconds."
     elif np.get("error") == 401:
-        big, line, hint = "!", "Sai hoặc thiếu token", "Kiểm tra DISPLAY_TOKEN trong pi/display.env."
+        big, line, hint = "!", "Wrong or missing token", "Check DISPLAY_TOKEN in pi/display.env."
     else:
         now = time.localtime()
         big = time.strftime("%H:%M", now)
-        line = f"{WEEKDAYS[now.tm_wday]}, {now.tm_mday} tháng {now.tm_mon}"
-        hint = "Chưa có bài nào đang phát. Vào kênh thoại rồi dùng /play, /local hoặc /nhaajt."
+        line = f"{WEEKDAYS[now.tm_wday]}, {MONTHS[now.tm_mon - 1]} {now.tm_mday}"
+        hint = "Nothing is playing. Join a voice channel and use /play, /local or /nhaajt."
     width = col_right - MARGIN
     size = 96
     while size > 40 and d.textlength(big, font=face("display", size)) > width + 6:
@@ -404,7 +406,7 @@ def render_idle(d, np, bg, accent, col_right):
         y += 17
     if not (np.get("hidden") or np.get("offline") or np.get("error")):
         status = pi_status()
-        if status:  # một dòng nhỏ ở đáy: Raspberry Pi vẫn đang chạy ổn
+        if status:  # one small line at the bottom: the Raspberry Pi is still running fine
             d.line((MARGIN, 286, col_right, 286), fill=mix(bg, INK, 0.16), width=1)
             d.text((MARGIN, 294), ellipsize(d, "Pi  " + status, face("mono", 11), width), fill=mix(bg, INK, 0.5), font=face("mono", 11))
 
@@ -416,7 +418,7 @@ def render(state, w=W, h=H):
     img = Image.new("RGB", (w, h), bg)
     d = ImageDraw.Draw(img)
     dim = mix(bg, INK, 0.55)
-    d.rectangle((0, 0, 5, h), fill=accent)  # vạch mép trái: dấu hiệu duy nhất của màu bài
+    d.rectangle((0, 0, 5, h), fill=accent)  # left edge stripe: the only sign of the track color
 
     seed = (np.get("title") or "") + (np.get("artist") or "") or "musiDISCORD"
     col_right = draw_avatar(img, d, bg, seed)
@@ -426,12 +428,12 @@ def render(state, w=W, h=H):
         return img
 
     width = col_right - MARGIN
-    # khối chữ: tên bài (tiêu đề bìa) cỡ lớn nhất cho vừa cột, rồi nghệ sĩ (chữ nghiêng có chân); cả khối căn giữa theo chiều dọc
+    # text block: the title (cover headline) at the largest size that fits the column, then the artist (serif italic); the whole block is vertically centered
     artist = np.get("artist") or ""
     reserve = 30 if artist else 0
     nxt = np.get("next")
     title_up = np["title"].upper()
-    # có bài kế tiếp: thử xếp tên bài vào phần trên (chừa chỗ cho "Tiếp theo"); chữ vẫn đủ to thì giữ, không thì bỏ dòng đó
+    # with a next track: try fitting the title in the upper part (leaving room for "Up next"); keep it if the text is still big enough, otherwise drop that line
     area_end = TEXT_BOTTOM
     size, lines, lh = fit_title(d, title_up, width, TEXT_BOTTOM - TEXT_TOP - reserve)
     if nxt:
@@ -448,33 +450,33 @@ def render(state, w=W, h=H):
     if artist:
         d.text((MARGIN, y), ellipsize(d, artist, face("serif", 20), width), fill=accent, font=face("serif", 20))
 
-    # bài kế tiếp ở đáy cột chữ, chỉ vẽ khi còn chỗ (tên bài dài thì bỏ qua)
+    # next track at the bottom of the text column, drawn only if there is room (skipped for long titles)
     if nxt and area_end != TEXT_BOTTOM:
         d.line((MARGIN, NEXT_Y - 8, col_right, NEXT_Y - 8), fill=mix(bg, INK, 0.16), width=1)
-        d.text((MARGIN, NEXT_Y), "Tiếp theo", fill=dim, font=face("mono", 10))
+        d.text((MARGIN, NEXT_Y), "Up next", fill=dim, font=face("mono", 10))
         d.text((MARGIN, NEXT_Y + 14), ellipsize(d, nxt, face("mono", 11), width), fill=mix(bg, INK, 0.82), font=face("mono", 11))
 
-    # thanh tiến trình: một đường mảnh
+    # progress bar: a thin line
     pos = np.get("position", 0) + ((time.time() - at) * 1000 if np.get("playing") else 0)
     dur = np.get("duration")
     if dur:
         pos = min(pos, dur)
-    pos = pos // 1000 * 1000  # làm tròn về giây: mọi thay đổi trên màn chỉ xảy ra mỗi giây một lần
+    pos = pos // 1000 * 1000  # round down to the second: anything changing on screen changes at most once per second
     frac = (pos / dur) if dur else 1.0
     d.rectangle((MARGIN, BAR_Y, RIGHT, BAR_Y + 2), fill=mix(bg, INK, 0.17))
     d.rectangle((MARGIN, BAR_Y, MARGIN + int((RIGHT - MARGIN) * frac), BAR_Y + 2), fill=accent)
     d.text((MARGIN, BAR_Y + 8), fmt(pos), fill=dim, font=face("mono", 11))
     d.text((RIGHT, BAR_Y + 8), fmt(dur) if dur else "LIVE", fill=dim, font=face("mono", 11), anchor="ra")
 
-    # nút
+    # buttons
     for name, bx in zip(BUTTONS, BTN_X):
         icon(d, name, bx, BTN_Y, INK, accent, np)
     return img
 
 
 def hit(x, y, has_track=True):
-    """Điểm chạm (toạ độ ngang 480x320) -> ("button", tên) | ("seek", tỉ lệ 0..1) | None.
-    Vùng bấm là cột rộng (màn điện trở, bấm bằng bút)."""
+    """Touch point (landscape coordinates 480x320) -> ("button", name) | ("seek", ratio 0..1) | None.
+    Hit areas are wide columns (resistive screen, used with a stylus)."""
     if not has_track:
         return None
     if y >= BTN_TOP + 8:
@@ -484,12 +486,12 @@ def hit(x, y, has_track=True):
     return None
 
 
-# ---------------------------------------------------------------- cảm ứng
+# ---------------------------------------------------------------- touch
 def touch_loop(state):
     try:
         import evdev
     except ImportError:
-        print("Thiếu python3-evdev, bỏ qua cảm ứng", file=sys.stderr)
+        print("python3-evdev is missing, skipping touch", file=sys.stderr)
         return
     dev = None
     for path in evdev.list_devices():
@@ -498,9 +500,9 @@ def touch_loop(state):
             dev = d
             break
     if not dev:
-        print("Không thấy thiết bị cảm ứng", file=sys.stderr)
+        print("No touch device found", file=sys.stderr)
         return
-    print("Cảm ứng:", dev.name, file=sys.stderr)
+    print("Touch:", dev.name, file=sys.stderr)
     ax, ay = dev.absinfo(evdev.ecodes.ABS_X), dev.absinfo(evdev.ecodes.ABS_Y)
 
     def bound(name, fallback):
@@ -511,7 +513,7 @@ def touch_loop(state):
         "x": (bound("TOUCH_X_MIN", ax.min), bound("TOUCH_X_MAX", ax.max)),
         "y": (bound("TOUCH_Y_MIN", ay.min), bound("TOUCH_Y_MAX", ay.max)),
     }
-    print("Dải cảm ứng:", ranges, file=sys.stderr)
+    print("Touch range:", ranges, file=sys.stderr)
     raw_x = raw_y = None
     down = False
     for ev in dev.read_loop():
@@ -538,7 +540,7 @@ def touch_loop(state):
             x, y = int(nx * W), int(ny * H)
             cur = state.np
             if os.environ.get("TOUCH_DEBUG") == "1":
-                print(f"chạm: raw=({raw_x},{raw_y}) -> x={x} y={y}", flush=True)
+                print(f"touch: raw=({raw_x},{raw_y}) -> x={x} y={y}", flush=True)
             target = hit(x, y, bool(cur.get("title")))
             if not target:
                 continue
@@ -561,14 +563,14 @@ def touch_loop(state):
                 state.poll()
                 state.wake.set()
             except Exception as e:
-                print("Điều khiển lỗi:", e, file=sys.stderr)
+                print("Control error:", e, file=sys.stderr)
 
 
-# ---------------------------------------------------------------- vòng chính
+# ---------------------------------------------------------------- main loop
 def main():
     fw, fh, bpp, stride = fb_info()
     rot = (90 if fh > fw else 0) if ROTATE == "auto" else int(ROTATE)
-    print(f"Framebuffer {FB}: {fw}x{fh} {bpp}bpp, vẽ {W}x{H}, xoay {rot}", file=sys.stderr)
+    print(f"Framebuffer {FB}: {fw}x{fh} {bpp}bpp, drawing {W}x{H}, rotation {rot}", file=sys.stderr)
     state = State()
     threading.Thread(target=touch_loop, args=(state,), daemon=True).start()
     last_poll = 0
@@ -584,7 +586,8 @@ def main():
             if img.size != (fw, fh):
                 img = img.resize((fw, fh))
             data = to_fb_bytes(img, bpp, stride)
-            if data != last_frame:  # chỉ gửi qua SPI khi khung thật sự đổi (thường mỗi giây một lần)
+            if data != last_frame:  # only send over SPI when the frame really changed (usually once per second)
+
                 fb.seek(0)
                 fb.write(data)
                 last_frame = data

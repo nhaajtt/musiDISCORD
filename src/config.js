@@ -3,7 +3,7 @@ import "dotenv/config";
 const required = ["DISCORD_TOKEN", "CLIENT_ID"];
 const missing = required.filter((key) => !process.env[key]);
 if (missing.length) {
-  console.error(`Thiếu biến môi trường: ${missing.join(", ")}`);
+  console.error(`Missing environment variables: ${missing.join(", ")}`);
   process.exit(1);
 }
 
@@ -16,40 +16,40 @@ export const config = {
     port: Number(process.env.LAVALINK_PORT) || 2333,
     password: process.env.LAVALINK_PASSWORD || "youshallnotpass",
   },
-  // Thư mục nhạc, cùng đường dẫn trong container bot và Lavalink
+  // Music folder, same path in the bot and Lavalink containers
   musicDir: process.env.MUSIC_DIR || "/music",
-  // Nơi lưu cài đặt từng server (mount thành volume để không mất khi tạo lại container)
+  // Where per-server settings are stored (mount as a volume so they survive container recreation)
   dataDir: process.env.DATA_DIR || "data",
-  // Webhook Discord nhận cảnh báo khi Lavalink mất kết nối (tuỳ chọn)
+  // Discord webhook that receives alerts when Lavalink disconnects (optional)
   alertWebhookUrl: process.env.ALERT_WEBHOOK_URL || null,
-  // Múi giờ dùng cho thống kê (giờ nghe, chuỗi ngày)
+  // Time zone used for stats (listening hours, streaks)
   timezone: process.env.TIMEZONE || "Asia/Ho_Chi_Minh",
-  // Tra lời bài hát từ LRCLIB khi file không có lời (đặt LYRICS_LOOKUP=off để tắt)
+  // Look up lyrics from LRCLIB when the file has none (set LYRICS_LOOKUP=off to disable)
   lyricsLookup: process.env.LYRICS_LOOKUP !== "off",
-  // Chu kỳ tự lưu hàng chờ (giây). 0 = tắt lưu định kỳ, chỉ lưu khi bắt đầu bài mới và khi tắt bot (đỡ ghi đĩa trên Raspberry Pi)
+  // Queue autosave interval (seconds). 0 = no periodic saves, only save when a new track starts and on shutdown (less disk writing on a Raspberry Pi)
   autosaveSeconds: Number.isFinite(Number(process.env.AUTOSAVE_SECONDS)) && process.env.AUTOSAVE_SECONDS !== undefined && process.env.AUTOSAVE_SECONDS !== "" ? Number(process.env.AUTOSAVE_SECONDS) : 15,
-  // Đóng góp nhạc: tắt mặc định, chủ bot duyệt. OWNER_IDS (cách nhau bởi dấu phẩy) ghi đè chủ bot lấy từ Discord
+  // Music contributions: off by default, the bot owner approves. OWNER_IDS (comma-separated) overrides the owner taken from Discord
   contributions: {
     enabled: process.env.CONTRIBUTIONS === "on",
     maxBytes: (Number(process.env.CONTRIB_MAX_MB) > 0 ? Number(process.env.CONTRIB_MAX_MB) : 30) * 1024 * 1024,
     ownerIds: (process.env.OWNER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean),
-    folder: "Đóng góp",
+    folder: "Contributions",
   },
   idleLeaveMs: 60_000,
-  // Tên bot (hiện trong cảnh báo, API trạng thái) và thư mục dữ liệu dùng chung giữa nhiều bot (thẻ, đặc trưng âm thanh, bìa)
+  // Bot name (shown in alerts and the status API) and a data folder shared between several bots (tags, audio features, covers)
   botName: process.env.BOT_NAME || "musiDISCORD",
   sharedDir: process.env.SHARED_DIR || process.env.DATA_DIR || "data",
-  // Chỉ một bot làm việc nền (gắn thẻ, phân tích); các bot khác chỉ đọc kết quả
+  // Only one bot does background work (tagging, analysis); the other bots just read the results
   libraryWorker: process.env.LIBRARY_WORKER !== "off",
-  // Tự gắn thẻ bằng dấu vân âm thanh (AcoustID/MusicBrainz): tắt mặc định
+  // Auto-tagging via audio fingerprints (AcoustID/MusicBrainz): off by default
   autotag: {
     enabled: process.env.AUTOTAG === "on",
     acoustidKey: process.env.ACOUSTID_KEY || null,
     autoApply: 0.85,
   },
-  // Phân tích nhịp độ, năng lượng, độ sáng cục bộ bằng ffmpeg: tắt mặc định
+  // Local tempo, energy and brightness analysis with ffmpeg: off by default
   analysis: { enabled: process.env.ANALYSIS === "on" },
-  // API trạng thái + trang /display cho màn hình nhỏ (0 = tắt)
+  // Status API + /display page for small screens (0 = off)
   display: {
     port: Number(process.env.DISPLAY_PORT) > 0 ? Number(process.env.DISPLAY_PORT) : 0,
     bind: process.env.DISPLAY_BIND || "127.0.0.1",

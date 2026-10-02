@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy, musiDISCORD</title>
+<meta name="description" content="What musiDISCORD stores (settings, queues, listening history, ratings, favorites, quiz scores), what it never does, and how to turn off stats or delete your data with /privacy.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/privacy.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/privacy.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/privacy.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>P-02</b></span>
+  <span class="strip__name">Privacy</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="features.html">Features</a>
+    <a href="commands.html">Commands</a>
+    <a href="setup.html">Setup</a>
+    <a href="devlog.html">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../privacy.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="privacy.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="content" class="legal">
+  <div class="wrap">
+    <h1>Privacy</h1>
+    <p class="lead">The bot keeps what it needs to play music correctly and remember your server's settings, and since version 2.0 it also records listening stats to power leaderboards, badges and Wrapped. Below is all of it, stated plainly, and you can turn off or delete your part.</p>
+    <div class="legal__meta">
+      <span>Last updated: 2026-10-02</span>
+      <span class="stamp" style="font-size:18px">rev G</span>
+    </div>
+
+    <div class="legal__body">
+      <section class="clause">
+        <h2>What the bot stores</h2>
+        <ul>
+          <li>Per-server settings: server ID, DJ role ID, default volume, and the switches for fair queue, track title on the voice channel, and 24/7 mode (with the voice channel the bot should stay in).</li>
+          <li>Saved queues: track names or track identifiers, plus the voice and text channel IDs, so playback can be restored after the bot restarts.</li>
+          <li>Listening history: which track played, when, which user (Discord ID) requested it, and which users (Discord IDs) were listening in the channel at the time.</li>
+          <li>Each user's 👍 👎 ratings and favorites list.</li>
+          <li>Each user's quiz scores and badges, per server.</li>
+          <li>Contribution records (if the feature is on): the sender's Discord ID, file name, size, SHA-256 hash, the file's tags, review status and rejection reason.</li>
+          <li>Audio files awaiting review, kept temporarily until approved or rejected (deleted on rejection, or after 14 days if nobody reviews them).</li>
+          <li>Track suggestions (<code>/request</code>) and the list of people who voted. The bot only records the text and never opens or downloads the link you give it.</li>
+          <li>Auto-generated tags and audio features (tempo, energy, brightness) for each track in the music library, if the bot owner enables them. This is data about the music files and is not tied to any user.</li>
+          <li>Everything above is tied to Discord user IDs and server IDs.</li>
+          <li>Operational logs: when an error occurs, the logs on the machine running the bot may record server IDs, channel IDs and track names.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>What the bot does not do</h2>
+        <ul>
+          <li>It does not read message content. The bot only uses slash commands, buttons, the quiz answer dialog and voice channel state.</li>
+          <li>It does not record voice channels. The bot only plays music into the channel and never captures anyone's audio.</li>
+          <li>It does not sell or share data with advertisers or third parties.</li>
+        </ul>
+      </section>
+      <section class="clause">
+        <h2>What the data is used for</h2>
+        <p>To make the bot work: remembering server settings, restoring queues after a restart, and tracking down the cause of errors. To power the stats features: <code>/mystats</code>, <code>/leaderboard</code>, <code>/wrapped</code>, badges, quiz leaderboards, favorites lists, and the shuffle weighting in <code>/nhaajt</code> (tracks with a 👍 turn up more often).</p>
+      </section>
+      <section class="clause">
+        <h2>Track title on the voice channel</h2>
+        <p>The bot writes a "Now playing: track title" line into the voice channel's status, so anyone who can see that channel can see the track title. Admins can turn it off with <code>/settings vc-status</code>.</p>
+      </section>
+      <section class="clause">
+        <h2>Direct messages from the bot</h2>
+        <p>The bot sends direct messages (DMs) to report the result of a contributed-file review, to tell you when a file matches a track you suggested or voted for, and to send the bot owner a review request that includes the file name.</p>
+      </section>
+      <section class="clause">
+        <h2>External services (only if the bot owner enables them)</h2>
+        <p>The auto-tagging feature (<code>AUTOTAG=on</code>) sends an <strong>audio fingerprint</strong> (a condensed string of numbers, not the music file) along with the duration of an untagged track to AcoustID, and the file name to MusicBrainz, then downloads cover art from the Cover Art Archive. No Discord user information is sent. Tempo analysis runs entirely on the machine running the bot.</p>
+        <p>The <code>/display</code> status page (if the bot owner enables it) shows what is playing on the bot owner's own machine or home network; the page does not show IDs or requester names and hides itself during a music quiz.</p>
+      </section>
+      <section class="clause">
+        <h2>Your rights: turn off and delete</h2>
+        <ul>
+          <li><code>/privacy stats</code>: turn recording of stats about you on or off. When it is off, the bot stops recording your listening history.</li>
+          <li><code>/privacy delete</code>: delete the data the bot holds about you, including listening history, ratings, favorites, quiz scores and badges, and anonymize your suggestions and contributions. Files that were already approved stay in the library but are no longer tied to your name.</li>
+        </ul>
+        <p>You run these two commands yourself, with no need to ask anyone.</p>
+      </section>
+      <section class="clause">
+        <h2>Third parties</h2>
+        <p>Discord processes messages, commands and voice under Discord's own policies. When you ask for a track to be played, the machine running the bot sends the request to the music source (YouTube, SoundCloud, Spotify), so that source sees the request coming from the bot's server, not from your device.</p>
+        <p>Online lyrics lookup is optional: when it is on, the bot sends the track title, artist name and duration of the current track to the public LRCLIB service to fetch the lyrics. The host can turn this off. Lyrics taken from a .lrc file or from the music file's tags are not sent anywhere.</p>
+      </section>
+      <section class="clause">
+        <h2>How long it is kept, and how to delete it</h2>
+        <p>Data stays on the machine running the bot until it is deleted. You can delete your own data with <code>/privacy delete</code>. A server admin can ask for all of their server's data to be deleted at any time by contacting the bot maintainer (nhaajt) at the address in the last section.</p>
+      </section>
+      <section class="clause">
+        <h2>If you self-host</h2>
+        <p>The data lives on your own machine, in the data folder next to docker-compose.yml. In that case you manage it and are responsible for it, including whether LRCLIB lookup is on or off; this page only describes how the bot stores things.</p>
+      </section>
+      <section class="clause">
+        <h2>Contact</h2>
+        <p>If you have questions or want your data deleted, message the bot maintainer:</p>
+        <p class="contact">Instagram: <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">@nhaajt_hehee</a> &nbsp;&bull;&nbsp; GitHub: <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajtt</a> (you can also open an issue on the <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">musiDISCORD</a> repo)</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="foot" data-sheet="P-02|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot, running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>P-02</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source code</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

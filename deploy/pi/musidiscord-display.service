@@ -1,5 +1,5 @@
 [Unit]
-Description=musiDISCORD: man hinh trang thai TFT
+Description=musiDISCORD: TFT status display
 After=docker.service
 Wants=docker.service
 

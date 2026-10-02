@@ -2,7 +2,7 @@ import { normalizeText } from "../library/index.js";
 
 const NOISE = /\([^)]*\)|\[[^\]]*\]|\b(feat|ft|featuring)\b.*$/gi;
 
-/** Bỏ phần phụ như "(Official Video)", "[Lyrics]", "ft. ..." khỏi tên bài. */
+/** Strip extras like "(Official Video)", "[Lyrics]", "ft. ..." from the title. */
 export const stripNoise = (text) => String(text ?? "").replace(NOISE, " ").replace(/\s+/g, " ").trim();
 
 function levenshtein(a, b, limit) {
@@ -25,14 +25,14 @@ function levenshtein(a, b, limit) {
 function matches(guess, target, { subset = false } = {}) {
   if (!target) return false;
   if (guess === target) return true;
-  // Nghệ sĩ nhiều chữ: gõ đúng một phần liền mạch của tên cũng được ("Sơn Tùng" cho "Sơn Tùng M-TP")
+  // Multi-word artist: typing a contiguous part of the name is enough ("Sơn Tùng" for "Sơn Tùng M-TP")
   if (subset && guess.length >= 5 && ` ${target} `.includes(` ${guess} `)) return true;
   if (target.length >= 4 && guess.includes(target)) return true;
 
   const allowed = target.length >= 12 ? 3 : target.length >= 6 ? 2 : target.length >= 4 ? 1 : 0;
   if (allowed && levenshtein(guess, target, allowed) <= allowed) return true;
 
-  // Trùng phần lớn các từ của tên bài nhiều chữ
+  // Matches most of the words of a multi-word title
   const words = target.split(" ");
   if (words.length >= 3) {
     const given = guess.split(" ");
@@ -42,7 +42,7 @@ function matches(guess, target, { subset = false } = {}) {
   return false;
 }
 
-/** Chấm một câu trả lời: "title" (đúng tên bài), "artist" (chỉ đúng nghệ sĩ) hoặc "wrong". */
+/** Judge an answer: "title" (correct title), "artist" (artist only) or "wrong". */
 export function judgeAnswer(guess, { title, artist }) {
   const g = normalizeText(guess);
   if (!g) return "wrong";
@@ -54,8 +54,8 @@ export function judgeAnswer(guess, { title, artist }) {
 }
 
 /**
- * Điểm cho một câu trả lời đúng: trả lời nhanh được nhiều hơn, mỗi gợi ý trừ 20, chuỗi đúng liên tiếp được thưởng thêm.
- * `streak` đã tính cả câu này. `partial` (chỉ đúng nghệ sĩ) chỉ được 40%.
+ * Points for a correct answer: faster answers earn more, each hint costs 20, and consecutive correct answers earn a bonus.
+ * `streak` already includes this answer. `partial` (artist only) earns just 40%.
  */
 export function scoreFor({ elapsedMs, windowMs, hints = 0, streak = 1, partial = false }) {
   const speed = Math.max(0.4, 1 - 0.6 * Math.min(1, Math.max(0, elapsedMs) / windowMs));
@@ -64,15 +64,15 @@ export function scoreFor({ elapsedMs, windowMs, hints = 0, streak = 1, partial =
   return partial ? Math.round(points * 0.4) : points;
 }
 
-/** Gợi ý theo cấp: 1 = số từ và ký tự, 2 = chữ cái đầu mỗi từ. */
+/** Tiered hint: 1 = word and character count, 2 = first letter of each word. */
 export function buildHint(title, level) {
   const clean = stripNoise(title) || String(title);
   const words = clean.split(/\s+/).filter(Boolean);
-  if (level <= 1) return `${words.length} từ • ${clean.replace(/\s/g, "").length} ký tự`;
+  if (level <= 1) return `${words.length} ${words.length === 1 ? "word" : "words"} • ${clean.replace(/\s/g, "").length} characters`;
   return words.map((w) => [...w][0] + "▫".repeat(Math.max(0, [...w].length - 1))).join("  ");
 }
 
-/** Chọn điểm bắt đầu đoạn trích: bỏ phần mở đầu, đảm bảo đoạn trích kết thúc trước hết bài. */
+/** Pick the snippet start: skip the intro and make sure the snippet ends before the track does. */
 export function pickClipStart(durationMs, clipMs, rng = Math.random) {
   if (!durationMs || durationMs <= clipMs + 8000) return 0;
   const min = Math.min(durationMs * 0.12, 20_000);
@@ -80,7 +80,7 @@ export function pickClipStart(durationMs, clipMs, rng = Math.random) {
   return Math.floor(min + rng() * Math.max(0, max - min));
 }
 
-/** Chọn ngẫu nhiên tối đa n bài khác nhau. */
+/** Randomly pick up to n distinct tracks. */
 export function pickRounds(entries, n, rng = Math.random) {
   const pool = entries.filter((e) => e.title);
   for (let i = pool.length - 1; i > 0; i--) {

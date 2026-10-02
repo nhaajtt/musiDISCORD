@@ -6,14 +6,14 @@ const URL_RE = /^https?:\/\//i;
 export default {
   data: new SlashCommandBuilder()
     .setName("play")
-    .setDescription("Phát nhạc từ tên bài hoặc link YouTube / SoundCloud / Spotify")
+    .setDescription("Play music by track name or a YouTube / SoundCloud / Spotify link")
     .addStringOption((o) =>
-      o.setName("query").setDescription("Tên bài hát hoặc link").setRequired(true).setAutocomplete(true),
+      o.setName("query").setDescription("Track name or link").setRequired(true).setAutocomplete(true),
     )
     .addStringOption((o) =>
       o
         .setName("source")
-        .setDescription("Nguồn tìm kiếm khi nhập tên bài (mặc định: YouTube)")
+        .setDescription("Search source when entering a track name (default: YouTube)")
         .addChoices(
           { name: "YouTube", value: "ytsearch" },
           { name: "YouTube Music", value: "ytmsearch" },

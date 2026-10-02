@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Features, musiDISCORD</title>
+<meta name="description" content="Smart music library, the Now Playing card, queue, /search with numbered result buttons, /filter audio effects, /nhaajt mode, music quiz, stats and Wrapped, synced lyrics, 24/7 mode and the contribution gate of the musiDISCORD music bot.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/tinh-nang.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/features.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/tinh-nang.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#noi-dung">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>F-01</b></span>
+  <span class="strip__name">Features</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="features.html" aria-current="page">Features</a>
+    <a href="commands.html">Commands</a>
+    <a href="setup.html">Setup</a>
+    <a href="devlog.html">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../tinh-nang.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="features.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="noi-dung">
+<h1 class="sr">musiDISCORD features</h1>
+
+<section class="sheet" id="thu-vien" data-plot="reveal" data-sheet="S-01|Smart music library" aria-labelledby="h-thu-vien">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-thu-vien">A smart music library</h2>
+      <p class="sheet__scale">Route diagram, scale 1:1<br>from a messy folder to a tidy catalogue</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p>Drop your music into the <code>music/</code> folder and the bot scans it and builds a library: it reads each file's tags (title, artist, album, genre, year, cover art). Files with missing tags get their names from the file and folder names, so nothing is left out.</p>
+        <p>Type a song, artist or album into <code>/local</code> and suggestions appear as you type. Want the whole set? Play a full album or an entire artist.</p>
+        <dl class="cmdlist">
+          <div><dt><code>/local</code></dt><dd>Smart search with suggestions as you type, then plays exactly the track you pick.</dd></div>
+          <div><dt><code>/album</code></dt><dd>Plays a whole album in track order.</dd></div>
+          <div><dt><code>/artist</code></dt><dd>Plays the tracks of one artist in the library.</dd></div>
+          <div><dt><code>/favorites</code></dt><dd>Your own list of favourites: <code>add</code>, <code>remove</code>, <code>list</code>, <code>play</code>.</dd></div>
+          <div><dt><code>/nhaajt</code></dt><dd>Smart shuffle: never the same artist back to back, and it favours tracks the whole server likes.</dd></div>
+        </dl>
+        <p class="note">add new files, no bot restart needed</p>
+      </div>
+      <figure class="fig plot lib-fig">
+        <svg viewBox="0 0 360 700" role="img" aria-label="Library diagram: the music folder is scanned, the tag reader extracts title, artist, album, genre, year and cover art, files without tags fall back to the file name, and the result becomes a catalogue used by the local, album, artist, favorites and nhaajt commands">
+          <rect class="ln" data-draw="0,.12" x="10" y="10" width="340" height="156" rx="3"/>
+          <g data-show=".08">
+            <text class="t t-sm" x="26" y="36">music/</text>
+            <text class="t t-sm" x="26" y="58">  Band A/</text>
+            <text class="t t-sm" x="26" y="78">    Album 1/</text>
+            <text class="t t-sm" x="26" y="98">      01 Sample Song.flac</text>
+            <text class="t t-sm" x="26" y="118">      02 Sample Song Two.mp3</text>
+            <text class="t t-sm" x="26" y="146">  weekend remix.mp3</text>
+            <text class="t-hand" x="226" y="146" style="font-size:19px">no tags</text>
+            <path class="ln-thin" d="M250 130Q244 120 228 144"/>
+          </g>
+
+          <path class="ln-heavy" data-draw=".12,.2" d="M180 170V204" marker-end="url(#ah)"/>
+          <text class="t t-sm t-dim" data-show=".2" x="196" y="192">auto scan</text>
+
+          <rect class="ln" data-draw=".18,.3" x="10" y="208" width="340" height="150" rx="3"/>
+          <g data-show=".28">
+            <text class="t-d" x="26" y="238" style="font-size:26px">Tag reader</text>
+            <rect class="ln-thin" x="24" y="252" width="98" height="28"/><text class="t t-sm" x="73" y="271" text-anchor="middle">title</text>
+            <rect class="ln-thin" x="131" y="252" width="98" height="28"/><text class="t t-sm" x="180" y="271" text-anchor="middle">artist</text>
+            <rect class="ln-thin" x="238" y="252" width="98" height="28"/><text class="t t-sm" x="287" y="271" text-anchor="middle">album</text>
+            <rect class="ln-thin" x="24" y="288" width="98" height="28"/><text class="t t-sm" x="73" y="307" text-anchor="middle">genre</text>
+            <rect class="ln-thin" x="131" y="288" width="98" height="28"/><text class="t t-sm" x="180" y="307" text-anchor="middle">year</text>
+            <rect class="hatch-fill" x="238" y="288" width="98" height="28"/><rect class="ln-thin" x="238" y="288" width="98" height="28"/><text class="t t-sm" x="287" y="307" text-anchor="middle">cover art</text>
+          </g>
+          <g data-show=".36">
+            <path class="ln-thin dash" d="M24 330H336"/>
+            <text class="t t-sm t-dim" x="26" y="348" style="font-size:12px">no tags: use file and folder names</text>
+          </g>
+
+          <path class="ln-heavy" data-draw=".36,.44" d="M180 362V396" marker-end="url(#ah)"/>
+
+          <rect class="solid-fill" data-show=".5" x="11" y="401" width="338" height="76"/>
+          <rect class="ln" data-draw=".42,.54" x="10" y="400" width="340" height="78" rx="3"/>
+          <g data-show=".52">
+            <text class="t-d" x="26" y="432" style="font-size:26px">Library catalogue</text>
+            <text class="t t-sm t-dim" x="26" y="456" style="font-size:12px">fast search, remembers cover art</text>
+          </g>
+
+          <path class="ln-heavy" data-draw=".54,.6" d="M180 482V514" marker-end="url(#ah)"/>
+
+          <g data-show=".62"><rect class="ln" x="10" y="518" width="168" height="62" rx="3"/><text class="t-d" x="24" y="546" style="font-size:24px">/local</text><text class="t t-sm t-dim" x="24" y="568" style="font-size:11px">search, suggests as you type</text></g>
+          <g data-show=".68"><rect class="ln" x="182" y="518" width="168" height="62" rx="3"/><text class="t-d" x="196" y="546" style="font-size:24px">/album</text><text class="t t-sm t-dim" x="196" y="568" style="font-size:11px">whole set, in order</text></g>
+          <g data-show=".74"><rect class="ln" x="10" y="588" width="168" height="62" rx="3"/><text class="t-d" x="24" y="616" style="font-size:24px">/artist</text><text class="t t-sm t-dim" x="24" y="638" style="font-size:11px">a whole artist</text></g>
+          <g data-show=".8"><rect class="ln" x="182" y="588" width="168" height="62" rx="3"/><text class="t-d" x="196" y="616" style="font-size:24px">/favorites</text><text class="t t-sm t-dim" x="196" y="638" style="font-size:11px">your favourites</text></g>
+          <g data-show=".88"><rect class="ln-red dash" x="10" y="658" width="340" height="36" rx="3"/><text class="t-d t-red" x="24" y="683" style="font-size:22px">/nhaajt</text><text class="t t-sm" x="132" y="681" style="font-size:11px">shuffle with taste</text></g>
+        </svg>
+        <figcaption>Six kinds of tags, one catalogue, five ways in.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="dang-phat" data-plot="reveal" data-sheet="S-02|Detail A, Now Playing card" aria-labelledby="h-dang-phat">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-dang-phat">Detail A: the Now Playing card</h2>
+      <p class="sheet__scale">Enlarged 4:1, layer by layer<br>hover over it or press Explode drawing</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p>The Now Playing card is rebuilt with Discord Components V2: cover art, an accent colour that changes with each track, a live progress bar while the music plays, and two rows of buttons right underneath. When the next track starts, the old card removes its buttons, so no dead buttons are left behind.</p>
+        <ol class="legend legend--keys">
+          <li><span class="key">1</span><span><strong>Pause, resume.</strong> Press once to pause, again to carry on.</span></li>
+          <li><span class="key">2</span><span><strong>Skip.</strong> With three or more listeners it becomes a vote: half of them must agree before the track changes. The person who requested it and DJs skip instantly.</span></li>
+          <li><span class="key">3</span><span><strong>Stop.</strong> Stops playback and clears the queue.</span></li>
+          <li><span class="key">4</span><span><strong>Loop.</strong> Each press cycles through: off, repeat track, repeat the whole queue.</span></li>
+          <li><span class="key">5</span><span><strong>Shuffle.</strong> Reorders the tracks in the queue.</span></li>
+          <li><span class="key">6</span><span><strong>Like (👍).</strong> Scores the track; liked tracks come up more often in <code>/nhaajt</code>.</span></li>
+          <li><span class="key">7</span><span><strong>Dislike (👎).</strong> The opposite: the track is picked less often.</span></li>
+          <li><span class="key">8</span><span><strong>Favourite (❤).</strong> Adds or removes the track from your <code>/favorites</code>.</span></li>
+          <li><span class="key">9</span><span><strong>Lyrics (📜).</strong> Opens the synced lyrics, see sheet S-07.</span></li>
+        </ol>
+        <p class="cmd-note"><code>/queue</code> uses the same layout: cover art, title and page buttons. The controls only work when you are in the same voice channel as the bot; on servers with a DJ role, only DJs can press them.</p>
+      </div>
+
+      <figure class="fig xvfig">
+        <div class="xv" id="xv" data-mode="now" style="--hue:200">
+          <div class="xv__tabs" role="group" aria-label="Sample card view">
+            <button type="button" class="chip is-on" data-xv-mode="now" aria-pressed="true">Now playing</button>
+            <button type="button" class="chip" data-xv-mode="queue" aria-pressed="false">Queue</button>
+            <button type="button" class="chip" id="xv-explode" aria-pressed="false">Explode drawing</button>
+          </div>
+          <div class="xv__scene">
+            <div class="xv__card">
+              <div class="xv__l xv__l--base" data-n="card base"></div>
+              <div class="xv__l xv__l--cover" data-n="cover art">
+                <svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" class="cv-bg"/><g class="cv-disc"><circle cx="60" cy="60" r="46" class="cv-a"/><circle cx="60" cy="60" r="34" class="cv-b"/><circle cx="60" cy="60" r="22" class="cv-b"/><circle cx="60" cy="60" r="8" class="cv-c"/><path d="M60 14V106M14 60H106" class="cv-b"/></g></svg>
+              </div>
+              <div class="xv__l xv__l--head" data-n="title">
+                <small id="xv-kicker">Now playing</small>
+                <strong id="xv-title">Melody No. 7</strong>
+                <span id="xv-artist">Sample Artist, Album One</span>
+              </div>
+              <div class="xv__l xv__l--bar" data-n="progress">
+                <div class="bar"><i id="xv-fill"></i></div>
+                <span id="xv-time">0:00 / 3:42</span>
+              </div>
+              <div class="xv__l xv__l--r1" data-n="button row 1">
+                <button type="button" class="xb" data-act="pp" aria-label="Pause, resume"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z"/><path class="i-play" d="M8 5l11 7-11 7z"/></svg></button>
+                <button type="button" class="xb" data-act="skip" aria-label="Skip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l9 7-9 7zM16.5 5H19v14h-2.5z"/></svg></button>
+                <button type="button" class="xb" data-act="stop" aria-label="Stop"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12"/></svg></button>
+                <button type="button" class="xb" data-act="loop" aria-label="Loop"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg><em class="xb__tag" id="xv-loop"></em></button>
+                <button type="button" class="xb" data-act="shuffle" aria-label="Shuffle"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+              </div>
+              <div class="xv__l xv__l--r2" data-n="button row 2">
+                <button type="button" class="xb xb--e" data-act="up" aria-label="Like" aria-pressed="false">👍</button>
+                <button type="button" class="xb xb--e" data-act="down" aria-label="Dislike" aria-pressed="false">👎</button>
+                <button type="button" class="xb xb--e" data-act="fav" aria-label="Favourite" aria-pressed="false">❤</button>
+                <button type="button" class="xb xb--e" data-act="lyrics" aria-label="Lyrics">📜</button>
+              </div>
+              <div class="xv__l xv__l--q" data-n="list">
+                <ol>
+                  <li><b>1</b><span>Night at the Last Station</span><i>3:05</i></li>
+                  <li><b>2</b><span>When the Coffee Went Cold</span><i>4:12</i></li>
+                  <li><b>3</b><span>Melody No. 7</span><i>3:42</i></li>
+                  <li><b>4</b><span>Weekend Remix</span><i>5:01</i></li>
+                </ol>
+              </div>
+              <div class="xv__l xv__l--pg" data-n="paging">
+                <button type="button" class="xb" aria-label="Previous page"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+                <span>1 / 3</span>
+                <button type="button" class="xb" aria-label="Next page"><svg viewBox="0 0 24 24" class="s" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <p class="xv__note note" id="xv-note" aria-live="polite">go on, press the buttons, this is a mock-up</p>
+        </div>
+        <figcaption>The mock-up runs eight times faster so you can watch the progress bar move. The track names are made up.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="hang-cho" data-plot="reveal" data-sheet="S-03|Queue, elevation" aria-labelledby="h-hang-cho">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
+      <h2 id="h-hang-cho">The queue, seen in elevation</h2>
+      <p class="sheet__scale">Main elevation, scale 1:20<br>the playing track sits on the ground floor</p>
+    </header>
+    <div class="split split--flip">
+      <figure class="fig split__fig plot">
+        <svg viewBox="0 0 640 520" role="img" aria-label="Queue elevation drawn like a six-storey building: each floor is a track, the playing track is on the ground floor, and a dimension on the right marks page 1 of 3, ten tracks per page">
+          <path class="ln-heavy" data-draw="0,.2" d="M40 428H600"/>
+          <rect class="hatch-fill" data-show=".1" x="40" y="431" width="560" height="22"/>
+          <path class="ln" data-draw=".15,.3" d="M130 58H550"/>
+
+          <!-- floors 0..5, bottom to top -->
+          <g>
+            <rect class="ln" data-draw=".1,.24" x="140" y="374" width="400" height="54"/>
+            <rect class="hatch-fill" data-show=".26" x="141" y="375" width="398" height="52"/>
+            <path class="mk" data-show=".26" d="M158 393L172 401L158 409Z"/>
+            <text class="t" data-show=".26" x="184" y="406">Track on its seventh replay</text>
+            <text class="t t-dim" data-show=".26" x="524" y="406" text-anchor="end">3:42</text>
+            <path class="ln-thin dash" data-show=".26" d="M60 374H140"/><text class="t t-sm" data-show=".26" x="62" y="368">+0 playing</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".2,.34" x="140" y="312" width="400" height="54"/>
+            <text class="t" data-show=".34" x="158" y="344">Chill beats at 2 a.m.</text>
+            <text class="t t-dim" data-show=".34" x="524" y="344" text-anchor="end">4:05</text>
+            <path class="ln-thin dash" data-show=".34" d="M60 312H140"/><text class="t t-sm" data-show=".34" x="62" y="306">+1</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".3,.44" x="140" y="250" width="400" height="54"/>
+            <text class="t" data-show=".44" x="158" y="282">Study music (hard to focus)</text>
+            <text class="t t-dim" data-show=".44" x="524" y="282" text-anchor="end">2:58</text>
+            <path class="ln-thin dash" data-show=".44" d="M60 250H140"/><text class="t t-sm" data-show=".44" x="62" y="244">+2</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".4,.54" x="140" y="188" width="400" height="54"/>
+            <text class="t" data-show=".54" x="158" y="220">An intro longer than the song</text>
+            <text class="t t-dim" data-show=".54" x="524" y="220" text-anchor="end">5:31</text>
+            <path class="ln-thin dash" data-show=".54" d="M60 188H140"/><text class="t t-sm" data-show=".54" x="62" y="182">+3</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".5,.64" x="140" y="126" width="400" height="54"/>
+            <text class="t" data-show=".64" x="158" y="158">The one everybody knows by heart</text>
+            <text class="t t-dim" data-show=".64" x="524" y="158" text-anchor="end">3:20</text>
+            <path class="ln-thin dash" data-show=".64" d="M60 126H140"/><text class="t t-sm" data-show=".64" x="62" y="120">+4</text>
+          </g>
+          <g>
+            <rect class="ln" data-draw=".6,.74" x="140" y="64" width="400" height="54"/>
+            <text class="t" data-show=".74" x="158" y="96">Remix of a remix of a remix</text>
+            <text class="t t-dim" data-show=".74" x="524" y="96" text-anchor="end">3:48</text>
+            <path class="ln-thin dash" data-show=".74" d="M60 64H140"/><text class="t t-sm" data-show=".74" x="62" y="58">+5</text>
+          </g>
+
+          <path class="ln-dim" data-draw=".7,.82" d="M544 64H592M544 428H592"/>
+          <path class="ln-thin" data-draw=".74,.9" d="M584 64V428"/>
+          <path class="ln-thin" data-draw=".74,.9" d="M572 64H596M572 428H596"/>
+          <g data-show=".86">
+            <rect class="paper-fill" x="598" y="140" width="30" height="210"/>
+            <text class="t t-sm" transform="translate(618 245) rotate(-90)" text-anchor="middle">page 1/3: 10 tracks per page</text>
+          </g>
+
+          <g data-show=".92">
+            <rect class="ln-thin" x="248" y="470" width="38" height="32"/>
+            <path class="ln-thin" d="M272 478L262 486L272 494"/>
+            <text class="t" x="320" y="492" text-anchor="middle">1/3</text>
+            <rect class="ln-thin" x="354" y="470" width="38" height="32"/>
+            <path class="ln-thin" d="M368 478L378 486L368 494"/>
+          </g>
+        </svg>
+        <figcaption>The ground floor is playing; the floors above wait their turn.</figcaption>
+      </figure>
+
+      <div class="copy">
+        <p>Add as many tracks as you like; each plays in its turn. <code>/queue</code> splits the queue into pages of ten, with cover art and page buttons in the new card layout.</p>
+        <p>Need to tidy up? <code>/remove</code> drops a track, <code>/shuffle</code> mixes the queue, <code>/loop</code> repeats the whole queue, <code>/seek</code> jumps to the best part, and <code>/volume</code> goes from 1 to 150.</p>
+        <p>Not sure of the exact title? <code>/search</code> looks things up by keyword (YouTube, YouTube Music, SoundCloud or Spotify) and shows up to 10 results as numbered buttons: press a number and that track joins the queue.</p>
+        <p>Want to change the sound? <code>/filter</code> applies an effect to what is playing: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, or <code>off</code> to clear it.</p>
+        <p>Two new things to keep the peace: a fair queue, and <code>/bump</code>.</p>
+        <p class="note">note: the track on floor 3 is the one somebody asked to "just try for a second"</p>
+      </div>
+    </div>
+
+    <div class="fq" id="fq" aria-label="Illustration of the fair queue and bump">
+      <div class="fq__col">
+        <h3>The fair queue</h3>
+        <p><code>/settings fair-queue</code>: everyone gets a turn in rotation, so someone who queues ten tracks in a row cannot block someone who queued one.</p>
+        <div class="lane" data-lane="fair" style="--n:6">
+          <span class="lane__tag">before</span>
+          <ul class="chips" aria-hidden="true">
+            <li class="chip3 c-a" data-from="0" data-to="0">A</li>
+            <li class="chip3 c-a" data-from="1" data-to="3">A</li>
+            <li class="chip3 c-a" data-from="2" data-to="5">A</li>
+            <li class="chip3 c-b" data-from="3" data-to="1">B</li>
+            <li class="chip3 c-b" data-from="4" data-to="4">B</li>
+            <li class="chip3 c-c" data-from="5" data-to="2">C</li>
+          </ul>
+        </div>
+        <p class="lane__cap" aria-live="polite">Before: A, A, A, B, B, C. After enabling: A, B, C, A, B, A.</p>
+      </div>
+      <div class="fq__col">
+        <h3>Bump: jump the line</h3>
+        <p><code>/bump</code> opens a vote: with enough votes the chosen track jumps to the front of the queue. Skipping the current track is still a vote, as before.</p>
+        <div class="lane" data-lane="bump" style="--n:6">
+          <span class="lane__tag">votes <b class="votes">0</b>/3</span>
+          <ul class="chips" aria-hidden="true">
+            <li class="chip3 c-b" data-from="0" data-to="1">B</li>
+            <li class="chip3 c-a" data-from="1" data-to="2">A</li>
+            <li class="chip3 c-c" data-from="2" data-to="3">C</li>
+            <li class="chip3 c-a" data-from="3" data-to="4">A</li>
+            <li class="chip3 c-b" data-from="4" data-to="5">B</li>
+            <li class="chip3 c-c is-bump" data-from="5" data-to="0">C</li>
+          </ul>
+        </div>
+        <p class="lane__cap">C's track got three votes, so it jumps to the front.</p>
+      </div>
+      <button type="button" class="chip fq__replay" id="fq-replay">Replay</button>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="nhaajt" data-plot="reveal" data-sheet="S-04|/nhaajt mode, the loop" aria-labelledby="h-nhaajt">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-04</span>
+      <h2 id="h-nhaajt">The bottomless loop: /nhaajt</h2>
+      <p class="sheet__scale">Dial plan, scale 1:1<br>one shuffle per lap</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p>Type <code>/nhaajt</code> when you want to hear the whole music folder without choosing track by track.</p>
+        <p>Every time you run it, the order is freshly shuffled. Each lap plays every track exactly once. When the lap ends, the bot reshuffles and carries on, and the first track of the new lap is never the one that just played. The music keeps going until you type <code>/stop</code> or <code>/leave</code>.</p>
+        <p>Since version 2.0 the shuffle has better taste: the bot avoids playing the same artist back to back, gives 👍 tracks more chances and 👎 tracks fewer. The 👍 and 👎 buttons on the Now Playing card are those votes, and they also feed the server's "most loved" board.</p>
+        <p class="note">checked: no track gets left behind</p>
+        <p class="cmd-note">The music folder lives on the machine running the bot, so this command plays the host's music.</p>
+      </div>
+      <figure class="fig plot">
+        <svg viewBox="0 0 520 520" role="img" aria-label="Loop diagram: twelve tracks on a circle, a line passing through each in shuffled order, and an arrow outside showing the endless loop">
+          <path class="ln-dim dash" data-draw="0,.3" d="M47.6 182.7A226 226 0 1 1 47.6 337.3"/>
+          <path class="mk" data-show=".3" transform="translate(47.6 337.3) rotate(-155)" d="M-8 -9L10 0L-8 9Z"/>
+          <circle class="ln" data-draw=".05,.35" cx="260" cy="260" r="190"/>
+          <path class="ln-thin" data-draw=".15,.45" d="M260.0 70.0L260.0 56.0M309.2 76.5L311.2 68.7M355.0 95.5L362.0 83.3M394.4 125.6L400.0 120.0M424.5 165.0L436.7 158.0M443.5 210.8L451.3 208.8M450.0 260.0L464.0 260.0M443.5 309.2L451.3 311.2M424.5 355.0L436.7 362.0M394.4 394.4L400.0 400.0M355.0 424.5L362.0 436.7M309.2 443.5L311.2 451.3M260.0 450.0L260.0 464.0M210.8 443.5L208.8 451.3M165.0 424.5L158.0 436.7M125.6 394.4L120.0 400.0M95.5 355.0L83.3 362.0M76.5 309.2L68.7 311.2M70.0 260.0L56.0 260.0M76.5 210.8L68.7 208.8M95.5 165.0L83.3 158.0M125.6 125.6L120.0 120.0M165.0 95.5L158.0 83.3M210.8 76.5L208.8 68.7"/>
+          <circle class="ln-dim" data-draw=".3,.5" cx="260" cy="260" r="140"/>
+
+          <path class="ln" data-draw=".5,.9" d="M260.0 120.0L190.0 381.2L381.2 190.0L120.0 260.0L381.2 330.0L190.0 138.8L260.0 400.0L330.0 138.8L138.8 330.0L400.0 260.0L138.8 190.0L330.0 381.2Z"/>
+
+          <g data-show=".4">
+            <circle class="bubble" cx="260" cy="120" r="14"/><text class="t t-sm" x="260" y="125" text-anchor="middle">1</text>
+            <circle class="bubble" cx="330" cy="138.8" r="14"/><text class="t t-sm" x="330" y="143.8" text-anchor="middle">2</text>
+            <circle class="bubble" cx="381.2" cy="190" r="14"/><text class="t t-sm" x="381.2" y="195" text-anchor="middle">3</text>
+            <circle class="bubble" cx="400" cy="260" r="14"/><text class="t t-sm" x="400" y="265" text-anchor="middle">4</text>
+            <circle class="bubble" cx="381.2" cy="330" r="14"/><text class="t t-sm" x="381.2" y="335" text-anchor="middle">5</text>
+            <circle class="bubble" cx="330" cy="381.2" r="14"/><text class="t t-sm" x="330" y="386" text-anchor="middle">6</text>
+            <circle class="bubble" cx="260" cy="400" r="14"/><text class="t t-sm" x="260" y="405" text-anchor="middle">7</text>
+            <circle class="bubble" cx="190" cy="381.2" r="14"/><text class="t t-sm" x="190" y="386" text-anchor="middle">8</text>
+            <circle class="bubble" cx="138.8" cy="330" r="14"/><text class="t t-sm" x="138.8" y="335" text-anchor="middle">9</text>
+            <circle class="bubble" cx="120" cy="260" r="14"/><text class="t t-sm" x="120" y="265" text-anchor="middle">10</text>
+            <circle class="bubble" cx="138.8" cy="190" r="14"/><text class="t t-sm" x="138.8" y="195" text-anchor="middle">11</text>
+            <circle class="bubble" cx="190" cy="138.8" r="14"/><text class="t t-sm" x="190" y="143.8" text-anchor="middle">12</text>
+          </g>
+
+          <g data-show=".8">
+            <circle class="paper-fill" cx="260" cy="260" r="46"/>
+            <circle class="ln-thin" cx="260" cy="260" r="46"/>
+            <text class="t-d" x="260" y="268" text-anchor="middle" style="font-size:58px">∞</text>
+            <text class="t t-sm" x="260" y="292" text-anchor="middle">/nhaajt</text>
+          </g>
+          <g data-show=".92">
+            <text class="t-hand" x="10" y="36">lap over, reshuffle</text>
+            <path class="ln-thin" d="M120 44Q160 70 188 100"/>
+            <text class="t-hand" x="318" y="500">each track exactly once</text>
+          </g>
+        </svg>
+        <figcaption>Twelve tracks, one lap. The solid line is the play order for this lap.</figcaption>
+      </figure>
+    </div>
+
+    <div class="wt" id="wt">
+      <div class="wt__head">
+        <h3>Try the smart pick</h3>
+        <p>Press 👍 or 👎 to change the weights, then draw the next track. Tracks by the same artist as the one that just played are excluded.</p>
+      </div>
+      <ul class="wt__list" id="wt-list">
+        <li data-artist="Artist A" data-w="3"><span class="wt__name"><b>Melody No. 7</b><i>Artist A</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Like Melody No. 7">👍</button><button type="button" data-d="-1" aria-label="Dislike Melody No. 7">👎</button></span></li>
+        <li data-artist="Artist A" data-w="2"><span class="wt__name"><b>Weekend Remix</b><i>Artist A</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Like Weekend Remix">👍</button><button type="button" data-d="-1" aria-label="Dislike Weekend Remix">👎</button></span></li>
+        <li data-artist="Artist B" data-w="3"><span class="wt__name"><b>Night at the Last Station</b><i>Artist B</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Like Night at the Last Station">👍</button><button type="button" data-d="-1" aria-label="Dislike Night at the Last Station">👎</button></span></li>
+        <li data-artist="Artist C" data-w="4"><span class="wt__name"><b>When the Coffee Went Cold</b><i>Artist C</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Like When the Coffee Went Cold">👍</button><button type="button" data-d="-1" aria-label="Dislike When the Coffee Went Cold">👎</button></span></li>
+        <li data-artist="Artist B" data-w="1"><span class="wt__name"><b>Elevator Hold Music</b><i>Artist B</i></span><span class="wt__bar"><u></u></span><span class="wt__btns"><button type="button" data-d="1" aria-label="Like Elevator Hold Music">👍</button><button type="button" data-d="-1" aria-label="Dislike Elevator Hold Music">👎</button></span></li>
+      </ul>
+      <div class="wt__foot">
+        <button type="button" class="btn btn--solid" id="wt-pick">Draw next track</button>
+        <p id="wt-out" aria-live="polite">Nothing drawn yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="do-nhac" data-sheet="S-05|Music quiz, exam hall" aria-labelledby="h-do-nhac">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-05</span>
+      <h2 id="h-do-nhac">Music quiz: an exam hall in your server</h2>
+      <p class="sheet__scale">Questions come from the server's own library<br>the faster you answer, the more you score</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p><code>/quiz start</code> opens a blind-test round: the bot plays a short clip from the server's music library, and whoever recognises it first presses the answer button.</p>
+        <ul class="ticks">
+          <li><strong>Answer with a button and a small pop-up.</strong> The bot needs no permission to read messages, and you never type into the chat channel.</li>
+          <li><strong>Fast means more points.</strong> The score drops with every second.</li>
+          <li><strong>Hints cost points.</strong> Asking for a hint deducts from that question's score.</li>
+          <li><strong>Streaks earn a bonus.</strong></li>
+          <li><strong>The server leaderboard</strong> is under <code>/quiz top</code>; end a round with <code>/quiz stop</code>.</li>
+        </ul>
+        <p class="note">try it alongside: the answer is "Night at the Last Station"</p>
+      </div>
+
+      <div class="qz" id="qz" aria-label="Music quiz mock-up">
+        <div class="qz__top"><span>Question 3 / 10</span><span>streak: <b id="qz-streak">0</b></span></div>
+        <div class="qz__clip" aria-hidden="true"><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>8-second clip</small></div>
+        <div class="qz__meter"><div class="meter"><i id="qz-fill"></i></div><span class="qz__pts"><b id="qz-pts">1000</b> pts</span></div>
+        <p class="qz__hint" id="qz-hint" aria-live="polite">No hint used yet. Each hint costs 150 points.</p>
+        <div class="qz__btns">
+          <button type="button" class="btn btn--solid" id="qz-answer">Answer</button>
+          <button type="button" class="btn" id="qz-hbtn">Hint</button>
+          <button type="button" class="btn" id="qz-reset">Play again</button>
+        </div>
+        <form class="qz__pop" id="qz-pop" hidden autocomplete="off">
+          <label for="qz-in">What is the song called?</label>
+          <input id="qz-in" type="text" placeholder="type your answer" maxlength="60">
+          <div><button type="submit" class="btn btn--solid btn--sm">Submit</button><button type="button" class="btn btn--sm" id="qz-cancel">Cancel</button></div>
+        </form>
+        <div class="qz__stamp" id="qz-stamp" aria-live="assertive"></div>
+        <ol class="qz__board" aria-label="Sample scoreboard">
+          <li><span>Minh</span><b data-s="2300">2300</b></li>
+          <li><span>Lan</span><b data-s="1850">1850</b></li>
+          <li class="is-me"><span>You</span><b id="qz-me" data-s="1200">1200</b></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="wrapped" data-plot="reveal" data-sheet="S-06|Stats and Wrapped" aria-labelledby="h-wrapped">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-06</span>
+      <h2 id="h-wrapped">Stats and Wrapped</h2>
+      <p class="sheet__scale">A drawing that sums up a year of listening<br>yours and the whole server's</p>
+    </header>
+    <div class="split split--flip">
+      <div class="wcard-wrap">
+        <div class="wcard" id="wcard">
+          <svg viewBox="0 0 360 560" role="img" aria-label="Sample Wrapped card: 1,284 minutes listened in total, the three most played tracks, the top artist and a Night owl badge, drawn like a cyanotype blueprint">
+            <defs><pattern id="wg" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="#cdeeff" stroke-opacity=".09"/></pattern></defs>
+            <rect class="wc-bg" width="360" height="560" rx="4"/>
+            <rect width="360" height="560" fill="url(#wg)"/>
+            <rect class="wc-ln" data-draw="0,.2" x="10" y="10" width="340" height="540"/>
+            <rect class="wc-ln wc-thin" data-draw=".05,.25" x="15" y="15" width="330" height="530"/>
+            <g data-show=".1">
+              <text class="wc-d" x="28" y="76" font-size="54">WRAPPED</text>
+              <text class="wc-d" x="28" y="116" font-size="38">2026</text>
+              <text class="wc-t" x="28" y="140" font-size="11">Sample listener, a year of music</text>
+            </g>
+            <g data-show=".6" transform="rotate(8 276 92)">
+              <rect class="wc-red" x="214" y="62" width="124" height="52" rx="3"/>
+              <text class="wc-d wc-redt" x="276" y="92" font-size="26" text-anchor="middle">NIGHT OWL</text>
+              <text class="wc-t wc-redt" x="276" y="107" font-size="9" text-anchor="middle">most plays after midnight</text>
+            </g>
+
+            <g data-show=".25">
+              <circle class="wc-ln wc-thin" cx="180" cy="240" r="70" fill="none"/>
+              <circle cx="180" cy="240" r="84" fill="none" stroke="#cdeeff" stroke-opacity=".5" stroke-width="8" stroke-dasharray="1.5 19.8"/>
+              <path class="wc-needle" d="M180 240L180 184" />
+              <circle cx="180" cy="240" r="5" fill="#ff8a78"/>
+              <text class="wc-d" x="180" y="278" font-size="40" text-anchor="middle" data-count="1284" data-locale="en">1,284</text>
+              <text class="wc-t" x="180" y="297" font-size="10" text-anchor="middle">minutes listened this year</text>
+            </g>
+
+            <g data-show=".5">
+              <text class="wc-t" x="28" y="352" font-size="10">MOST PLAYED TRACKS</text>
+              <path class="wc-ln wc-thin" d="M28 358H332"/>
+              <text class="wc-t" x="28" y="380" font-size="12">1 Melody No. 7</text><rect class="wc-bar" x="28" y="386" width="250" height="8"/><text class="wc-t" x="332" y="394" font-size="11" text-anchor="end">48</text>
+              <text class="wc-t" x="28" y="414" font-size="12">2 Night at the Last Station</text><rect class="wc-bar" x="28" y="420" width="214" height="8"/><text class="wc-t" x="332" y="428" font-size="11" text-anchor="end">41</text>
+              <text class="wc-t" x="28" y="448" font-size="12">3 When the Coffee Went Cold</text><rect class="wc-bar" x="28" y="454" width="172" height="8"/><text class="wc-t" x="332" y="462" font-size="11" text-anchor="end">33</text>
+            </g>
+
+            <g data-show=".8">
+              <rect class="wc-ln" x="22" y="486" width="316" height="44"/>
+              <path class="wc-ln wc-thin" d="M130 486V530M236 486V530"/>
+              <text class="wc-t" x="30" y="502" font-size="8">PROJECT</text><text class="wc-d" x="30" y="522" font-size="18">musiDISCORD</text>
+              <text class="wc-t" x="138" y="502" font-size="8">REV</text><text class="wc-d" x="138" y="522" font-size="18">F / 2.2</text>
+              <text class="wc-t" x="244" y="502" font-size="8">COMMAND</text><text class="wc-d" x="244" y="522" font-size="18">/wrapped</text>
+            </g>
+          </svg>
+          <i class="wcard__glare" aria-hidden="true"></i>
+        </div>
+        <p class="note wcard__cap">sample image, illustrative figures</p>
+      </div>
+
+      <div class="copy">
+        <p>The bot remembers what you listen to and when, and turns it into fun numbers.</p>
+        <dl class="cmdlist">
+          <div><dt><code>/mystats</code></dt><dd>Listening time, your most played tracks and artists, how often you hit skip, and your badges.</dd></div>
+          <div><dt><code>/leaderboard</code></dt><dd>The server leaderboard, plus the tracks the whole room loves most.</dd></div>
+          <div><dt><code>/wrapped</code></dt><dd>Your year in review as an image, drawn like a cyanotype blueprint, ready to show off in the server.</dd></div>
+          <div><dt><code>/privacy</code></dt><dd><code>stats</code> turns stat tracking about you on or off, <code>delete</code> erases your data.</dd></div>
+        </dl>
+        <ul class="badges" id="badges">
+          <li><span class="badge"><b>Night owl</b></span><i>listens the most after midnight</i></li>
+          <li><span class="badge"><b>Ruthless</b></span><i>skips more tracks than they finish</i></li>
+          <li><span class="badge"><b>Queue master</b></span><i>queues the most tracks on the server</i></li>
+          <li><span class="badge"><b>Superfan</b></span><i>plays the same artist over and over</i></li>
+        </ul>
+        <p class="cmd-note">Would rather not be recorded? <code>/privacy stats</code> turns off stat tracking about you, and <code>/privacy delete</code> erases what is already stored. See the <a href="privacy.html">Privacy</a> page for more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="loi-bai-hat" data-sheet="S-07|Synced lyrics" aria-labelledby="h-loi">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-07</span>
+      <h2 id="h-loi">Lyrics that follow the singer</h2>
+      <p class="sheet__scale">Karaoke style, the current line lights up<br>press 📜 on the Now Playing card</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p><code>/lyrics</code> or the 📜 button opens the lyrics of the current track, with the line being sung highlighted in real time, like karaoke.</p>
+        <p>Lyrics come from three places, in the order the bot looks:</p>
+        <ol class="legend legend--keys">
+          <li><span class="key">1</span><span><strong>An .lrc file</strong> next to the music file, with the same name.</span></li>
+          <li><span class="key">2</span><span><strong>Lyrics embedded in the tags</strong> of the music file itself.</span></li>
+          <li><span class="key">3</span><span><strong>Online lookup (optional)</strong> from LRCLIB. This sends the title, artist and duration to that public service; the host can turn it off.</span></li>
+        </ol>
+        <p class="note">the current line glows, the next one gets ready</p>
+      </div>
+      <div class="lyr" id="lyr" aria-label="Sample synced lyrics">
+        <div class="lyr__bar"><span>📜 Melody No. 7</span><i class="lyr__tm" id="lyr-tm">00:00</i></div>
+        <div class="lyr__win">
+          <ol class="lyr__lines" id="lyr-lines">
+            <li data-t="0"><em>[00:00.00]</em><span>Streetlights flicker to the drum beat</span></li>
+            <li data-t="3"><em>[00:03.00]</em><span>I type one command, the whole room hears</span></li>
+            <li data-t="6"><em>[00:06.00]</em><span>The queue is long as an unfinished drawing</span></li>
+            <li data-t="9"><em>[00:09.00]</em><span>The last note still rings, skip is already near</span></li>
+            <li data-t="12"><em>[00:12.00]</em><span>Whoever presses first gets spared this once</span></li>
+            <li data-t="15"><em>[00:15.00]</em><span>And then the next song begins</span></li>
+          </ol>
+        </div>
+        <p class="lyr__cap">Illustrative lyrics written for this page, not from a real song.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="o-lai" data-sheet="S-08|Voice channel: status and 24/7" aria-labelledby="h-o-lai">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-08</span>
+      <h2 id="h-o-lai">Track name on the channel, and staying 24/7</h2>
+      <p class="sheet__scale">Voice channel floor plan<br>flip a switch to see how the bot reacts</p>
+    </header>
+    <div class="split split--flip">
+      <div class="vc" id="vc">
+        <div class="vc__room">
+          <div class="vc__ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg><b>Music Room</b></div>
+          <p class="vc__status" id="vc-status"><span id="vc-status-text"></span><i class="caret" aria-hidden="true"></i></p>
+          <ul class="vc__people" id="vc-people">
+            <li class="vc__p" data-p><i>M</i><span>Mai</span></li>
+            <li class="vc__p" data-p><i>N</i><span>Nam</span></li>
+            <li class="vc__p" data-p><i>B</i><span>Bao</span></li>
+            <li class="vc__p vc__bot" id="vc-bot"><i>♪</i><span>musiDISCORD</span></li>
+          </ul>
+        </div>
+        <div class="vc__ctl">
+          <label class="sw"><input type="checkbox" id="vc-st" checked><span class="sw__t" aria-hidden="true"></span><span><code>/settings vc-status</code></span></label>
+          <label class="sw"><input type="checkbox" id="vc-247"><span class="sw__t" aria-hidden="true"></span><span><code>/247 on</code></span></label>
+          <label class="sw"><input type="checkbox" id="vc-radio" disabled><span class="sw__t" aria-hidden="true"></span><span>radio: play the whole folder</span></label>
+          <div class="vc__btns">
+            <button type="button" class="btn btn--sm" id="vc-leave">Everyone leaves</button>
+            <button type="button" class="btn btn--sm" id="vc-restart">Restart bot</button>
+          </div>
+          <ul class="vc__log" id="vc-log" aria-live="polite"><li>bot is playing, three listeners</li></ul>
+        </div>
+      </div>
+      <div class="copy">
+        <p><strong>Track name on the voice channel.</strong> The bot writes a "Now playing: track name" line straight into the voice channel's status, so anyone scrolling the channel list can see it. Not a fan? Turn it off with <code>/settings vc-status</code>.</p>
+        <p><strong>Free 24/7 mode.</strong> <code>/247 on</code> keeps the bot in the voice channel even when nobody is left, and it rejoins by itself after a restart. Turn it off with <code>/247 off</code> and the bot goes back to its old habit: if the channel empties or the queue ends, it leaves after 60 seconds.</p>
+        <p>Switch on the radio option and the bot plays the whole music folder non-stop, <code>/nhaajt</code> style, so the channel always has sound even if nobody adds a track.</p>
+        <p class="note">empty channel, lights still on</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="cong-nhan-hang" data-sheet="S-09|Goods-in gate, contributions and requests" aria-labelledby="h-cong">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-09</span>
+      <h2 id="h-cong">The goods-in gate</h2>
+      <p class="sheet__scale">Valid files go into storage, the bot owner stamps them<br>the bot downloads nothing from YouTube</p>
+    </header>
+    <div class="split">
+      <div class="copy">
+        <p><code>/contribute</code> (<code>submit</code>, <code>pending</code>, <code>stats</code>): you attach your own music file and tick a box confirming that you own it or are allowed to share it. The file goes into an approval queue, and the bot owner (not a server admin, because the music library is shared by every server) gets a direct message with Approve and Reject buttons. Once approved, the file moves into the <code>music/Contributions/</code> folder, becomes searchable with <code>/local</code>, and you are notified by direct message.</p>
+        <ul class="ticks">
+          <li><strong>Off by default.</strong> Needs <code>CONTRIBUTIONS=on</code> in .env, then <code>/settings contributions</code> enabled for each server.</li>
+          <li><strong>Real audio files only,</strong> up to 30 MB (adjustable), between 10 seconds and 20 minutes long, and only Discord CDN links are accepted.</li>
+          <li><strong>Duplicate and spam protection:</strong> duplicate files (compared by hash) are rejected, each person may have at most 3 files pending and 5 per day, and files waiting more than 14 days expire automatically.</li>
+        </ul>
+        <p><code>/request</code> (<code>add</code>, <code>list</code>, <code>vote</code>, <code>mine</code>, <code>remove</code>, <code>done</code>, <code>dismiss</code>): suggest a track by name or by a YouTube, Spotify or SoundCloud link. <strong>The bot downloads nothing and never opens that link</strong>; it only adds an entry to the wishlist along with votes. When a matching file shows up in storage (an approved contribution, or the owner dropping a file into music/), everyone who suggested or voted is notified automatically by direct message. Each person can have at most 5 open requests.</p>
+        <p class="note">valid files only, approved by the bot owner</p>
+      </div>
+      <div class="gate" id="gate" aria-label="Goods-in gate mock-up">
+        <div class="gate__flow">
+          <div class="gate__step" id="g-s1"><small>1. Send a file</small><b id="g-file">Night at the Last Station.mp3</b><span>4.2 MB, 3:05</span></div>
+          <div class="gate__step" id="g-s2"><small>2. Owner reviews</small><b id="g-state">no file yet</b><span id="g-dm">waiting for you to send</span></div>
+          <div class="gate__step" id="g-s3"><small>3. Into storage</small><b>music/Contributions/</b><ul id="g-lib"><li class="empty">(empty)</li></ul></div>
+        </div>
+        <label class="sw"><input type="checkbox" id="g-own"><span class="sw__t" aria-hidden="true"></span><span>I own this file or am allowed to share it</span></label>
+        <div class="gate__btns">
+          <button type="button" class="btn btn--solid btn--sm" id="g-send" disabled>Send sample file</button>
+          <button type="button" class="btn btn--sm" id="g-ok" disabled>Approve (as bot owner)</button>
+          <button type="button" class="btn btn--sm" id="g-no" disabled>Reject</button>
+        </div>
+        <div class="gate__stamp" id="g-stamp" aria-live="assertive"></div>
+        <h3 class="gate__h">Wishlist <span class="gate__bell" id="g-bell" aria-hidden="true">🔔 <b id="g-bellc">0</b></span></h3>
+        <ul class="gate__board" id="g-board">
+          <li data-match="night at the last station"><span>Night at the Last Station</span><i class="st">pending</i><button type="button" data-vote aria-label="Vote for Night at the Last Station">+1 <b>2</b></button></li>
+          <li data-match="weekend remix"><span>Weekend Remix (YouTube link, the bot does not open it)</span><i class="st">pending</i><button type="button" data-vote aria-label="Vote for Weekend Remix">+1 <b>1</b></button></li>
+        </ul>
+        <ul class="vc__log" id="g-log" aria-live="polite"><li>ready, tick the confirmation box and send a file</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="F-01|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>F-01</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source code</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

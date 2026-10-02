@@ -4,7 +4,7 @@ x-logging: &logging
     max-size: "5m"
     max-file: "2"
 
-# Cấu hình chung của mọi bot. Bot chính là "bot"; bot2, bot3 chỉ chạy khi bật --profile multi
+# Shared configuration for every bot. The main bot is "bot"; bot2 and bot3 only run with --profile multi
 x-bot: &bot
   build: .
   image: musidiscord-bot:local
@@ -48,15 +48,15 @@ services:
       - SHARED_DIR=/app/shared
       - DISPLAY_BIND=0.0.0.0
     ports:
-      # Trang trạng thái /display chỉ mở trên máy chạy bot (bật bằng DISPLAY_PORT=8787 trong .env)
+      # The /display status page is only exposed on the machine running the bot (enable with DISPLAY_PORT=8787 in .env)
       - "127.0.0.1:8787:8787"
     volumes:
       - ./music:/music
       - ./data:/app/data
       - ./data/shared:/app/shared
 
-  # --- Nhiều bot cùng lúc: docker compose --profile multi up -d --build ---
-  # Mỗi bot một token riêng (.env.bot2), chung Lavalink và thư mục nhạc; dữ liệu riêng, thẻ/đặc trưng âm thanh dùng chung.
+  # --- Multiple bots at once: docker compose --profile multi up -d --build ---
+  # Each bot has its own token (.env.bot2) and they share Lavalink and the music folder; data is separate, while tags/audio features are shared.
   bot2:
     <<: *bot
     profiles: ["multi"]
@@ -91,7 +91,7 @@ services:
       - ./data/bot3:/app/data
       - ./data/shared:/app/shared
 
-  # --- Giám sát: docker compose --profile ops up -d (mở http://localhost:3001) ---
+  # --- Monitoring: docker compose --profile ops up -d (open http://localhost:3001) ---
   uptime-kuma:
     image: louislam/uptime-kuma:1
     profiles: ["ops"]

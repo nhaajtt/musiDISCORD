@@ -14,7 +14,7 @@ import { localRelativePath } from "../utils/trackKey.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FONT_DIR = path.join(HERE, "..", "..", "assets", "fonts");
 
-// Chỉ phục vụ đúng các file này (không cho đường dẫn tự do)
+// Only serve exactly these files (no arbitrary paths)
 const STATIC = new Map([
   ["/", { file: path.join(HERE, "static", "display.html"), type: "text/html; charset=utf-8" }],
   ["/display", { file: path.join(HERE, "static", "display.html"), type: "text/html; charset=utf-8" }],
@@ -32,7 +32,7 @@ const MAX_BODY = 2048;
 const COVER_TTL_MS = 10 * 60_000;
 const coverCache = new Map();
 
-/** Chỉ nhận số thật (hoặc chuỗi số không rỗng); null, undefined, "" không bị coi là 0. */
+/** Only accepts real numbers (or non-empty numeric strings); null, undefined and "" are not treated as 0. */
 export function toNumber(v) {
   if (typeof v === "number") return Number.isFinite(v) ? v : null;
   if (typeof v === "string" && v.trim() !== "") return Number.isFinite(Number(v)) ? Number(v) : null;
@@ -41,7 +41,7 @@ export function toNumber(v) {
 
 const hex = (n) => `#${n.toString(16).padStart(6, "0")}`;
 
-/** Chọn player cần hiển thị: guild chỉ định, nếu không thì server đang có bài phát. */
+/** Picks the player to show: the specified guild, otherwise a server that is playing. */
 export function pickPlayer(client, guildId) {
   const players = client.lavalink.players;
   if (guildId) return players.get(guildId) ?? null;
@@ -50,8 +50,8 @@ export function pickPlayer(client, guildId) {
 }
 
 /**
- * Trạng thái đang phát dạng JSON an toàn để công khai trong mạng nhà: không có ID Discord, không có tên người yêu cầu,
- * và ẩn hoàn toàn khi đang đố nhạc (kẻo lộ đáp án).
+ * Now-playing state as JSON that is safe to expose on a home network: no Discord IDs, no requester names,
+ * and fully hidden during a music quiz (to avoid leaking the answer).
  */
 export function nowPlayingState(client, player, botName = config.botName, canControl = false) {
   const base = { bot: botName, playing: false, canControl };
@@ -82,7 +82,7 @@ export function nowPlayingState(client, player, botName = config.botName, canCon
     accent: hex(accentFor(`${info.title}${info.author ?? ""}`)),
     cover: rel !== null || /^https?:\/\//i.test(info.artworkUrl ?? ""),
     repeat: player.repeatMode,
-    // Đặc trưng âm thanh do chính bot phân tích (có khi chưa phân tích xong)
+    // Audio features analyzed by the bot itself (may not be analyzed yet)
     bpm: f?.bpm ?? null,
     energy: f?.energy ?? null,
     brightness: f?.brightness ?? null,
@@ -111,7 +111,7 @@ async function readJson(req) {
   const chunks = [];
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > MAX_BODY) throw new Error("Nội dung quá lớn");
+    if (size > MAX_BODY) throw new Error("Body too large");
     chunks.push(chunk);
   }
   return chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
@@ -126,7 +126,7 @@ async function coverFor(rel) {
   return cover;
 }
 
-/** Xử lý một yêu cầu HTTP (tách riêng khỏi createServer để kiểm thử). */
+/** Handles one HTTP request (kept separate from createServer for testing). */
 export async function handle(req, res, client, cfg = config.display) {
   const url = new URL(req.url, "http://localhost");
 
@@ -137,10 +137,10 @@ export async function handle(req, res, client, cfg = config.display) {
       const isPage = asset.type.startsWith("text/html");
       return send(res, 200, body, asset.type, { "Cache-Control": asset.cache ?? "no-cache", ...(isPage ? { "Content-Security-Policy": PAGE_CSP, "Referrer-Policy": "no-referrer" } : {}) });
     } catch {
-      return send(res, 404, { error: "Không có tệp này" });
+      return send(res, 404, { error: "File not found" });
     }
   }
-  if (!url.pathname.startsWith("/api/")) return send(res, 404, { error: "Không có trang này" });
+  if (!url.pathname.startsWith("/api/")) return send(res, 404, { error: "Page not found" });
   if (!authorized(req, url, cfg.token)) return send(res, 401, { error: "Sai token" });
 
   const player = pickPlayer(client, url.searchParams.get("guild"));
@@ -152,21 +152,21 @@ export async function handle(req, res, client, cfg = config.display) {
     const rel = track && !player.getData("quiz") ? localRelativePath(track.info) : null;
     if (rel === null) {
       const art = track?.info.artworkUrl;
-      return art && /^https?:\/\//i.test(art) && !player?.getData("quiz") ? send(res, 302, "", "text/plain", { Location: art }) : send(res, 404, { error: "Không có bìa" });
+      return art && /^https?:\/\//i.test(art) && !player?.getData("quiz") ? send(res, 302, "", "text/plain", { Location: art }) : send(res, 404, { error: "No cover" });
     }
     const cover = await coverFor(rel);
-    return cover ? send(res, 200, cover.buffer, cover.mime, { "Cache-Control": "private, max-age=60" }) : send(res, 404, { error: "Không có bìa" });
+    return cover ? send(res, 200, cover.buffer, cover.mime, { "Cache-Control": "private, max-age=60" }) : send(res, 404, { error: "No cover" });
   }
 
   if (req.method === "POST" && url.pathname === "/api/control") {
-    if (!cfg.token) return send(res, 403, { error: "Điều khiển bị tắt (đặt DISPLAY_TOKEN để bật)" });
-    if (!player?.queue.current) return send(res, 409, { error: "Không có bài đang phát" });
-    if (player.getData("quiz")) return send(res, 409, { error: "Đang đố nhạc" });
+    if (!cfg.token) return send(res, 403, { error: "Control is disabled (set DISPLAY_TOKEN to enable)" });
+    if (!player?.queue.current) return send(res, 409, { error: "Nothing is playing" });
+    if (player.getData("quiz")) return send(res, 409, { error: "A music quiz is in progress" });
     let body;
     try {
       body = await readJson(req);
     } catch {
-      return send(res, 400, { error: "Nội dung không hợp lệ" });
+      return send(res, 400, { error: "Invalid body" });
     }
     switch (body.action) {
       case "toggle":
@@ -178,7 +178,7 @@ export async function handle(req, res, client, cfg = config.display) {
         break;
       case "volume": {
         const raw = toNumber(body.value);
-        if (raw === null) return send(res, 400, { error: "Âm lượng không hợp lệ" });
+        if (raw === null) return send(res, 400, { error: "Invalid volume" });
         await player.setVolume(Math.min(150, Math.max(0, Math.round(raw))));
         break;
       }
@@ -186,7 +186,7 @@ export async function handle(req, res, client, cfg = config.display) {
         const raw = toNumber(body.value);
         const ms = raw === null ? null : Math.round(raw);
         const dur = player.queue.current.info.duration;
-        if (player.queue.current.info.isStream || !Number.isFinite(dur) || ms === null || ms < 0 || ms >= dur) return send(res, 400, { error: "Vị trí tua không hợp lệ" });
+        if (player.queue.current.info.isStream || !Number.isFinite(dur) || ms === null || ms < 0 || ms >= dur) return send(res, 400, { error: "Invalid seek position" });
         await player.seek(ms);
         break;
       }
@@ -194,30 +194,30 @@ export async function handle(req, res, client, cfg = config.display) {
         await cycleLoop(player);
         break;
       default:
-        return send(res, 400, { error: "Hành động không hợp lệ" });
+        return send(res, 400, { error: "Invalid action" });
     }
     return send(res, 200, nowPlayingState(client, player, config.botName, Boolean(cfg.token)));
   }
 
-  return send(res, 404, { error: "Không có đường dẫn này" });
+  return send(res, 404, { error: "Path not found" });
 }
 
-/** Bật máy chủ trạng thái (DISPLAY_PORT>0). */
+/** Starts the status server (DISPLAY_PORT>0). */
 export function startDisplayServer(client, cfg = config.display) {
   if (!cfg.port) return null;
   const server = createServer((req, res) => {
     handle(req, res, client, cfg).catch((error) => {
-      console.error("API trạng thái lỗi:", error);
-      if (!res.headersSent) send(res, 500, { error: "Lỗi máy chủ" });
+      console.error("Status API error:", error);
+      if (!res.headersSent) send(res, 500, { error: "Server error" });
       else res.end();
     });
   });
-  server.on("error", (error) => console.error("Không mở được máy chủ trạng thái:", error.message));
+  server.on("error", (error) => console.error("Could not start the status server:", error.message));
   server.listen(cfg.port, cfg.bind, () => {
     const open = !["127.0.0.1", "localhost", "::1"].includes(cfg.bind);
-    console.log(`Trạng thái đang phát: http://${cfg.bind}:${cfg.port}/display${cfg.token ? " (cần token)" : ""}`);
-    // Trong Docker, cổng chỉ được mở ra máy chạy bot (127.0.0.1) bởi docker-compose nên không cần cảnh báo
-    if (open && !cfg.token && !existsSync("/.dockerenv")) console.warn("DISPLAY_BIND mở ra ngoài mà chưa có DISPLAY_TOKEN: ai trong mạng cũng xem được bài đang phát (không điều khiển được).");
+    console.log(`Now-playing status: http://${cfg.bind}:${cfg.port}/display${cfg.token ? " (token required)" : ""}`);
+    // In Docker, docker-compose only exposes the port to the host running the bot (127.0.0.1), so no warning is needed
+    if (open && !cfg.token && !existsSync("/.dockerenv")) console.warn("DISPLAY_BIND is exposed externally without DISPLAY_TOKEN: anyone on the network can see what is playing (but cannot control it).");
   });
   server.unref();
   return server;

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project devlog, musiDISCORD</title>
+<meta name="description" content="The real devlog of building musiDISCORD: choosing the stack, giving up on YouTube, deploying to a Raspberry Pi 5, the TFT screen story, what went wrong and what I learned.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/nhat-ky.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/devlog.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/nhat-ky.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>N-01</b></span>
+  <span class="strip__name">Devlog</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="features.html">Features</a>
+    <a href="commands.html">Commands</a>
+    <a href="setup.html">Setup</a>
+    <a href="devlog.html" aria-current="page">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../nhat-ky.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="devlog.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="content" class="legal legal--wide">
+  <div class="wrap">
+    <h1>Project devlog</h1>
+    <p class="lead">This is my real devlog from building musiDISCORD, from picking the stack to getting it running 24/7 on a Raspberry Pi 5 at home. I wrote down the times I got things wrong and how I tracked down the cause, because that is where most of what I learned came from.</p>
+    <div class="legal__meta">
+      <span>Sep 30 to Oct 2, 2026</span>
+      <span class="stamp" style="font-size:18px">rev G</span>
+    </div>
+
+    <div class="legal__body">
+    <section class="clause">
+      <p class="when">Sep 30</p>
+      <h2>Choosing the stack and setting up the frame</h2>
+      <p>I wanted a self-hosted music bot that does not depend on anyone else's service. I chose <strong>Node.js and discord.js</strong> for the bot, <strong>Lavalink v4</strong> as a separate audio server (the bot gives the orders, Lavalink decodes and pushes the audio into the voice channel), and <strong>Docker Compose</strong> to package both.</p>
+      <p>The first question that stopped me was what to paste into <code>DISCORD_TOKEN</code>. I thought it was the Public Key. Rereading the Developer Portal made it clear: the Token is the bot's password (never to be put on GitHub), while the Application ID is the public identifier used to invite the bot and register commands. So the <code>.env</code> file has been in <code>.gitignore</code> since the very first commit.</p>
+      <p>One small detail that cost time: slash commands registered "globally" show up very slowly, while registering per server with <code>GUILD_ID</code> makes them appear instantly. While testing, I used the second approach.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Sep 30</p>
+      <h2>YouTube would not play</h2>
+      <p>Playing a YouTube link gave <code>This video requires login</code>, then a signature function decoding error.</p>
+      <p>I tried, in turn:</p>
+      <ul>
+        <li>updating Lavalink's YouTube plugin to 1.18.2;</li>
+        <li>OAuth login with a secondary account to get a refresh token;</li>
+        <li>enabling extra fallback clients;</li>
+        <li>turning off the VPN and running from my home IP.</li>
+      </ul>
+      <p>The result was hit and miss. YouTube actively blocks this kind of access, and under its terms of service it is not something a product should be built on anyway.</p>
+      <div class="note-box"><p><strong>Decision:</strong> do not try to win a game against YouTube. Shift the focus to a <strong>personal music library</strong> (my own files) plus SoundCloud, and keep YouTube only as an option. First lesson: when a direction depends on something you do not control, changing course early is cheaper than gritting your teeth.</p></div>
+    </section>
+    <section class="clause">
+      <p class="when">Sep 30</p>
+      <h2>Local music and the “Unknown title” problem</h2>
+      <p>My music files have no tags, so the <code>/local</code> autocomplete was full of "Unknown title", which made picking a track very hard.</p>
+      <p>I wrote a library scanner: it reads tags with <code>music-metadata</code>; if they are missing, it guesses the artist and title from the file name (patterns like <code>01-track-name</code>, <code>Artist - Title</code>) and from the folder; search ignores Vietnamese diacritics; and the cache is keyed on modified date and file size so later scans only read new files.</p>
+      <p>That led to <code>/nhaajt</code>: shuffle-play the whole folder, reshuffle when the round ends, and never stop until you press stop. I use a weighted shuffle (tracks with a 👍 come up sooner) and spread tracks by the same artist far apart, because a purely random shuffle often puts two songs by the same singer back to back.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 1</p>
+      <h2>From working to usable</h2>
+      <p>The bot could play, but it was not something other people could use yet. My own checklist: a DJ role and default volume per server, skip votes when the room is busy, a fair queue (one turn each), <code>/bump</code>, 24/7 mode, a "Now playing" card built with Components V2, a music quiz, stats and Wrapped, and lyrics that follow the singing.</p>
+      <p>Where I got stuck:</p>
+      <ul>
+        <li><strong>Restarting the bot lost the queue.</strong> I save a snapshot of the queue when a new track starts and when the bot shuts down. The bug I hit: restoring a position beyond the track length made Lavalink reject it, so I had to clamp the position to the allowed range.</li>
+        <li><strong>Health checks.</strong> I write the "still alive" signal to RAM (<code>/dev/shm</code>) instead of disk, so that later, on an SD card, it does not cause wear.</li>
+        <li><strong>The Wrapped card.</strong> I draw an SVG and convert it to PNG with <code>@resvg/resvg-js</code>; the container has no fonts, so I bundle open-source fonts with it.</li>
+      </ul>
+      <p>From here on every feature ships with tests (<code>node:test</code>). By this point there were 131 tests.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 1</p>
+      <h2>Data from other people is never harmless</h2>
+      <p>Track titles come from file tags, and tags can be set by anyone. A title like <code>[click here](http://…)</code> or <code>&lt;@id&gt;</code> would render as a fake link or ping someone in the bot's message.</p>
+      <p>While testing I found that discord.js's <code>escapeMarkdown</code> does not escape the characters <code>[ ] ( ) &lt; &gt;</code>. I wrote <code>safeText</code> and <code>cleanMeta</code> (stripping control characters, text-direction override characters and markdown-style links) and added a test for each case. Lesson: every string that comes in from outside (file tags, usernames, suggestion text) has to be sanitized before it is displayed.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 1</p>
+      <h2>An idea I decided not to build</h2>
+      <p>I once came up with letting members submit YouTube links, with the bot using an mp3 converter site to download them into the music library, so the library would grow through its users. It sounded great.</p>
+      <p>But the more I thought about it, the more I saw three problems: copying copyrighted music and playing it to a whole server is infringement; my repo and website are public, so they would be very easy to take down; and technically it is unreliable too (those sites have no API, and YouTube blocks them just like the error on Sep 30).</p>
+      <p>The alternative I chose:</p>
+      <ul>
+        <li><code>/contribute</code>: users submit <strong>their own files</strong>, and the bot owner approves each file before it enters the library. Off by default; only accepts Discord CDN URLs; limits on size and duration; duplicates blocked by hash; stored file names are chosen by the bot, never the user's (to avoid <code>../</code>-style paths).</li>
+        <li><code>/request</code>: only records a track name or link in a wishlist, and <strong>never opens or downloads</strong> the link. When the track shows up in the library, the bot messages whoever asked.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 1</p>
+      <h2>The website, Vercel and the first 404</h2>
+      <p>I built an introduction website in an engineering-drawing style (cyanotype blue paper), pushed the repo to GitHub (public) and deployed it on Vercel.</p>
+      <p>The page returned <code>404: NOT_FOUND</code>. The cause: Vercel builds from the repo root, while the site lives in <code>web/</code>. I fixed it with a <code>vercel.json</code> at the root that sets the output directory to <code>web</code>. Because the repo is public, I also reviewed what must never be committed: <code>.env</code>, <code>data/</code>, <code>music/</code>, the Lavalink plugin.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 1</p>
+      <h2>Moving to the Raspberry Pi 5: a stumble at every step</h2>
+      <p>I have a Pi 5 (8 GB, running Kali Linux), so I decided to move the bot onto it to run 24/7.</p>
+      <ul>
+        <li><strong>SSH with a key.</strong> Running <code>ssh</code> through a tool with no terminal means I cannot type a password, and it said <code>Permission denied</code>. I created an ed25519 key and copied it to the Pi but was still refused. The <code>-v</code> flag showed the server accepted the key but the client could not sign. The cause: the two quotes <code>""</code> I typed when creating the key were interpreted by Windows as a <strong>real passphrase</strong>. I removed it with <code>ssh-keygen -p</code>.</li>
+        <li><strong>Docker permissions.</strong> Docker was installed but my account was not in the <code>docker</code> group, and <code>sudo</code> needed a password. I split out the parts that need root (installing packages, adding the group) to run myself, and did the rest over SSH.</li>
+        <li><strong>Lavalink plugin 404.</strong> On the Pi, Lavalink could not download the YouTube plugin because Maven returned 404 for that exact version (it worked on the PC because it had been downloaded earlier). The plugin is a Java file and runs on any architecture, so I copied the <code>.jar</code> straight from the PC. The plugins folder turned out to be owned by <code>root</code> because Docker created it, so I had to change the owner through a temporary container.</li>
+        <li><strong>A glued-together line.</strong> The <code>.env</code> file had no trailing newline, so the line I appended stuck to <code>ANALYSIS=on</code> and became <code>ANALYSIS=onAUTOSAVE_SECONDS=0</code>. Since then I recheck <code>.env</code> every time I edit it.</li>
+      </ul>
+      <p>Because the Pi uses an <strong>SD card</strong> (which wears out with heavy writing), I cut disk writes: the "still alive" signal in RAM, <code>AUTOSAVE_SECONDS=0</code>, rotating Docker logs.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 2</p>
+      <h2>Making use of the Pi: tagging, audio analysis, multiple bots</h2>
+      <p>I wanted the Pi to do the things a personal computer could never be left running in the background to do.</p>
+      <ul>
+        <li><strong>Auto-tagging</strong> with audio fingerprints: <code>fpcalc</code> generates a fingerprint and queries AcoustID, and if that fails it searches MusicBrainz by file name. Tags are stored <strong>outside</strong> the music files (the originals are never modified). In a trial on 10 of my real tracks, AcoustID recognized none of them (they were all rips), so only the file-name search was left, with confidence capped at 80%, below the 85% auto-apply threshold, so they became a queue waiting for my review. I set the threshold that way on purpose so the machine never overwrites tags with a wrong guess.</li>
+        <li><strong>Audio analysis</strong> to power <code>/vibe</code> (mood radio) and <code>/similar</code>: decode the middle 40 seconds with ffmpeg, then compute energy, brightness and BPM using FFT and autocorrelation, written in plain JavaScript. I tested it with synthetic beats from 80 to 170 BPM. The first version read 140 BPM as 70 (confusing it with half-time); smoothing the onset envelope brought the error under 1 BPM. Running it on the real library, I saw energy "saturating" at 1.0 for loudly mastered tracks, so I measured the actual loudness of the library (roughly −18 to −5 dB) and recalibrated the scale.</li>
+        <li><strong>Several bots at once.</strong> I added a <code>multi</code> profile to Docker Compose. Since two processes sharing one data folder would overwrite each other's files, I gave each bot its own data and let only one "worker" bot write to the shared folder.</li>
+        <li><strong>Operations.</strong> Backups with <code>VACUUM INTO</code> (a consistent copy even while the bot is writing; I verified by decompressing and reading it back). A self-update script that pulls from GitHub and <strong>rolls back</strong> if the bot is not healthy after the update. Uptime Kuma for monitoring. Tailscale for remote access without opening router ports.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 2</p>
+      <h2>The <code>/display</code> status page and the case of the “vanishing title”</h2>
+      <p>I built a small web page that shows what is playing, for phones and big screens, with controls protected by a token. I redesigned it several times: a disc that spins and pulses to the track's real BPM, a page color that changes with each song, a ruler along the bottom made of beat ticks, and tapping the ruler to seek.</p>
+      <p>When testing with headless Chrome, the screenshots were always <strong>missing the title</strong>. I spent a while suspecting my code, until I realized Chrome's "virtual time" mode does not run CSS animations, so the text stayed in the hidden state at the start of the animation. I wrote a script that drives Chrome over DevTools, waits for real time, and only then takes the screenshot. Lesson: when a testing tool gives strange results, check the tool before fixing the code.</p>
+      <p>On the page's security: it is only exposed on <code>127.0.0.1</code> on the machine running the bot; controls need <code>DISPLAY_TOKEN</code>; it does not expose Discord IDs or requester names; it hides itself during a music quiz (so as not to give away the answer); and the CSP is strict (no inline scripts, no external resources). The tests also caught a bug: a <code>null</code> value was being treated as 0, so a seek request could send the track back to the start; I fixed it so the API only accepts real numbers.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 2</p>
+      <h2>The 3.5 inch TFT screen: the longest story</h2>
+      <p>I have a 3.5 inch resistive touch TFT that plugs straight onto the Pi's GPIO header. The goal: show what is playing right on the Pi.</p>
+      <h3>1. A white screen</h3>
+      <p>The driver loaded normally and <code>dmesg</code> was clean, but the screen was white. I read the device tree to check the control pins: DC is GPIO24 and RESET is GPIO25, matching the Pi 5's RP1 controller. Filling the framebuffer with solid red was still white.</p>
+      <h3>2. Finding the cause</h3>
+      <p>Looking through the documentation: the vendor only supports the Pi 3B and 4B. The <code>tft35a</code> overlay the Pi was using is not part of the Raspberry Pi kernel but is installed by the vendor's script, and is based on the old <code>fbtft</code> driver. The official <code>piscreen</code> overlay has an extra <code>drm</code> option to use the modern driver. I switched to <code>dtoverlay=piscreen,drm,rotate=90</code>: the screen went from white to black. Black was progress too, because it proved the panel had accepted the initialization commands.</p>
+      <h3>3. Proving the data was flowing</h3>
+      <p>The screen was still black when drawing. Instead of guessing, I read the SPI bus byte counter in <code>sysfs</code> before and after writing one frame: it rose by exactly 307,222 bytes (480×320×2 bytes plus commands). So the Pi was sending everything, and the fault was elsewhere. The next hypothesis was SPI speed: the new driver defaults to 24 MHz, while the vendor designed it for 16 MHz. I lowered it to 8 MHz and the image appeared.</p>
+      <h3>4. Orientation</h3>
+      <p>I drew a test image with four colored squares in the four corners, plus text, to see how many degrees the screen was rotated. The result: it needed a 90° rotation.</p>
+      <h3>5. Touch</h3>
+      <p>My first calibration was wrong: I only recorded 3 of the 4 corner touches, so I guessed the order wrong and mixed up the axes. When I tried the buttons, the touch log showed every press being counted in the bottom-left corner. Cross-checking all the data, I worked out the right answer: no axis swap, just the horizontal axis inverted. Only then did I realize this is a <strong>resistive touch</strong> screen, so it needs a stylus, and fingers are unreliable.</p>
+      <h3>6. Lag</h3>
+      <p>The first version sent the full frame twice a second (about 614 KB per second, when an 8 MHz bus only handles roughly 1 MB). I tried sending only the changed region and found it was even choppier. Measuring again, drawing took only 12 ms, the bottleneck was the SPI bus, and the spinning disc demanded too much bandwidth. I changed the design: <strong>no motion on the small screen</strong>, redrawing only once per second (the progress bar advancing) and immediately on touch. Traffic dropped to about 307 KB per second. Lesson: the hardware dictates the design. The same idea is smooth on a phone and not on an SPI screen.</p>
+      <h3>7. The look</h3>
+      <p>I iterated many times by feel: a typographic poster, a big clock when idle, a large avatar, then a magazine cover with a serif typeface. I dropped the border around the photo four times (a colored border, corner marks, a ruler with tick marks, a rectangular frame) until I chose to remove the border completely and let the photo bleed to the edge like a real magazine cover.</p>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 2</p>
+      <h2>Small bugs that ate time</h2>
+      <ul>
+        <li><code>pkill -f</code> killed my own SSH session, because the string it was looking for was also in the very command being run. How to avoid it: split it into a separate command or use the <code>[p]attern</code> trick.</li>
+        <li>The Tailscale service was in the <code>disabled</code> state, so after the Pi rebooted, the control page and Kuma over Tailscale vanished. I now check <code>systemctl is-enabled</code> rather than only <code>is-active</code>, then enabled it at boot.</li>
+        <li><code>git pull</code> on the Pi was refused because I had copied files over by hand earlier. Since then I always commit first and then sync.</li>
+        <li>A portrait photo left in the project folder was nearly pushed to the public repo by <code>git add -A</code>; I added it to <code>.gitignore</code> before committing.</li>
+        <li>Many long commands in the Windows shell broke on quotes and backslashes; I switched to writing the script to a file and running that.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <p class="when">Oct 2</p>
+      <h2>Cleaning up and rewriting the docs</h2>
+      <p>Finally I cleaned up both machines. On the PC: stopped and removed the project's Docker containers, images and cache (everything had moved to the Pi), and deleted the old data after pulling a fresh backup from the Pi (so a copy exists outside the SD card). On the Pi: removed temp files and leftover images. Things that do not belong to this project I left alone. After that I split the website into several pages to make it easier to read and wrote this devlog.</p>
+    </section>
+    <section class="clause">
+      <h2>What I learned</h2>
+      <ul>
+        <li>When a direction depends on something you do not control (YouTube), change course early.</li>
+        <li>Measure before optimizing: the SPI bus byte counter, draw time, traffic. Guessing wrong costs more time than measuring.</li>
+        <li>Break hardware problems into testable hypotheses: which pin, is the data flowing, the speed, the rotation.</li>
+        <li>Data from outside always has to be sanitized before it is displayed or written to disk.</li>
+        <li>The design has to fit within the hardware's limits, not the other way around.</li>
+        <li>For a feature that could cause harm (downloading copyrighted music), weigh the risk and choose the safer option instead of forcing it through.</li>
+        <li>Operations matter as much as writing code: backups, self-updates with rollback, monitoring, auto restart.</li>
+        <li>Write tests for the parts with real logic (BPM, path blocking, the API, string sanitizing) and be clear about what has no tests.</li>
+      </ul>
+    </section>
+    <section class="clause">
+      <h2>Still unfinished</h2>
+      <ul>
+        <li>I have not tried SPI at 16 MHz (it might allow motion on the TFT screen again).</li>
+        <li>I have not verified that the TFT screen comes back on its own after the Pi reboots: the <code>@reboot</code> line in the crontab has not been through a real test.</li>
+        <li>The TFT Python code has no automated tests; for now it is only checked with exported images and by running on the device.</li>
+        <li>The rollback part of the self-update script has only been written and tested for the "no new version" case; I have not tried it with a genuinely broken release.</li>
+        <li>The multi-bot profile (<code>multi</code>) has not been run with a second token.</li>
+        <li>The SD card is still the weak spot; for long-term use, move to a USB SSD.</li>
+      </ul>
+    </section>
+    </div>
+  </div>
+<section class="sheet" id="revisions" data-sheet="S-01|Revision table" aria-labelledby="h-revisions">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-revisions">Revision table</h2>
+      <p class="sheet__scale">A revision block, like a real drawing<br>the newest row is at the bottom</p>
+    </header>
+    <div class="table-wrap revwrap">
+      <table class="rev">
+        <caption>Every new release is one row</caption>
+        <thead><tr><th scope="col">REV</th><th scope="col">Version</th><th scope="col">Date</th><th scope="col">Changes</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">A</th><td>1.0</td><td>released</td><td>First version: a basic music player.</td></tr>
+          <tr><th scope="row">B</th><td>1.1</td><td>released</td><td>Controls under the now-playing message, the <code>/settings</code> command, DJ role.</td></tr>
+          <tr><th scope="row">C</th><td>1.2</td><td>released</td><td>Queue restore after restart, skip voting, service health checks.</td></tr>
+          <tr><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Smart music library, new Now playing card, track title on the voice channel, music quiz, fair queue and <code>/bump</code>, stats, Wrapped and track ratings, lyrics that follow the singing, 24/7 mode.</td></tr>
+          <tr><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Owner-approved file contributions (<code>/contribute</code>, <code>/settings contributions</code>) and a wishlist (<code>/request</code>); the bot downloads nothing from YouTube.</td></tr>
+        <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Auto-tagging with audio fingerprints (<code>/library</code>), mood radio and similar tracks (<code>/vibe</code>, <code>/similar</code>), several bots at once, a status page for small screens, backups, self-updates and monitoring for the Raspberry Pi.</td></tr>
+        <tr class="now"><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>3.5 inch TFT screen on the Raspberry Pi 5 (magazine-cover interface, stylus touch), a new <code>/display</code> page, backups, self-updates, monitoring and remote access through Tailscale, the website split into multiple pages.<span class="revstamp" id="rev-stamp" aria-hidden="true">CURRENT</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot" data-sheet="N-01|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot, running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>N-01</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source code</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

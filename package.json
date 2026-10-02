@@ -1,7 +1,7 @@
 {
   "name": "musidiscord",
   "version": "1.0.0",
-  "description": "Bot phát nhạc Discord dùng Lavalink",
+  "description": "Self-hosted Discord music bot built on Lavalink",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

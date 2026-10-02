@@ -1,5 +1,5 @@
 /* musiDISCORD /display
-   Sân khấu = màu đậm của từng bài. Nhân vật chính là chiếc đĩa. */
+   The stage is each track's deep color. The star of the show is the disc. */
 
 @font-face { font-family: "Barlow Condensed"; src: url(/assets/fonts/BarlowCondensed-Bold.ttf) format("truetype"); font-weight: 700; font-display: swap; }
 @font-face { font-family: "Barlow Condensed"; src: url(/assets/fonts/BarlowCondensed-SemiBold.ttf) format("truetype"); font-weight: 600; font-display: swap; }
@@ -31,7 +31,7 @@ button { font: inherit; color: inherit; }
 
 .stage { position: fixed; inset: 0; overflow: hidden; background: var(--c1); }
 
-/* ---------- nền ---------- */
+/* ---------- background ---------- */
 .aurora i {
   position: absolute; width: 90vmax; height: 90vmax; border-radius: 50%; opacity: .5; will-change: transform;
   background: radial-gradient(closest-side, var(--c2), transparent 70%);
@@ -47,7 +47,7 @@ button { font: inherit; color: inherit; }
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* tên nghệ sĩ khổng lồ, viền rỗng, tô đầy dần theo tiến độ bài */
+/* giant artist name, outlined, filling in as the track progresses */
 .ghost { position: absolute; left: 0; right: 0; bottom: -4vmin; white-space: nowrap; pointer-events: none; font: 700 40vmin/.8 var(--display); text-transform: uppercase; letter-spacing: -.01em; }
 .ghost span {
   display: inline-block; color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--ink) 17%, transparent);
@@ -56,7 +56,7 @@ button { font: inherit; color: inherit; }
   translate: calc(var(--p, 0) * -34%) 0;
 }
 
-/* ---------- bố cục ---------- */
+/* ---------- layout ---------- */
 .room {
   position: relative; z-index: 2; height: 100%;
   display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-items: center;
@@ -71,7 +71,7 @@ button { font: inherit; color: inherit; }
 
 .info { min-width: 0; display: flex; flex-direction: column; gap: clamp(8px, 1.8vmin, 20px); }
 
-/* ---------- đĩa ---------- */
+/* ---------- disc ---------- */
 .ring, .prog { inset: 0; width: 100%; height: 100%; overflow: visible; }
 .ring { will-change: transform; }
 .ring text { font: 400 20px var(--mono); fill: color-mix(in srgb, var(--ink) 66%, transparent); letter-spacing: .02em; }
@@ -109,7 +109,7 @@ button { font: inherit; color: inherit; }
 .disc__label b { font: 700 11cqw/1 var(--display); font-variant-numeric: tabular-nums; }
 .disc__label small { font: 400 3.1cqw/1.2 var(--mono); margin-top: .8cqw; }
 
-/* ---------- chữ ---------- */
+/* ---------- text ---------- */
 .where { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .6em; font-size: clamp(11px, 1.9vmin, 15px); color: var(--dim); min-height: 1.4em; }
 .chip { font-style: normal; padding: .15em .7em; border: 1px solid var(--hair); border-radius: 99px; color: var(--ink); }
 .title {
@@ -132,7 +132,7 @@ button { font: inherit; color: inherit; }
 .empty h2 { margin: 0; font: 700 clamp(30px, 9vmin, 96px) / .95 var(--display); text-transform: uppercase; }
 .empty p { margin: .6em 0 0; max-width: 46ch; color: var(--dim); font-size: clamp(12px, 2.1vmin, 17px); line-height: 1.55; }
 
-/* ---------- thước theo nhịp ---------- */
+/* ---------- beat ruler ---------- */
 .timeline { margin-top: clamp(4px, 1.4vmin, 16px); }
 .ruler { --tick: 8px; position: relative; height: clamp(30px, 6.5vmin, 60px); cursor: pointer; touch-action: none; }
 .ruler__ticks {
@@ -146,7 +146,7 @@ button { font: inherit; color: inherit; }
 .ruler[aria-disabled="true"] { cursor: default; }
 .times { display: flex; justify-content: space-between; margin-top: .5em; font-size: clamp(11px, 1.9vmin, 15px); color: var(--dim); font-variant-numeric: tabular-nums; }
 
-/* ---------- nút ---------- */
+/* ---------- buttons ---------- */
 .controls { display: flex; align-items: center; gap: clamp(8px, 1.8vmin, 18px); margin-top: clamp(4px, 1.6vmin, 18px); }
 .btn {
   --s: clamp(42px, 8.4vmin, 68px); position: relative; width: var(--s); height: var(--s); display: grid; place-items: center; padding: 0; cursor: pointer;
@@ -166,13 +166,13 @@ body[data-state="paused"] .i-play { display: block; }
 body[data-state="paused"] .i-pause { display: none; }
 .controls[hidden], .controls.is-off { display: none; }
 
-/* ---------- trạng thái ---------- */
+/* ---------- states ---------- */
 body:not([data-state="playing"]):not([data-state="paused"]) :is(.title, .artist, .meta, .timeline, .controls) { display: none; }
 body:not([data-state="playing"]):not([data-state="paused"]) .empty { display: block; }
 body[data-state="idle"] .deck__inner, body[data-state="offline"] .deck__inner, body[data-state="auth"] .deck__inner { opacity: .5; filter: saturate(.35); }
 body[data-state="offline"] .deck__inner { filter: grayscale(1); opacity: .35; }
 
-/* ---------- loang màu, thông báo ---------- */
+/* ---------- color wipe, toast ---------- */
 .wipe { position: fixed; inset: 0; z-index: 20; pointer-events: none; background: var(--wipe, var(--c1)); clip-path: circle(0 at 50% 50%); }
 .toast {
   position: fixed; z-index: 30; left: 50%; bottom: max(3.5vmin, env(safe-area-inset-bottom)); translate: -50% 24px; opacity: 0; pointer-events: none;
@@ -182,7 +182,7 @@ body[data-state="offline"] .deck__inner { filter: grayscale(1); opacity: .35; }
 .toast.on { opacity: 1; translate: -50% 0; }
 .toast b { font: 700 1.9em/1 var(--display); margin-right: .4em; vertical-align: -.1em; }
 
-/* ---------- màn dọc (điện thoại) ---------- */
+/* ---------- portrait (phone) ---------- */
 @media (max-aspect-ratio: 1/1) {
   .room { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; justify-items: center; text-align: center; gap: 3.2vh; padding-top: max(3vh, env(safe-area-inset-top)); }
   .deck__inner { --disc: min(84vw, 44vh); }
@@ -194,7 +194,8 @@ body[data-state="offline"] .deck__inner { filter: grayscale(1); opacity: .35; }
   .ghost { font-size: 52vw; bottom: 12vh; }
 }
 
-/* ---------- khung nhỏ (màn TFT 480x320) ---------- */
+/* ---------- small frame (480x320 TFT screen) ---------- */
+
 @media (max-height: 360px) and (min-aspect-ratio: 1/1) {
   .room { padding: 10px 14px; gap: 14px; }
   .deck__inner { --disc: min(74vh, 41vw); }

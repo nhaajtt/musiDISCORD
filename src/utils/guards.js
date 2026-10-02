@@ -12,13 +12,13 @@ async function fail(interaction, message) {
   return null;
 }
 
-/** DJ thật sự: có role DJ của server hoặc quyền Manage Server (khác với canControl: khi chưa đặt role DJ thì không ai là DJ). */
+/** A real DJ: has the server's DJ role or the Manage Server permission (unlike canControl: when no DJ role is set, nobody is a DJ). */
 export function isDj(member, guildId) {
   const { djRoleId } = getSettings(guildId);
   return member.permissions.has(PermissionFlagsBits.ManageGuild) || Boolean(djRoleId && member.roles.cache.has(djRoleId));
 }
 
-/** Nếu server đặt role DJ thì chỉ người có role đó (hoặc quyền Manage Server) mới được điều khiển. */
+/** If the server sets a DJ role, only people with that role (or Manage Server) may control playback. */
 export function canControl(member, guildId) {
   const { djRoleId } = getSettings(guildId);
   if (!djRoleId) return true;
@@ -27,20 +27,20 @@ export function canControl(member, guildId) {
 
 export async function denyDj(interaction) {
   const { djRoleId } = getSettings(interaction.guildId);
-  return fail(interaction, `Bạn cần role <@&${djRoleId}> để dùng lệnh này.`);
+  return fail(interaction, `You need the <@&${djRoleId}> role to use this command.`);
 }
 
 /**
- * Trả về player nếu người dùng ở cùng kênh thoại với bot và có quyền điều khiển,
- * ngược lại trả lời lỗi và trả null. `dj: false` bỏ kiểm tra role DJ (dùng cho bỏ phiếu, đánh giá...).
+ * Returns the player if the user is in the bot's voice channel and may control it,
+ * otherwise replies with an error and returns null. `dj: false` skips the DJ role check (used for voting, ratings...).
  */
 export async function requirePlayer(interaction, { dj = true } = {}) {
   const player = interaction.client.lavalink.getPlayer(interaction.guildId);
-  if (!player) return fail(interaction, "Hiện không có nhạc nào đang phát.");
+  if (!player) return fail(interaction, "Nothing is playing right now.");
 
   const voiceId = interaction.member.voice?.channelId;
-  if (!voiceId) return fail(interaction, "Bạn cần vào một kênh thoại trước.");
-  if (voiceId !== player.voiceChannelId) return fail(interaction, "Bạn phải ở cùng kênh thoại với bot.");
+  if (!voiceId) return fail(interaction, "You need to join a voice channel first.");
+  if (voiceId !== player.voiceChannelId) return fail(interaction, "You must be in the same voice channel as the bot.");
   if (dj && !canControl(interaction.member, interaction.guildId)) return denyDj(interaction);
 
   return player;

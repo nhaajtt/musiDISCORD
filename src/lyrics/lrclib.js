@@ -1,4 +1,4 @@
-// Lấy lời bài hát từ lrclib.net (không cần API key)
+// Fetch song lyrics from lrclib.net (no API key needed)
 
 const MAX_FIELD = 200;
 const MAX_BODY = 2_000_000;
@@ -21,7 +21,7 @@ function cacheGet(key) {
     return undefined;
   }
   cache.delete(key);
-  cache.set(key, e); // đẩy lên cuối (LRU)
+  cache.set(key, e); // move to the end (LRU)
   return e.val;
 }
 
@@ -31,7 +31,7 @@ function cacheSet(key, val, ttl) {
   while (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value);
 }
 
-// ---------- chuẩn hoá tên bài ----------
+// ---------- title normalization ----------
 
 const NOISE_RE =
   /\b(official|video|audio|lyrics?|lyric|mv|m\/v|visuali[sz]er|remaster(?:ed)?|hd|hq|4k|explicit|clip|karaoke|feat|ft|featuring|prod|có lời|lời bài hát|lời|chính thức)\b/i;
@@ -66,7 +66,7 @@ export function guessArtistTitle(name) {
   return { artist: null, title: cleanTitleForSearch(base) };
 }
 
-// ---------- so khớp ----------
+// ---------- matching ----------
 
 function norm(s) {
   return String(s ?? "")
@@ -139,7 +139,7 @@ function pickBest(list, { title, artist, durationSec }) {
   return pool[0].c;
 }
 
-// ---------- mạng ----------
+// ---------- network ----------
 
 async function httpJson(url, { fetchImpl, signal, userAgent, aborted }) {
   const res = await Promise.race([
@@ -201,7 +201,7 @@ export async function fetchLyricsFromLrclib(
         if (r.status === 200 && hasContent(r.data)) {
           result = toResult(r.data);
         } else if (r.status !== 404 && r.status !== 200) {
-          failed = true; // 429, 5xx...: không thử tiếp
+          failed = true; // 429, 5xx...: don't retry
         }
       }
       if (!result && !failed) {

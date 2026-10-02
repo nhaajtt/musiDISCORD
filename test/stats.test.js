@@ -10,7 +10,7 @@ const S = await import("../src/stats.js");
 const { awardBadges, earnedBadges } = await import("../src/badges.js");
 
 const G = "guild1";
-// 00:30 ngày 02/10/2026 theo giờ Việt Nam
+// 00:30 on 02/10/2026 Vietnam time
 const AT = Date.UTC(2026, 9, 1, 17, 30);
 const day = (n) => AT + n * 86_400_000;
 
@@ -29,7 +29,7 @@ function play(over = {}) {
   });
 }
 
-test("ghi lượt phát và tổng hợp theo người nghe", () => {
+test("records plays and aggregates per listener", () => {
   play();
   play({ trackKey: "local:b.mp3", title: "B", artist: "Nghệ sĩ 2", listenerIds: ["alice"] });
   const a = S.userStats(G, "alice");
@@ -43,30 +43,30 @@ test("ghi lượt phát và tổng hợp theo người nghe", () => {
   assert.equal(a.topArtists[0].plays, 1);
 });
 
-test("giờ nghe theo múi giờ cấu hình", () => {
+test("listening hours follow the configured time zone", () => {
   const a = S.userStats(G, "alice");
   assert.equal(a.hourlyPlays[0], 2);
   assert.equal(a.busiestHour, 0);
   assert.equal(a.nightPlays, 2);
 });
 
-test("lọc theo năm", () => {
+test("filter by year", () => {
   assert.equal(S.userStats(G, "alice", { year: 2026 }).totalPlays, 2);
   assert.equal(S.userStats(G, "alice", { year: 2025 }).totalPlays, 0);
   assert.equal(S.userStats(G, "alice", { year: 2025 }).busiestHour, null);
 });
 
-test("chuỗi ngày nghe liên tiếp", () => {
+test("consecutive listening-day streak", () => {
   for (const n of [1, 2, 3, 5]) play({ at: day(n), listenerIds: ["carol"] });
   assert.equal(S.userStats(G, "carol").streakDays, 3);
 });
 
-test("ghi người bỏ qua bài", () => {
+test("records who skipped a track", () => {
   play({ skippedBy: "bob", listenedMs: 5_000 });
   assert.equal(S.userStats(G, "bob").totalSkips, 1);
 });
 
-test("đánh giá bật/tắt và tổng hợp điểm", () => {
+test("rating toggle on/off and score totals", () => {
   assert.equal(S.toggleRating(G, "alice", "local:a.mp3", 1), 1);
   assert.equal(S.toggleRating(G, "bob", "local:a.mp3", 1), 1);
   assert.equal(S.toggleRating(G, "carol", "local:a.mp3", -1), -1);
@@ -78,7 +78,7 @@ test("đánh giá bật/tắt và tổng hợp điểm", () => {
   assert.equal(S.toggleRating(G, "alice", "local:a.mp3", 1), 1);
 });
 
-test("yêu thích", () => {
+test("favorites", () => {
   S.addFavorite("alice", "local:a.mp3", "A", "Nghệ sĩ 1");
   S.addFavorite("alice", "local:a.mp3", "A", "Nghệ sĩ 1");
   assert.equal(S.listFavorites("alice").length, 1);
@@ -87,7 +87,7 @@ test("yêu thích", () => {
   assert.equal(S.removeFavorite("alice", "local:a.mp3"), false);
 });
 
-test("bảng xếp hạng server", () => {
+test("server leaderboard", () => {
   const board = S.guildLeaderboard(G);
   assert.equal(board.topListeners[0].userId, "carol");
   assert.ok(board.topListeners.some((r) => r.userId === "alice"));
@@ -95,7 +95,7 @@ test("bảng xếp hạng server", () => {
   assert.equal(board.topRequesters[0].userId, "alice");
 });
 
-test("đố nhạc cộng dồn điểm", () => {
+test("music quiz points accumulate", () => {
   S.addQuizResult(G, "alice", { points: 300, correct: 3, bestStreak: 2 });
   S.addQuizResult(G, "alice", { points: 250, correct: 2, bestStreak: 1 });
   const row = S.quizScore(G, "alice");
@@ -105,7 +105,7 @@ test("đố nhạc cộng dồn điểm", () => {
   assert.equal(S.quizLeaderboard(G)[0].user_id, "alice");
 });
 
-test("huy hiệu: cấp một lần, không cấp lại", () => {
+test("badges: awarded once, not again", () => {
   const first = awardBadges(G, "alice");
   assert.ok(first.some((b) => b.id === "quiz_master"));
   assert.equal(awardBadges(G, "alice").length, 0);
@@ -113,7 +113,7 @@ test("huy hiệu: cấp một lần, không cấp lại", () => {
   assert.equal(earnedBadges(G, "nobody").length, 0);
 });
 
-test("người tắt thống kê không bị ghi lại", () => {
+test("users with stats off are not recorded", () => {
   S.setStatsEnabled("dave", false);
   assert.equal(S.isOptedOut("dave"), true);
   play({ requesterId: "dave", listenerIds: ["dave", "erin"] });
@@ -124,7 +124,7 @@ test("người tắt thống kê không bị ghi lại", () => {
   assert.equal(S.isOptedOut("dave"), false);
 });
 
-test("xoá dữ liệu cá nhân giữ lượt phát ẩn danh", () => {
+test("deleting personal data keeps anonymous plays", () => {
   S.addFavorite("frank", "local:z.mp3", "Z", null);
   S.toggleRating(G, "frank", "local:z.mp3", 1);
   play({ requesterId: "frank", skippedBy: "frank", listenerIds: ["frank", "erin"] });
@@ -138,7 +138,7 @@ test("xoá dữ liệu cá nhân giữ lượt phát ẩn danh", () => {
   assert.equal(S.userStats(G, "erin").totalPlays, before);
 });
 
-test("máy chủ khác nhau không lẫn dữ liệu", () => {
+test("different servers don't mix data", () => {
   assert.equal(S.userStats("guild2", "alice").totalPlays, 0);
   assert.equal(S.ratingScores("guild2").size, 0);
 });

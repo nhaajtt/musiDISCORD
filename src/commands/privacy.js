@@ -7,14 +7,14 @@ const ephemeral = (embed, extra = {}) => ({ embeds: [embed], flags: MessageFlags
 export default {
   data: new SlashCommandBuilder()
     .setName("privacy")
-    .setDescription("Quyền riêng tư: tắt thống kê hoặc xoá dữ liệu của bạn")
+    .setDescription("Privacy: turn off stats or delete your data")
     .addSubcommand((s) =>
       s
         .setName("stats")
-        .setDescription("Bật hoặc tắt việc ghi thống kê nghe nhạc của bạn")
-        .addBooleanOption((o) => o.setName("enabled").setDescription("true = ghi thống kê, false = không ghi").setRequired(true)),
+        .setDescription("Turn recording of your listening stats on or off")
+        .addBooleanOption((o) => o.setName("enabled").setDescription("true = record stats, false = don't record").setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("delete").setDescription("Xoá toàn bộ dữ liệu của bạn (thống kê, đánh giá, yêu thích, điểm, huy hiệu)")),
+    .addSubcommand((s) => s.setName("delete").setDescription("Delete all your data (stats, ratings, favorites, points, badges)")),
 
   async execute(interaction) {
     const userId = interaction.user.id;
@@ -26,21 +26,21 @@ export default {
         ephemeral(
           infoEmbed(
             enabled
-              ? "✅ Đã bật thống kê. Bot sẽ ghi lại những bài bạn nghe và yêu cầu."
-              : "🔒 Đã tắt thống kê. Từ giờ bot không ghi lại bài bạn nghe, yêu cầu hay đánh giá. Dữ liệu cũ vẫn còn cho tới khi bạn dùng `/privacy delete`.",
+              ? "✅ Stats turned on. The bot will record the tracks you listen to and request."
+              : "🔒 Stats turned off. From now on the bot won't record what you listen to, request or rate. Existing data is kept until you use `/privacy delete`.",
           ),
         ),
       );
     }
 
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId("privacy:confirm").setLabel("Xoá dữ liệu của tôi").setStyle(ButtonStyle.Danger),
-      new ButtonBuilder().setCustomId("privacy:cancel").setLabel("Huỷ").setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId("privacy:confirm").setLabel("Delete my data").setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId("privacy:cancel").setLabel("Cancel").setStyle(ButtonStyle.Secondary),
     );
     const message = await interaction.reply(
       ephemeral(
         infoEmbed(
-          `Thao tác này xoá vĩnh viễn thống kê nghe nhạc, đánh giá, bài yêu thích, điểm đố nhạc và huy hiệu của bạn. Không thể hoàn tác.${isOptedOut(userId) ? "" : "\nSau khi xoá, bot vẫn tiếp tục ghi thống kê mới trừ khi bạn tắt bằng `/privacy stats`."}`,
+          `This permanently deletes your listening stats, ratings, favorites, quiz points and badges. This can't be undone.${isOptedOut(userId) ? "" : "\nAfter deleting, the bot will keep recording new stats unless you turn it off with `/privacy stats`."}`,
         ),
         { components: [row], withResponse: true },
       ),
@@ -54,12 +54,12 @@ export default {
       });
       if (pressed.customId === "privacy:confirm") {
         deleteUserData(userId);
-        await pressed.update({ embeds: [infoEmbed("🗑️ Đã xoá toàn bộ dữ liệu của bạn.")], components: [] });
+        await pressed.update({ embeds: [infoEmbed("🗑️ All your data has been deleted.")], components: [] });
       } else {
-        await pressed.update({ embeds: [infoEmbed("Đã huỷ, không có gì bị xoá.")], components: [] });
+        await pressed.update({ embeds: [infoEmbed("Cancelled, nothing was deleted.")], components: [] });
       }
     } catch {
-      await interaction.editReply({ embeds: [infoEmbed("Hết thời gian xác nhận, không có gì bị xoá.")], components: [] }).catch(() => {});
+      await interaction.editReply({ embeds: [infoEmbed("Confirmation timed out, nothing was deleted.")], components: [] }).catch(() => {});
     }
   },
 };

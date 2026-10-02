@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tính năng, musiDISCORD</title>
-<meta name="description" content="Thư viện nhạc thông minh, thẻ Đang phát, hàng chờ, chế độ /nhaajt, đố nhạc, thống kê và Wrapped, lời bài hát, 24/7 và cổng đóng góp của bot nhạc musiDISCORD.">
+<meta name="description" content="Thư viện nhạc thông minh, thẻ Đang phát, hàng chờ, /search chọn kết quả bằng nút, bộ lọc âm thanh /filter, chế độ /nhaajt, đố nhạc, thống kê và Wrapped, lời bài hát, 24/7 và cổng đóng góp của bot nhạc musiDISCORD.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/tinh-nang.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/features.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/tinh-nang.html">
 <meta name="theme-color" content="#0b3a60">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +61,7 @@
     <a href="cai-dat.html">Cài đặt</a>
     <a href="nhat-ky.html">Nhật ký</a>
   </nav>
+  <div class="lang" role="group" aria-label="Ngôn ngữ"><a href="tinh-nang.html" hreflang="vi" lang="vi" title="Tiếng Việt" aria-current="true">VI</a><a href="en/features.html" hreflang="en" lang="en" title="English">EN</a></div>
   <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Tắt bút vẽ theo con trỏ" aria-pressed="true" title="Bút vẽ theo con trỏ">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
   </button>
@@ -304,6 +308,8 @@
       <div class="copy">
         <p>Thêm bao nhiêu bài tùy thích, bài nào tới lượt bài đó. <code>/queue</code> chia hàng chờ thành từng trang mười bài, có ảnh bìa và nút lật trang theo bố cục thẻ mới.</p>
         <p>Cần dọn dẹp? <code>/remove</code> bỏ một bài, <code>/shuffle</code> xáo trộn, <code>/loop</code> cho cả hàng chờ lặp lại, <code>/seek</code> tua tới đoạn hay nhất, <code>/volume</code> chỉnh từ 1 đến 150.</p>
+        <p>Không nhớ chính xác tên bài? <code>/search</code> tìm theo từ khóa (YouTube, YouTube Music, SoundCloud hoặc Spotify) và hiện tối đa 10 kết quả dưới dạng nút đánh số: bấm số nào, bài đó vào hàng chờ.</p>
+        <p>Muốn đổi màu âm thanh? <code>/filter</code> áp một hiệu ứng lên bài đang phát: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, hoặc <code>off</code> để tắt.</p>
         <p>Hai thứ mới cho đỡ cãi nhau: hàng chờ công bằng, và <code>/bump</code>.</p>
         <p class="note">ghi chú: bài tầng 3 là bài ai đó xin "chỉ nghe thử một chút"</p>
       </div>
@@ -631,7 +637,7 @@
     </header>
     <div class="split">
       <div class="copy">
-        <p><code>/contribute</code> (<code>submit</code>, <code>pending</code>, <code>stats</code>): bạn đính kèm file nhạc của chính mình và tick ô xác nhận rằng bạn sở hữu hoặc được phép chia sẻ file đó. File vào hàng chờ duyệt, chủ bot (không phải admin server, vì kho nhạc dùng chung cho mọi server) nhận tin nhắn riêng có nút Duyệt hoặc Từ chối. Duyệt xong, file được chuyển vào thư mục <code>music/Đóng góp/</code>, tìm được bằng <code>/local</code>, và bạn được báo qua tin nhắn riêng.</p>
+        <p><code>/contribute</code> (<code>submit</code>, <code>pending</code>, <code>stats</code>): bạn đính kèm file nhạc của chính mình và tick ô xác nhận rằng bạn sở hữu hoặc được phép chia sẻ file đó. File vào hàng chờ duyệt, chủ bot (không phải admin server, vì kho nhạc dùng chung cho mọi server) nhận tin nhắn riêng có nút Duyệt hoặc Từ chối. Duyệt xong, file được chuyển vào thư mục <code>music/Contributions/</code>, tìm được bằng <code>/local</code>, và bạn được báo qua tin nhắn riêng.</p>
         <ul class="ticks">
           <li><strong>Tắt sẵn.</strong> Cần <code>CONTRIBUTIONS=on</code> trong .env, rồi bật <code>/settings contributions</code> cho từng server.</li>
           <li><strong>Chỉ file âm thanh thật,</strong> tối đa 30 MB (chỉnh được), dài từ 10 giây tới 20 phút, và chỉ nhận link của Discord CDN.</li>
@@ -644,7 +650,7 @@
         <div class="gate__flow">
           <div class="gate__step" id="g-s1"><small>1. Gửi file</small><b id="g-file">Đêm ở ga cuối.mp3</b><span>4,2 MB, 3:05</span></div>
           <div class="gate__step" id="g-s2"><small>2. Chủ bot xem</small><b id="g-state">chưa có file</b><span id="g-dm">chờ bạn gửi</span></div>
-          <div class="gate__step" id="g-s3"><small>3. Vào kho</small><b>music/Đóng góp/</b><ul id="g-lib"><li class="empty">(trống)</li></ul></div>
+          <div class="gate__step" id="g-s3"><small>3. Vào kho</small><b>music/Contributions/</b><ul id="g-lib"><li class="empty">(trống)</li></ul></div>
         </div>
         <label class="sw"><input type="checkbox" id="g-own"><span class="sw__t" aria-hidden="true"></span><span>Tôi sở hữu file này hoặc được phép chia sẻ</span></label>
         <div class="gate__btns">

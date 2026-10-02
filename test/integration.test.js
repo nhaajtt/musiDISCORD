@@ -55,7 +55,7 @@ function fakePlayer(over = {}) {
   return p;
 }
 
-test("Now Playing (Components V2): hợp lệ, có hai hàng nút, ≤ 40 thành phần", () => {
+test("Now Playing (Components V2): valid, has two button rows, at most 40 components", () => {
   const player = fakePlayer();
   const payload = NP.buildNowPlaying(player, { track: player.queue.current, coverRef: "attachment://cover.jpg" });
   assert.equal(payload.flags & MessageFlags.IsComponentsV2, MessageFlags.IsComponentsV2);
@@ -74,11 +74,11 @@ test("Now Playing (Components V2): hợp lệ, có hai hàng nút, ≤ 40 thành
   assert.ok((flat.match(/"type":/g) ?? []).length <= 40);
 });
 
-test("Now Playing: không có ảnh bìa, tạm dừng, bài trực tiếp, tên rất dài", () => {
+test("Now Playing: no cover art, paused, live stream, very long title", () => {
   const long = fakeTrack("x".repeat(500));
   const player = fakePlayer({ paused: true, queue: { current: long, tracks: [] } });
   const json = NP.buildNowPlaying(player, { track: long, coverRef: null }).components[0].toJSON();
-  assert.ok(JSON.stringify(json).includes("TẠM DỪNG"));
+  assert.ok(JSON.stringify(json).includes("PAUSED"));
   assert.ok(!JSON.stringify(json).includes("x".repeat(200)));
 
   const live = fakeTrack("Radio");
@@ -86,14 +86,14 @@ test("Now Playing: không có ảnh bìa, tạm dừng, bài trực tiếp, tên
   assert.ok(JSON.stringify(NP.buildNowPlaying(fakePlayer(), { track: live, coverRef: null }).components[0].toJSON()).includes("LIVE"));
 });
 
-test("Now Playing: thẻ lịch sử không còn nút", () => {
+test("Now Playing: history card has no buttons", () => {
   const player = fakePlayer();
   const json = NP.buildNowPlaying(player, { track: player.queue.current, coverRef: null, finished: true }).components[0].toJSON();
   assert.ok(!(json.components ?? []).some((c) => c.type === 1));
-  assert.ok(JSON.stringify(json).includes("ĐÃ PHÁT"));
+  assert.ok(JSON.stringify(json).includes("PLAYED"));
 });
 
-test("accentFor ổn định và nằm trong dải màu hợp lệ", () => {
+test("accentFor is stable and stays within the valid color range", () => {
   assert.equal(NP.accentFor("abc"), NP.accentFor("abc"));
   assert.notEqual(NP.accentFor("abc"), NP.accentFor("abd"));
   for (const s of ["", "a", "Lạc Trôi", "😀"]) {
@@ -102,14 +102,14 @@ test("accentFor ổn định và nằm trong dải màu hợp lệ", () => {
   }
 });
 
-test("nút đánh giá hiện số phiếu", () => {
+test("rating button shows the vote count", () => {
   S.toggleRating("g1", "u1", "local:" + "Lạc Trôi.mp3", 1);
   const player = fakePlayer();
   const [, feedback] = controlRows(player, player.queue.current);
   assert.equal(feedback.toJSON().components[0].label, "1");
 });
 
-test("/queue (Components V2): phân trang và giới hạn nội dung", () => {
+test("/queue (Components V2): pagination and content limits", () => {
   const tracks = Array.from({ length: 25 }, (_, i) => fakeTrack(`Bài ${i + 1}`));
   const player = fakePlayer({ queue: { current: fakeTrack("Hiện tại"), tracks } });
   const page0 = buildPage(player, 0);
@@ -117,14 +117,14 @@ test("/queue (Components V2): phân trang và giới hạn nội dung", () => {
   const row = json0.components.find((c) => c.type === 1);
   assert.equal(row.components[0].disabled, true);
   assert.equal(row.components[1].disabled, false);
-  assert.ok(JSON.stringify(json0).includes("Trang 1/3"));
+  assert.ok(JSON.stringify(json0).includes("Page 1/3"));
   assert.ok(JSON.stringify(buildPage(player, 2).components[0].toJSON()).includes("Bài 25"));
 
   const single = buildPage(fakePlayer({ queue: { current: null, tracks: [fakeTrack("Chỉ một")] } }), 0).components[0].toJSON();
   assert.ok(!single.components.some((c) => c.type === 1));
 });
 
-test("hàng chờ công bằng: luân phiên theo người yêu cầu", () => {
+test("fair queue: interleaves by requester", () => {
   const mk = (t, id) => ({ info: { title: t }, requester: { id } });
   const input = [mk("a1", "A"), mk("a2", "A"), mk("a3", "A"), mk("b1", "B"), mk("c1", "C"), mk("b2", "B")];
   assert.deepEqual(roundRobin(input).map((t) => t.info.title), ["a1", "b1", "c1", "a2", "b2", "a3"]);
@@ -132,7 +132,7 @@ test("hàng chờ công bằng: luân phiên theo người yêu cầu", () => {
   assert.equal(roundRobin(input).length, input.length);
 });
 
-test("đẩy bài lên đầu hàng chờ", async () => {
+test("move a track to the front of the queue", async () => {
   const player = fakePlayer({ queue: { current: null, tracks: [fakeTrack("A"), fakeTrack("B"), fakeTrack("C")], splice: async function (i, n, ...items) { this.tracks.splice(i, n, ...items); } } });
   assert.equal(await moveToFront(player, 2), true);
   assert.deepEqual(player.queue.tracks.map((t) => t.info.title), ["C", "A", "B"]);
@@ -151,7 +151,7 @@ const fakeClient = (humans = ["u1", "u2"]) => {
   };
 };
 
-test("ghi thống kê khi bài kết thúc: đủ thời gian thì tính, skip sớm thì chỉ ghi lượt bỏ qua", () => {
+test("record stats when a track ends: counted when played long enough, an early skip only records the skip", () => {
   const client = fakeClient(["u1", "u2"]);
   const player = fakePlayer();
   R.beginPlay(player, player.queue.current);
@@ -175,7 +175,7 @@ test("ghi thống kê khi bài kết thúc: đủ thời gian thì tính, skip s
   R.endPlay(client, player, { reason: "loadFailed" });
 });
 
-test("đố nhạc: ván hoàn chỉnh với chấm điểm, kết thúc sớm khi mọi người đúng, lưu điểm", async () => {
+test("music quiz: full game with scoring, ends early when everyone is correct, saves points", async () => {
   const client = fakeClient(["u1", "u2"]);
   const player = fakePlayer({ queue: fakeQueue(), search: async ({ query }) => ({ tracks: [fakeTrack(path.basename(query, ".mp3"))] }) });
   const channel = client.channels.cache.get();
@@ -193,7 +193,7 @@ test("đố nhạc: ván hoàn chỉnh với chấm điểm, kết thúc sớm k
   const answerRound = async () => {
     for (let i = 0; i < 100 && player.queue.current === null; i++) await new Promise((r) => setTimeout(r, 10));
     const title = player.queue.current.info.title;
-    assert.equal(session.submit(alice, "sai bét").status, "wrong");
+    assert.equal(session.submit(alice, "wrong answer").status, "wrong");
     const a = session.submit(alice, title);
     assert.equal(a.status, "correct");
     assert.ok(a.points >= 40);
@@ -203,23 +203,23 @@ test("đố nhạc: ván hoàn chỉnh với chấm điểm, kết thúc sớm k
 
   const r1 = await answerRound();
   assert.equal(r1.bob.status, "correct");
-  assert.ok(player.played.endTime > player.played.position, "đoạn trích có điểm kết thúc");
+  assert.ok(player.played.endTime > player.played.position, "the clip has an end point");
   assert.ok(player.played.endTime - player.played.position <= 150);
 
-  // vòng 2: chỉ đúng nghệ sĩ rồi bob đúng, alice im lặng để mất chuỗi
+  // round 2: alice gets only the artist, then bob is correct, alice stays silent and loses her streak
   for (let i = 0; i < 200 && !player.getData("quiz")?.hint; i++) await new Promise((r) => setTimeout(r, 10));
   await new Promise((r) => setTimeout(r, 120));
   assert.equal(session.submit(alice, "son tung").status, "artist");
   assert.equal(session.submit(alice, "son tung").status, "artist-again");
 
   const hint = session.hint();
-  assert.ok(hint && hint.includes("Gợi ý 1"), String(hint));
-  assert.ok(session.hint().includes("Gợi ý 2"));
-  assert.ok(session.hint().includes("hết gợi ý"));
+  assert.ok(hint && hint.includes("Hint 1"), String(hint));
+  assert.ok(session.hint().includes("Hint 2"));
+  assert.ok(session.hint().includes("No more hints"));
 
   for (let i = 0; i < 300 && player.getData("quiz"); i++) await new Promise((r) => setTimeout(r, 20));
-  assert.equal(player.getData("quiz"), undefined, "ván đã kết thúc");
-  assert.ok(client.sent.some((m) => m.embeds?.[0]?.data?.title?.includes("Kết thúc ván đố nhạc")));
+  assert.equal(player.getData("quiz"), undefined, "the game has ended");
+  assert.ok(client.sent.some((m) => m.embeds?.[0]?.data?.title?.includes("Music quiz finished")));
 
   const top = S.quizLeaderboard("g1", 5);
   assert.ok(top.some((r) => r.user_id === "u1" && r.points > 0));
@@ -227,7 +227,7 @@ test("đố nhạc: ván hoàn chỉnh với chấm điểm, kết thúc sớm k
   cancelIdleLeave(player);
 });
 
-test("đố nhạc: dừng giữa chừng vẫn dọn dẹp, người tắt thống kê không bị lưu điểm", async () => {
+test("music quiz: stopping midway still cleans up, users with stats off don't get points saved", async () => {
   S.setStatsEnabled("u9", false);
   const client = fakeClient(["u9"]);
   const player = fakePlayer({ guildId: "g2", queue: fakeQueue(), search: async ({ query }) => ({ tracks: [fakeTrack(path.basename(query, ".mp3"))] }) });
@@ -242,10 +242,10 @@ test("đố nhạc: dừng giữa chừng vẫn dọn dẹp, người tắt th�
   cancelIdleLeave(player);
 });
 
-test("cửa sổ đáp án: trả lời đúng, sai và ngoài ván", async () => {
+test("answer modal: correct, wrong and outside the game", async () => {
   const replies = [];
   const player = fakePlayer();
-  const session = { submit: (u, t) => (t === "đúng" ? { status: "correct", points: 80, streak: 2 } : { status: "wrong" }) };
+  const session = { submit: (u, t) => (t === "correct" ? { status: "correct", points: 80, streak: 2 } : { status: "wrong" }) };
   player.setData("quiz", session);
   const mk = (text) => ({
     guildId: "g1", user: { id: "u1" }, member: { voice: { channelId: "vc1" } },
@@ -253,23 +253,23 @@ test("cửa sổ đáp án: trả lời đúng, sai và ngoài ván", async () =
     fields: { getTextInputValue: () => text },
     reply: async (p) => replies.push(p),
   });
-  await handleQuizModal(mk("đúng"));
-  await handleQuizModal(mk("sai"));
+  await handleQuizModal(mk("correct"));
+  await handleQuizModal(mk("wrong"));
   assert.ok(replies[0].embeds[0].data.description.includes("+80"));
-  assert.ok(replies[1].embeds[0].data.description.includes("Chưa đúng"));
+  assert.ok(replies[1].embeds[0].data.description.includes("Not quite"));
 
   player.setData("quiz", undefined);
-  await handleQuizModal(mk("đúng"));
-  assert.ok(replies[2].embeds[0].data.description.includes("kết thúc"));
+  await handleQuizModal(mk("correct"));
+  assert.ok(replies[2].embeds[0].data.description.includes("ended"));
 
-  const outside = mk("đúng");
+  const outside = mk("correct");
   player.setData("quiz", session);
   outside.member.voice.channelId = "other";
   await handleQuizModal(outside);
-  assert.ok(replies[3].embeds[0].data.description.includes("cùng kênh thoại"));
+  assert.ok(replies[3].embeds[0].data.description.includes("same voice channel"));
 });
 
-test("24/7: nhận biết kênh và không hẹn rời kênh", async () => {
+test("24/7: recognizes the channel and doesn't schedule leaving", async () => {
   assert.equal(is247("g1", "vc1"), false);
   store.updateSettings("g1", { stay247: { voiceChannelId: "vc1", textChannelId: "tc1", radio: false } });
   assert.equal(is247("g1", "vc1"), true);
@@ -278,15 +278,15 @@ test("24/7: nhận biết kênh và không hẹn rời kênh", async () => {
   let destroyed = 0;
   const player = fakePlayer({ queue: { current: null, tracks: [] }, destroy: async () => { destroyed++; } });
   scheduleIdleLeave(player, 20);
-  assert.equal(player.getData("idleTimer"), undefined, "24/7 thì không hẹn rời kênh");
+  assert.equal(player.getData("idleTimer"), undefined, "with 24/7 on, no leave timer is scheduled");
   store.updateSettings("g1", { stay247: null });
   scheduleIdleLeave(player, 20);
   await new Promise((r) => setTimeout(r, 60));
-  assert.equal(destroyed, 1, "hết 24/7 thì rời kênh sau khi rảnh");
+  assert.equal(destroyed, 1, "with 24/7 off, the bot leaves the channel once idle");
 
   const busy = fakePlayer({ destroy: async () => { destroyed++; } });
   scheduleIdleLeave(busy, 20);
   await new Promise((r) => setTimeout(r, 60));
-  assert.equal(destroyed, 1, "đang phát thì không rời");
+  assert.equal(destroyed, 1, "it doesn't leave while playing");
   cancelIdleLeave(busy);
 });

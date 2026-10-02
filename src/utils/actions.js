@@ -5,7 +5,7 @@ import { stopNhaajt } from "./nhaajt.js";
 
 const NEXT_LOOP = { off: "track", track: "queue", queue: "off" };
 
-/** Bỏ qua bài đang phát. Trả về tên bài đã bỏ qua, hoặc null nếu không có bài nào. */
+/** Skips the current track. Returns the skipped track's title, or null if nothing was playing. */
 export async function skipTrack(player) {
   const title = player.queue.current?.info.title;
   if (!title) return null;
@@ -15,15 +15,15 @@ export async function skipTrack(player) {
   return title;
 }
 
-/** Số người thật đang nghe trong kênh thoại của bot. */
+/** Number of real listeners in the bot's voice channel. */
 export function listenerCount(player, guild) {
   const channel = guild.channels.cache.get(player.voiceChannelId);
   return channel ? channel.members.filter((m) => !m.user.bot).size : 0;
 }
 
 /**
- * Bỏ qua bài ngay nếu có ít người nghe, người yêu cầu bài hoặc DJ bấm; còn lại cần đa số (>= 50%) bỏ phiếu.
- * Trả về { status: "none" | "skipped" | "voted" | "already", title?, votes?, needed? }.
+ * Skips immediately if there are few listeners or the requester or a DJ asks; otherwise needs a majority (>= 50%) vote.
+ * Returns { status: "none" | "skipped" | "voted" | "already", title?, votes?, needed? }.
  */
 export async function requestSkip(player, member) {
   const track = player.queue.current;
@@ -49,25 +49,25 @@ export async function requestSkip(player, member) {
   return { status: "voted", votes: votes.size, needed };
 }
 
-/** Câu trả lời cho kết quả của requestSkip. */
+/** Reply text for a requestSkip result. */
 export function describeSkip(result) {
   switch (result.status) {
     case "none":
-      return "Không có bài nào đang phát.";
+      return "Nothing is playing.";
     case "skipped":
       return result.needed
-        ? `⏭️ Đủ ${result.votes}/${result.needed} phiếu, đã bỏ qua **${result.title}**`
-        : `⏭️ Đã bỏ qua **${result.title}**`;
+        ? `⏭️ Got ${result.votes}/${result.needed} votes, skipped **${result.title}**`
+        : `⏭️ Skipped **${result.title}**`;
     case "already":
-      return `🗳️ Bạn đã bỏ phiếu rồi (${result.votes}/${result.needed}).`;
+      return `🗳️ You already voted (${result.votes}/${result.needed}).`;
     default:
-      return `🗳️ Đã ghi nhận phiếu bỏ qua: **${result.votes}/${result.needed}**. Cần thêm người đồng ý.`;
+      return `🗳️ Skip vote recorded: **${result.votes}/${result.needed}**. More votes needed.`;
   }
 }
 
 /**
- * Đưa bài ở vị trí `index` (tính từ 0) lên đầu hàng chờ. Ít người nghe, DJ hoặc người yêu cầu bài thì làm ngay,
- * còn lại cần đa số (>= 50%) bỏ phiếu. Trả về { status: "none" | "moved" | "voted" | "already", title?, votes?, needed? }.
+ * Moves the track at `index` (0-based) to the front of the queue. Done immediately if there are few listeners or a DJ or the requester asks,
+ * otherwise needs a majority (>= 50%) vote. Returns { status: "none" | "moved" | "voted" | "already", title?, votes?, needed? }.
  */
 export async function requestBump(player, member, index) {
   const track = player.queue.tracks[index];
@@ -95,13 +95,13 @@ export async function requestBump(player, member, index) {
   return { status: "voted", votes: votes.size, needed, title: track.info.title };
 }
 
-/** Dừng phát, xoá hàng chờ và tắt chế độ /nhaajt. */
+/** Stops playback, clears the queue and turns off /nhaajt mode. */
 export async function stopPlayback(player) {
   stopNhaajt(player);
   await player.stopPlaying(true, false);
 }
 
-/** Chuyển vòng chế độ lặp: tắt → bài → hàng chờ → tắt. Trả về chế độ mới. */
+/** Cycles the loop mode: off → track → queue → off. Returns the new mode. */
 export async function cycleLoop(player) {
   const next = NEXT_LOOP[player.repeatMode] ?? "off";
   await player.setRepeatMode(next);

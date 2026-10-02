@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Command list, musiDISCORD</title>
+<meta name="description" content="All 36 slash commands of musiDISCORD by group, plus a schedule of the configuration items.">
+<link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/lenh.html">
+<link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/commands.html">
+<link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/lenh.html">
+<meta name="theme-color" content="#0b3a60">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b3a60'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23cdeeff' stroke-width='2'/%3E%3Cpath d='M16 3v26M3 16h26' stroke='%23cdeeff' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Patrick+Hand&display=swap">
+<script>
+(function () {
+  var d = document.documentElement;
+  d.classList.add("js");
+  try {
+    d.dataset.theme = localStorage.getItem("musi-theme") === "light" ? "light" : "dark";
+  } catch (e) {
+    d.dataset.theme = "dark";
+  }
+  try {
+    if (sessionStorage.getItem("musi-pull")) {
+      sessionStorage.removeItem("musi-pull");
+      d.classList.add("arriving");
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/motion.css">
+<link rel="stylesheet" href="../assets/pages.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="paper"></div>
+<div class="frame"><div class="zones"></div></div>
+
+<div class="strip" aria-hidden="true">
+  <span class="hide-sm"><b>Project</b>musiDISCORD</span>
+  <span><b>L-01</b></span>
+  <span class="strip__name">Commands</span>
+  <span class="hide-sm"><b>Scale</b>1:1</span>
+  <span class="hide-sm"><b>Drawn</b>nhaajt</span>
+  <span class="hide-sm"><b>Rev</b>G</span>
+</div>
+
+<header class="top">
+  <a class="logo" href="index.html" aria-label="musiDISCORD, back to home">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9"/><circle cx="14" cy="14" r="3"/><path d="M14 1v26M1 14h26"/></svg>
+    musiDISCORD
+  </a>
+  <nav class="nav" aria-label="Pages">
+    <a href="raspberry-pi.html">Pi 5</a>
+    <a href="features.html">Features</a>
+    <a href="commands.html" aria-current="page">Commands</a>
+    <a href="setup.html">Setup</a>
+    <a href="devlog.html">Devlog</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Language"><a href="../lenh.html" hreflang="vi" lang="vi" title="Tiếng Việt">VI</a><a href="commands.html" hreflang="en" lang="en" title="English" aria-current="true">EN</a></div>
+  <button class="icon-btn icon-btn--pen" id="pen" type="button" aria-label="Turn off cursor pen" aria-pressed="true" title="Cursor pen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>
+  </button>
+  <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme" aria-pressed="false">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+  </button>
+  <a class="btn btn--solid btn--sm" href="https://discord.com/oauth2/authorize?client_id=1555092489629597806&amp;scope=bot%20applications.commands&amp;permissions=281474979908608" rel="noopener">Add bot</a>
+</header>
+
+<main id="content">
+<h1 class="sr">Command list</h1>
+
+<section class="sheet" id="lenh" data-sheet="S-01|Command table" aria-labelledby="h-lenh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-01</span>
+      <h2 id="h-lenh">Command table</h2>
+      <p class="sheet__scale">36 slash commands<br>type / in Discord to see suggestions</p>
+    </header>
+    <div class="table-wrap">
+      <table class="cmds">
+        <caption>Parameters in parentheses are optional</caption>
+        <thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">Playback</th></tr>
+          <tr><th scope="row"><code>/play</code> song name or link (source)</th><td>Plays by song name or a YouTube, SoundCloud or Spotify link; playlists work too. Pick the search source when you type a song name.</td></tr>
+          <tr><th scope="row"><code>/search</code> query (source)</th><td>Searches by name and shows up to 10 results as numbered buttons, so you choose which one to play. You can pick the search source; the menu expires after 60 seconds.</td></tr>
+          <tr><th scope="row"><code>/local</code> query</th><td>Searches the bot's music library by song, artist or album, with suggestions as you type.</td></tr>
+          <tr><th scope="row"><code>/album</code> album name</th><td>Plays a whole album from the library, in track order.</td></tr>
+          <tr><th scope="row"><code>/artist</code> artist name</th><td>Plays the songs of one artist from the library.</td></tr>
+          <tr><th scope="row"><code>/nhaajt</code></th><td>Shuffles the entire music folder, avoids back-to-back songs by the same artist and favors liked songs; when a round ends it reshuffles and keeps going until <code>/stop</code> or <code>/leave</code>.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Favorites</th></tr>
+          <tr><th scope="row"><code>/favorites</code> add, remove, list, play</th><td>Manages your own favorites list: add, remove, view, and play the whole list.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Controls</th></tr>
+          <tr><th scope="row"><code>/pause</code>, <code>/resume</code></th><td>Pause and resume.</td></tr>
+          <tr><th scope="row"><code>/skip</code></th><td>Skips the current song; with a crowd listening, it goes to a vote.</td></tr>
+          <tr><th scope="row"><code>/stop</code></th><td>Stops playback and clears the queue.</td></tr>
+          <tr><th scope="row"><code>/leave</code></th><td>Makes the bot leave the voice channel.</td></tr>
+          <tr><th scope="row"><code>/seek</code> seconds</th><td>Jumps to a point in the song.</td></tr>
+          <tr><th scope="row"><code>/volume</code> level</th><td>Volume from 1 to 150.</td></tr>
+          <tr><th scope="row"><code>/loop</code> mode</th><td>Loop off, repeat the current song, or repeat the whole queue.</td></tr>
+          <tr><th scope="row"><code>/shuffle</code></th><td>Shuffles the queue.</td></tr>
+          <tr><th scope="row"><code>/filter</code> effect</th><td>Applies an audio filter: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, or off. Only one filter is active at a time.</td></tr>
+          <tr><th scope="row"><code>/remove</code> position</th><td>Removes one song from the queue.</td></tr>
+          <tr><th scope="row"><code>/bump</code></th><td>Starts a vote to move a queued song to the front.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Info</th></tr>
+          <tr><th scope="row"><code>/queue</code></th><td>Shows the queue as a new-style card, paged, with page buttons.</td></tr>
+          <tr><th scope="row"><code>/nowplaying</code></th><td>Shows the Now Playing card with a live progress bar.</td></tr>
+          <tr><th scope="row"><code>/lyrics</code></th><td>Synced lyrics, with the line being sung highlighted.</td></tr>
+          <tr><th scope="row"><code>/stats</code></th><td>Bot status: uptime, ping, server count, Lavalink.</td></tr>
+          <tr><th scope="row"><code>/help</code></th><td>The command list, grouped.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Contributions and requests</th></tr>
+          <tr><th scope="row"><code>/contribute</code> submit, pending, stats</th><td>Submit your own music file (with a confirmation that you have the right to share it) for the bot owner to review, see pending files, and view stats. Off by default.</td></tr>
+          <tr><th scope="row"><code>/request</code> add, list, vote, mine, remove, done, dismiss</th><td>Request a song by name or link, vote on other people's requests, and manage your own. The bot downloads nothing from links.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Smart library</th></tr>
+          <tr><th scope="row"><code>/vibe</code> mood</th><td>Mood radio (chill, easy, upbeat, intense) built from songs analyzed for tempo and energy. Off by default; needs <code>ANALYSIS=on</code>.</td></tr>
+          <tr><th scope="row"><code>/similar</code> (count)</th><td>Queues the library songs most similar to the one playing.</td></tr>
+          <tr><th scope="row"><code>/library</code> status, run, stop, review, forget</th><td>For the bot owner: check tagging and analysis progress, run or stop it, review suggested tags, and drop an automatic tag from a song.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Music quiz</th></tr>
+          <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Starts or stops a music quiz round drawn from the server's library, and shows the leaderboard.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Stats and privacy</th></tr>
+          <tr><th scope="row"><code>/mystats</code></th><td>Your listening stats: time, top songs, top artists, skips, badges.</td></tr>
+          <tr><th scope="row"><code>/leaderboard</code></th><td>The server leaderboard and the most-liked songs.</td></tr>
+          <tr><th scope="row"><code>/wrapped</code></th><td>A year-in-review image, drawn like a cyanotype blueprint.</td></tr>
+          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Stops recording stats about you, or deletes your data.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Administration</th></tr>
+          <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status, contributions</th><td>View and change server settings: DJ role, default volume, fair queue, song name on the voice channel, and accepting contributions. Requires the Manage Server permission.</td></tr>
+          <tr><th scope="row"><code>/247</code> on, off (radio)</th><td>Turns 24/7 mode (staying in the voice channel) on or off; the radio option plays the whole folder nonstop.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="hang-muc" data-sheet="S-02|Schedule of items" aria-labelledby="h-hang-muc">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-02</span>
+      <h2 id="h-hang-muc">Schedule of items</h2>
+      <p class="sheet__scale">The small things that keep the bot<br>from annoying the whole server</p>
+    </header>
+    <div class="table-wrap">
+      <table class="sched">
+        <caption>Each item has a mark, like the door schedule in a house plan</caption>
+        <thead><tr><th scope="col">Mark</th><th scope="col">Item</th><th scope="col">Command</th><th scope="col">How it works</th></tr></thead>
+        <tbody>
+          <tr><td>D-01</td><td>DJ role</td><td><code>/settings dj-role</code></td><td>Only this role (and people with Manage Server) can control the music. Leave it empty and anyone can.</td></tr>
+          <tr><td>D-02</td><td>Default volume</td><td><code>/settings volume</code></td><td>From 1 to 150, applied each time the bot joins a voice channel.</td></tr>
+          <tr><td>D-03</td><td>Skip vote</td><td>the ⏭ button or <code>/skip</code></td><td>With three or more listeners, the song only changes once half of them agree. The person who requested the song and the DJ skip instantly.</td></tr>
+          <tr><td>D-04</td><td>Fair queue</td><td><code>/settings fair-queue</code></td><td>Everyone gets a turn in rotation, so nobody takes over the whole queue.</td></tr>
+          <tr><td>D-05</td><td>Jump the queue</td><td><code>/bump</code></td><td>A vote to move a queued song up to play next.</td></tr>
+          <tr><td>D-06</td><td>Song name on the voice channel</td><td><code>/settings vc-status</code></td><td>The bot writes "Now playing: ..." into the voice channel status. On or off per server.</td></tr>
+          <tr><td>D-07</td><td>24/7 mode</td><td><code>/247</code></td><td>The bot stays in the channel even when it is empty and rejoins after a restart. A radio option plays the whole folder.</td></tr>
+          <tr><td>D-08</td><td>Queue memory</td><td>automatic</td><td>When the bot restarts, the queue is reloaded so you can keep listening without re-adding songs.</td></tr>
+          <tr><td>D-09</td><td>Auto leave</td><td>automatic</td><td>When the channel empties or the songs run out, the bot leaves after 60 seconds so it does not hog the spot. With <code>/247</code> on, it stays.</td></tr>
+          <tr><td>D-10</td><td>Privacy</td><td><code>/privacy</code></td><td>Everyone can stop stats being recorded about them or delete their own data.</td></tr>
+          <tr><td>D-11</td><td>File contributions</td><td><code>/contribute</code>, <code>/settings contributions</code></td><td>Off by default. The bot owner reviews every file before it enters the library.</td></tr>
+          <tr><td>D-12</td><td>Wish list</td><td><code>/request</code></td><td>Records a song name with votes and downloads nothing. If a matching file turns up, the requester is notified.</td></tr>
+          <tr><td>D-13</td><td>Auto tagging</td><td><code>/library</code></td><td>Off by default. Identifies untagged songs by audio fingerprint (AcoustID, MusicBrainz) and fills in title, artist, album and cover. Tags are stored separately and the original music files are never modified; low-confidence matches go to the bot owner for manual review.</td></tr>
+          <tr><td>D-14</td><td>Audio analysis</td><td><code>/vibe</code>, <code>/similar</code></td><td>Off by default. Runs in the background on your own machine: estimates each song's tempo, energy and brightness to power mood radio or find similar songs.</td></tr>
+          <tr><td>D-15</td><td>Several bots at once</td><td>docker compose <code>--profile multi</code></td><td>Each bot has its own token but shares Lavalink and the music folder; tags and audio features are shared, stats data is separate.</td></tr>
+          <tr><td>D-16</td><td>Status display</td><td>the <code>/display</code> page</td><td>Off by default. A 480×320 page showing the current song, with touch buttons; suits a 3.5 inch TFT screen on a Raspberry Pi or a phone on your home network. Controls need a token.</td></tr>
+          <tr><td>D-17</td><td>Backup, auto update, monitoring</td><td>scripts in <code>scripts/</code></td><td>Periodic data backups, auto updates from GitHub that roll back if the bot is unhealthy, and Uptime Kuma watching over it.</td></tr>
+          <tr><td>D-18</td><td>Help and status</td><td><code>/help</code>, <code>/stats</code></td><td>A grouped command list; ping, server count, Lavalink RAM.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" data-sheet="L-01|Title block">
+  <div class="wrap">
+    <p class="foot__word" aria-hidden="true">musiDISCORD</p>
+    <div class="tblock">
+      <div class="w4"><small>Project</small><strong>musiDISCORD</strong><span>A Discord music bot running on a Raspberry Pi 5</span></div>
+      <div class="w2"><small>Sheet no.</small><strong>L-01</strong></div>
+      <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
+      <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
+      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w6">
+        <small>Documents</small>
+        <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>
+      </div>
+    </div>
+    <div class="foot__note">
+      <span class="note">approved by the speaker in the corner of the room</span>
+      <span>Made by <a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">nhaajt</a> (<a href="https://github.com/nhaajtt" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.instagram.com/nhaajt_hehee/" target="_blank" rel="noopener noreferrer">Instagram</a> &middot; <a href="https://github.com/nhaajtt/musiDISCORD" target="_blank" rel="noopener noreferrer">source</a>)</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

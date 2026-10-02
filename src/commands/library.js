@@ -11,18 +11,18 @@ const ephemeral = (embed) => ({ embeds: [embed], flags: MessageFlags.Ephemeral }
 export default {
   data: new SlashCommandBuilder()
     .setName("library")
-    .setDescription("(Chủ bot) Quản lý thư viện: gắn thẻ tự động, phân tích âm thanh")
-    .addSubcommand((s) => s.setName("status").setDescription("Tiến độ gắn thẻ và phân tích"))
-    .addSubcommand((s) => s.setName("run").setDescription("Chạy gắn thẻ/phân tích ngay"))
-    .addSubcommand((s) => s.setName("stop").setDescription("Dừng tác vụ nền đang chạy"))
-    .addSubcommand((s) => s.setName("review").setDescription("Duyệt các gợi ý thẻ có độ tin cậy thấp"))
+    .setDescription("(Bot owner) Manage the library: auto-tagging, audio analysis")
+    .addSubcommand((s) => s.setName("status").setDescription("Tagging and analysis progress"))
+    .addSubcommand((s) => s.setName("run").setDescription("Run tagging/analysis now"))
+    .addSubcommand((s) => s.setName("stop").setDescription("Stop the running background task"))
+    .addSubcommand((s) => s.setName("review").setDescription("Review low-confidence tag suggestions"))
     .addSubcommand((s) =>
-      s.setName("forget").setDescription("Bỏ thẻ gắn tự động của một bài").addStringOption((o) => o.setName("track").setDescription("Tên bài cần bỏ thẻ").setRequired(true).setMaxLength(100)),
+      s.setName("forget").setDescription("Remove the auto-applied tags from a track").addStringOption((o) => o.setName("track").setDescription("Name of the track to untag").setRequired(true).setMaxLength(100)),
     ),
 
   async execute(interaction) {
     if (!(await isOwner(interaction.client, interaction.user.id))) {
-      return interaction.reply(ephemeral(errorEmbed("Chỉ chủ bot dùng được lệnh này.")));
+      return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command.")));
     }
     const sub = interaction.options.getSubcommand();
 
@@ -31,24 +31,24 @@ export default {
       const p = progress();
       const w = workerState();
       const lines = [
-        `📚 **${p.total}** bài • chưa có thẻ: **${p.untagged}**`,
-        `🏷️ Gắn thẻ tự động: ${config.autotag.enabled ? "**bật**" : "tắt"}${config.autotag.enabled && !config.autotag.acoustidKey ? " (thiếu `ACOUSTID_KEY`, chỉ tìm theo tên file)" : ""} • đã áp dụng **${p.applied}** • chờ duyệt **${p.suggested}**`,
-        `🎚️ Phân tích âm thanh: ${config.analysis.enabled ? "**bật**" : "tắt"} • xong **${p.analyzed}/${p.total}**`,
-        config.libraryWorker ? (w.running ? `⏳ Đang chạy: ${w.phase === "tag" ? "gắn thẻ" : "phân tích"} \`${safeText(w.current ?? "", 80)}\`` : "💤 Tác vụ nền đang rảnh") : "ℹ️ Bot này không phải worker (LIBRARY_WORKER=off), chỉ đọc kết quả",
-        w.error ? `⚠️ Lỗi gần nhất: ${safeText(w.error, 120)}` : "",
+        `📚 **${p.total}** tracks • untagged: **${p.untagged}**`,
+        `🏷️ Auto-tagging: ${config.autotag.enabled ? "**on**" : "off"}${config.autotag.enabled && !config.autotag.acoustidKey ? " (missing `ACOUSTID_KEY`, matching by filename only)" : ""} • applied **${p.applied}** • awaiting review **${p.suggested}**`,
+        `🎚️ Audio analysis: ${config.analysis.enabled ? "**on**" : "off"} • done **${p.analyzed}/${p.total}**`,
+        config.libraryWorker ? (w.running ? `⏳ Running: ${w.phase === "tag" ? "tagging" : "analyzing"} \`${safeText(w.current ?? "", 80)}\`` : "💤 Background task is idle") : "ℹ️ This bot is not the worker (LIBRARY_WORKER=off), it only reads the results",
+        w.error ? `⚠️ Last error: ${safeText(w.error, 120)}` : "",
       ].filter(Boolean);
       return interaction.reply(ephemeral(infoEmbed(lines.join("\n"))));
     }
 
     if (sub === "run" || sub === "stop") {
-      if (!config.libraryWorker) return interaction.reply(ephemeral(errorEmbed("Bot này không phải worker (LIBRARY_WORKER=off).")));
+      if (!config.libraryWorker) return interaction.reply(ephemeral(errorEmbed("This bot is not the worker (LIBRARY_WORKER=off).")));
       if (sub === "stop") {
         stopWorker();
-        return interaction.reply(ephemeral(infoEmbed("⏹️ Đã yêu cầu dừng, tác vụ sẽ dừng sau bài hiện tại.")));
+        return interaction.reply(ephemeral(infoEmbed("⏹️ Stop requested, the task will stop after the current track.")));
       }
-      if (!config.autotag.enabled && !config.analysis.enabled) return interaction.reply(ephemeral(errorEmbed("Chưa bật `AUTOTAG=on` hoặc `ANALYSIS=on` trong .env.")));
+      if (!config.autotag.enabled && !config.analysis.enabled) return interaction.reply(ephemeral(errorEmbed("`AUTOTAG=on` or `ANALYSIS=on` isn't set in .env.")));
       runNow();
-      return interaction.reply(ephemeral(infoEmbed("▶️ Đã bắt đầu, xem tiến độ bằng `/library status`.")));
+      return interaction.reply(ephemeral(infoEmbed("▶️ Started, check progress with `/library status`.")));
     }
 
     if (sub === "review") {
@@ -56,9 +56,9 @@ export default {
     }
 
     const entry = library.resolve(interaction.options.getString("track", true));
-    if (!entry) return interaction.reply(ephemeral(errorEmbed("Không tìm thấy bài đó trong thư viện.")));
+    if (!entry) return interaction.reply(ephemeral(errorEmbed("Track not found in the library.")));
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const ok = await forgetTag(entry.file);
-    return interaction.editReply({ embeds: [ok ? infoEmbed(`Đã bỏ thẻ tự động của **${safeText(entry.title, 100)}**.`) : errorEmbed("Bài này chưa có thẻ gắn tự động.")] });
+    return interaction.editReply({ embeds: [ok ? infoEmbed(`Removed the auto-applied tags from **${safeText(entry.title, 100)}**.`) : errorEmbed("This track has no auto-applied tags.")] });
   },
 };

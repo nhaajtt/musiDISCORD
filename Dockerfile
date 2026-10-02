@@ -1,6 +1,6 @@
 FROM node:22-alpine
 
-# ffmpeg: phân tích nhịp độ/năng lượng; chromaprint (fpcalc): dấu vân âm thanh để tự gắn thẻ
+# ffmpeg: tempo/energy analysis; chromaprint (fpcalc): audio fingerprints for auto-tagging
 RUN apk add --no-cache ffmpeg chromaprint
 
 WORKDIR /app
