@@ -565,16 +565,35 @@ function profile(d, p) {
   return { W, H, body: out.join("") };
 }
 
-function build(data, theme) {
+const STORY_H = 1920;
+
+// 9:16 canvas for Instagram / TikTok stories: the card sits in the middle of a gradient with a caption above and below
+function storyFrame(body, W, H, d, p) {
+  const top = Math.round((STORY_H - H) / 2);
+  const caption = d.kind === "wrapped" ? `MY ${d.year} IN MUSIC` : "MY LISTENING PROFILE";
+  return (
+    `<defs><linearGradient id="story-bg" x1="0" y1="0" x2="0" y2="1">` +
+    `<stop offset="0" stop-color="${p.bg0}"/><stop offset="1" stop-color="${p.bg1}"/></linearGradient></defs>` +
+    `<rect width="${W}" height="${STORY_H}" fill="url(#story-bg)"/>` +
+    text(W / 2, top - 70, caption, { size: 54, w: 700, f: C, fill: p.text, anchor: "middle", ls: 6 }) +
+    `<g transform="translate(0 ${top})">${body}</g>` +
+    text(W / 2, top + H + 90, "musiDISCORD", { size: 40, w: 700, f: C, fill: p.dim, anchor: "middle", ls: 8 })
+  );
+}
+
+function build(data, { theme, format } = {}) {
   const d = normalize(data);
   const p = PAL[theme === "light" ? "light" : "dark"];
   const { W, H, body } = d.kind === "profile" ? profile(d, p) : wrapped(d, p);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${body}</svg>`;
+  const story = format === "story";
+  const height = story ? STORY_H : H;
+  const inner = story ? storyFrame(body, W, H, d, p) : body;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${height}" viewBox="0 0 ${W} ${height}">${inner}</svg>`;
   return { svg, W };
 }
 
 export async function renderStatsCard(data, options = {}) {
-  const { svg, W } = build(data, options && options.theme);
+  const { svg, W } = build(data, options ?? {});
   const resvg = new Resvg(svg, {
     fitTo: { mode: "width", value: W },
     font: {

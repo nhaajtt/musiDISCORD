@@ -10,7 +10,7 @@ export const currentYear = () => Number(localDay(Date.now()).slice(0, 4));
 const hours = (ms) => (ms / 3_600_000).toFixed(1).replace(".", ",");
 
 /** Builds and sends the stats card (image) of `target` for an `interaction` that was already deferred. */
-export async function replyWithCard(interaction, { kind, year, target }) {
+export async function replyWithCard(interaction, { kind, year, target, theme, format }) {
   const guildId = interaction.guildId;
 
   if (isOptedOut(target.id)) {
@@ -25,7 +25,8 @@ export async function replyWithCard(interaction, { kind, year, target }) {
   }
 
   const member = interaction.guild?.members.cache.get(target.id);
-  const png = await renderStatsCard({
+  const png = await renderStatsCard(
+    {
     kind,
     year,
     userName: member?.displayName ?? target.globalName ?? target.username,
@@ -40,9 +41,12 @@ export async function replyWithCard(interaction, { kind, year, target }) {
     busiestHour: stats.busiestHour,
     streakDays: stats.streakDays,
     badges: earnedBadges(guildId, target.id).map((b) => ({ icon: b.icon, name: b.name })),
-  });
+    },
+    { theme, format },
+  );
 
-  const name = kind === "wrapped" ? `wrapped-${year}.png` : "mystats.png";
+  const suffix = format === "story" ? "-story" : "";
+  const name = kind === "wrapped" ? `wrapped-${year}${suffix}.png` : `mystats${suffix}.png`;
   const summary = `📊 **${target.username}**: ${hours(stats.totalListenMs)} hours listened • ${stats.totalPlays} tracks${kind === "wrapped" ? ` • ${year}` : ""}`;
   return interaction.editReply({ content: summary, files: [new AttachmentBuilder(png, { name })], allowedMentions: { parse: [] } });
 }
