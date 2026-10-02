@@ -57,10 +57,12 @@ FB = find_fb()
 
 # ---------------------------------------------------------------- phông chữ
 ASSET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "fonts")
-FONT_FILES = {
-    "display": "BarlowCondensed-Bold.ttf",
-    "semi": "BarlowCondensed-SemiBold.ttf",
-    "mono": "IBMPlexMono-Regular.ttf",
+FONT_FILES = {  # tên -> (file, độ đậm cho phông biến thiên hoặc None)
+    "display": ("BarlowCondensed-Bold.ttf", None),
+    "semi": ("BarlowCondensed-SemiBold.ttf", None),
+    "mono": ("IBMPlexMono-Regular.ttf", None),
+    "masthead": ("PlayfairDisplay.ttf", 800),
+    "serif": ("PlayfairDisplay-Italic.ttf", 600),
 }
 FALLBACK = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
 _faces = {}
@@ -69,8 +71,15 @@ _faces = {}
 def face(name, size):
     key = (name, size)
     if key not in _faces:
+        fname, weight = FONT_FILES[name]
         try:
-            _faces[key] = ImageFont.truetype(os.path.join(ASSET_DIR, FONT_FILES[name]), size)
+            f = ImageFont.truetype(os.path.join(ASSET_DIR, fname), size)
+            if weight:
+                try:
+                    f.set_variation_by_axes([weight])
+                except (OSError, AttributeError):
+                    pass  # phông không có trục độ đậm: dùng mặc định
+            _faces[key] = f
         except OSError:
             path = next((p for p in FALLBACK if os.path.exists(p)), None)
             _faces[key] = ImageFont.truetype(path, size) if path else ImageFont.load_default()
@@ -152,7 +161,7 @@ AVATAR_H = int(os.environ.get("AVATAR_H", "190"))
 AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "10"))  # 0 = góc vuông
 AVATAR_POS = (W - 24 - AVATAR_W, 26)  # chừa chỗ quanh ảnh cho thước chia vạch
 NEXT_Y = 190  # dòng "Tiếp theo" ở đáy cột chữ
-TEXT_TOP, TEXT_BOTTOM = 40, 228  # vùng chữ (giữa dòng tên server và thanh tiến trình)
+TEXT_TOP, TEXT_BOTTOM = 70, 228  # vùng chữ (giữa đầu trang kiểu tạp chí và thanh tiến trình)
 BAR_Y = 236
 BTN_Y = 282
 BTN_TOP = 258  # từ đây trở xuống là vùng nút
@@ -302,7 +311,7 @@ def load_avatar():
     return _avatar["img"]
 
 
-def draw_avatar(img, d, bg):
+def draw_avatar(img, d, bg, seed="musiDISCORD"):
     """Ảnh đại diện lớn bên phải. Quanh ảnh là một thước chia vạch mảnh (như thước trên bản vẽ kỹ thuật):
     vạch ngắn đều đặn, cứ năm vạch có một vạch dài. Màu trung tính, không dùng màu của bài.
     Trả về mép phải của cột chữ (không có ảnh thì chiếm hết bề ngang)."""
@@ -311,6 +320,7 @@ def draw_avatar(img, d, bg):
         return RIGHT
     x, y = AVATAR_POS
     img.paste(av[0], (x, y), av[1])
+    draw_barcode(d, x + AVATAR_W - 8 - 46, y + AVATAR_H - 8 - 26, seed)  # mã vạch ở góc dưới phải ảnh
 
     minor, major = mix(bg, INK, 0.34), mix(bg, INK, 0.7)
     gap, short, long_, step = 6, 4, 9, 8  # cách ảnh, độ dài vạch ngắn/dài, bước giữa hai vạch
@@ -357,8 +367,39 @@ def fmt(ms):
     return f"{t // 60}:{t % 60:02d}"
 
 
+def draw_masthead(d, bg, accent, col_right, np):
+    """Đầu trang như bìa tạp chí: tên "báo" chữ có chân đậm, hai đường kẻ, và dòng số phát hành theo ngày."""
+    dim = mix(bg, INK, 0.55)
+    d.text((MARGIN, 6), "musiDISCORD", fill=INK, font=face("masthead", 27))
+    d.line((MARGIN, 41, col_right, 41), fill=mix(bg, INK, 0.6), width=1)
+    d.line((MARGIN, 44, col_right, 44), fill=mix(bg, INK, 0.25), width=1)
+    now = time.localtime()
+    d.text((MARGIN, 50), f"Số {now.tm_yday}  {now.tm_mday:02d}.{now.tm_mon:02d}.{now.tm_year}", fill=dim, font=face("mono", 10))
+    if np.get("title"):
+        if np.get("paused"):
+            d.text((col_right, 50), "Tạm dừng", fill=accent, font=face("mono", 10), anchor="ra")
+        elif np.get("bpm"):
+            d.text((col_right, 50), f"{round(np['bpm'])} nhịp/phút", fill=dim, font=face("mono", 10), anchor="ra")
+
+
+def draw_barcode(d, x, y, seed):
+    """Mã vạch nhỏ ở góc ảnh như bìa tạp chí. Các vạch sinh từ tên bài nên mỗi bài một mã riêng."""
+    import hashlib
+
+    w, h = 46, 26
+    d.rectangle((x, y, x + w - 1, y + h - 1), fill=(250, 250, 248))
+    digest = hashlib.sha256(seed.encode("utf-8")).digest()
+    cx, i, end = x + 4, 0, x + w - 5
+    while cx <= end:
+        b = digest[i % len(digest)]
+        i += 1
+        bar, gap = 1 + b % 3, 1 + (b >> 3) % 2
+        d.rectangle((cx, y + 4, min(cx + bar - 1, end), y + h - 5), fill=(12, 12, 14))
+        cx += bar + gap
+
+
 def render_idle(d, np, bg, accent, col_right):
-    """Chưa phát: đồng hồ lớn, yên tĩnh. Các trạng thái lỗi dùng cùng bố cục."""
+    """Chưa phát: đồng hồ lớn dưới đầu trang, yên tĩnh. Các trạng thái lỗi dùng cùng bố cục."""
     if np.get("hidden"):
         big, line, hint = "?", "Đang chơi đố nhạc", "Tên bài được giấu để không lộ đáp án."
     elif np.get("offline"):
@@ -371,13 +412,13 @@ def render_idle(d, np, bg, accent, col_right):
         line = f"{WEEKDAYS[now.tm_wday]}, {now.tm_mday} tháng {now.tm_mon}"
         hint = "Chưa có bài nào đang phát. Vào kênh thoại rồi dùng /play, /local hoặc /nhaajt."
     width = col_right - MARGIN
-    size = 132
+    size = 96
     while size > 40 and d.textlength(big, font=face("display", size)) > width + 6:
         size -= 4
-    d.text((MARGIN - 4, 46), big, fill=INK, font=face("display", size))
-    y = 46 + int(size * 0.98)
-    d.text((MARGIN, y), ellipsize(d, line, face("semi", 24), width), fill=accent, font=face("semi", 24))
-    y += 40
+    d.text((MARGIN - 3, 54), big, fill=INK, font=face("display", size))
+    y = 54 + int(size * 0.98)
+    d.text((MARGIN, y), ellipsize(d, line, face("serif", 20), width), fill=accent, font=face("serif", 20))
+    y += 36
     for part in wrap(d, hint, face("mono", 11), width):
         d.text((MARGIN, y), part, fill=mix(bg, INK, 0.55), font=face("mono", 11))
         y += 17
@@ -397,20 +438,17 @@ def render(state, w=W, h=H):
     dim = mix(bg, INK, 0.55)
     d.rectangle((0, 0, 5, h), fill=accent)  # vạch mép trái: dấu hiệu duy nhất của màu bài
 
-    col_right = draw_avatar(img, d, bg)
+    seed = (np.get("title") or "") + (np.get("artist") or "") or "musiDISCORD"
+    col_right = draw_avatar(img, d, bg, seed)
+    draw_masthead(d, bg, accent, col_right, np)
     if not np.get("title"):
         render_idle(d, np, bg, accent, col_right)
         return img
 
     width = col_right - MARGIN
-    d.text((MARGIN, 18), ellipsize(d, np.get("guild") or np.get("bot") or "", face("mono", 11), width), fill=dim, font=face("mono", 11))
-
-    # khối chữ: tên bài cỡ lớn nhất cho vừa cột, rồi nghệ sĩ, rồi nhịp độ/trạng thái; cả khối căn giữa theo chiều dọc
+    # khối chữ: tên bài (tiêu đề bìa) cỡ lớn nhất cho vừa cột, rồi nghệ sĩ (chữ nghiêng có chân); cả khối căn giữa theo chiều dọc
     artist = np.get("artist") or ""
-    info = ["Tạm dừng"] if np.get("paused") else []
-    if np.get("bpm"):
-        info.append(f"{round(np['bpm'])} nhịp/phút")
-    reserve = (30 if artist else 0) + (20 if info else 0)
+    reserve = 30 if artist else 0
     nxt = np.get("next")
     title_up = np["title"].upper()
     # có bài kế tiếp: thử xếp tên bài vào phần trên (chừa chỗ cho "Tiếp theo"); chữ vẫn đủ to thì giữ, không thì bỏ dòng đó
@@ -418,7 +456,7 @@ def render(state, w=W, h=H):
     size, lines, lh = fit_title(d, title_up, width, TEXT_BOTTOM - TEXT_TOP - reserve)
     if nxt:
         s2, l2, h2 = fit_title(d, title_up, width, NEXT_Y - 12 - TEXT_TOP - reserve)
-        if s2 >= 44:
+        if s2 >= 38:
             size, lines, lh, area_end = s2, l2, h2, NEXT_Y - 12
     block = len(lines) * lh + reserve
     y = TEXT_TOP + max(0, (area_end - TEXT_TOP - block) // 2) - int(size * 0.12)
@@ -426,17 +464,9 @@ def render(state, w=W, h=H):
     for line in lines:
         d.text((MARGIN - 2, y), line, fill=INK, font=f)
         y += lh
-    y += int(size * 0.12) + 4
+    y += int(size * 0.12) + 2
     if artist:
-        d.text((MARGIN, y), ellipsize(d, artist, face("semi", 22), width), fill=accent, font=face("semi", 22))
-        y += 30
-    if info:
-        x = MARGIN
-        for k, part in enumerate(info):
-            color = accent if part == "Tạm dừng" else dim
-            d.text((x, y), part, fill=color, font=face("mono", 11))
-            x += int(d.textlength(part, font=face("mono", 11))) + 16
-        y += 20
+        d.text((MARGIN, y), ellipsize(d, artist, face("serif", 20), width), fill=accent, font=face("serif", 20))
 
     # bài kế tiếp ở đáy cột chữ, chỉ vẽ khi còn chỗ (tên bài dài thì bỏ qua)
     if nxt and area_end != TEXT_BOTTOM:
