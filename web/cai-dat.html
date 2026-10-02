@@ -46,7 +46,7 @@
   <span class="strip__name">Cài đặt</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>G</span>
+  <span class="hide-sm"><b>Bản</b>H</span>
 </div>
 
 <header class="top">
@@ -82,6 +82,10 @@
       <h2 id="h-tu-host">Tự host: trình tự thi công</h2>
       <p class="sheet__scale">Cần Docker và một chỗ chạy 24/7<br>làm lần lượt từ bước 1</p>
     </header>
+    <p><strong>Cách nhanh nhất trên Raspberry Pi hoặc máy Debian: một lệnh.</strong> Script cài Docker và git, hỏi token và Application ID của bot, tự sinh các mật khẩu, khởi động bot và đăng ký lệnh gạch chéo. Tùy chọn, nó cài thêm timer sao lưu và tự cập nhật, và với <code>--tft</code> thì cài đặt luôn màn TFT 3.5 inch. Chạy lại được mà không hỏng gì; thêm <code>--dry-run</code> để chỉ xem trước nó sẽ làm gì.</p>
+    <div class="code"><pre><code>curl -fsSL https://raw.githubusercontent.com/nhaajtt/musiDISCORD/main/scripts/install-pi.sh | sh</code></pre><button type="button" data-copy>Chép</button></div>
+    <p class="sub">Ví dụ xem trước: thêm <code>-s -- --dry-run</code> sau <code>sh</code>. Muốn tự kiểm soát từng bước, hoặc chạy trên máy khác, làm theo các bước thủ công bên dưới.</p>
+    <p><strong>Cách thủ công, từng bước:</strong></p>
     <ol class="build">
       <li>
         <h3>Lấy Token và Application ID</h3>
@@ -100,13 +104,13 @@
       </li>
       <li>
         <h3>Đăng ký lệnh gạch chéo</h3>
-        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.2 thêm <code>/library</code>, <code>/vibe</code>, <code>/similar</code>). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
+        <p>Chạy một lần, và chạy lại mỗi khi thêm hoặc đổi lệnh (bản 2.4 thêm <code>/playlist</code> và <code>/radio</code>). Điền <code>GUILD_ID</code> trong .env nếu muốn lệnh hiện ngay ở một server khi thử.</p>
         <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Chép</button></div>
       </li>
       <li>
         <h3>Mời bot và thêm nhạc</h3>
         <p>Mời bot bằng link ở đầu trang (đổi <code>client_id</code> thành ID của bạn, giữ nguyên phần <code>permissions=281474979908608</code>). Bỏ file nhạc vào thư mục <code>music/</code>, đặt file <code>.lrc</code> cạnh file nhạc nếu có lời; thêm file mới không cần khởi động lại bot.</p>
-        <p class="sub">Cài đặt, hàng chờ, thống kê và danh sách yêu thích lưu trong thư mục data/ cạnh docker-compose.yml, giữ thư mục này để không mất khi dựng lại container.</p>
+        <p class="sub">Cài đặt, hàng chờ, thống kê, playlist và danh sách yêu thích lưu trong thư mục data/ cạnh docker-compose.yml, giữ thư mục này để không mất khi dựng lại container.</p>
       </li>
     </ol>
   </div>
@@ -154,7 +158,15 @@
       </details>
       <details>
         <summary>Bot nhớ gì về server và về tôi?</summary>
-        <div class="ans"><p>Cài đặt của server, hàng chờ đã lưu, và từ bản 2.0 có thêm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu theo ID Discord. Từ bản 2.1 còn có hồ sơ đóng góp và đề xuất của bạn. Bạn tắt việc ghi thống kê bằng <code>/privacy stats</code> và xóa dữ liệu của mình bằng <code>/privacy delete</code>. Chi tiết ở trang <a href="privacy.html">Quyền riêng tư</a>.</p></div>
+        <div class="ans"><p>Cài đặt của server, hàng chờ đã lưu, và từ bản 2.0 có thêm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu theo ID Discord. Từ bản 2.4 có thêm playlist; tất cả nằm trong thư mục data/ trên máy chạy bot. Từ bản 2.1 còn có hồ sơ đóng góp và đề xuất của bạn. Bạn tắt việc ghi thống kê bằng <code>/privacy stats</code> và xóa dữ liệu của mình, gồm cả playlist cá nhân, bằng <code>/privacy delete</code>. Chi tiết ở trang <a href="privacy.html">Quyền riêng tư</a>.</p></div>
+      </details>
+      <details>
+        <summary>Chạy nhiều node Lavalink thế nào?</summary>
+        <div class="ans"><p>Khai báo trong .env bằng <code>LAVALINK_NODES</code>, ví dụ <code>main=lavalink:2333,backup=lavalink2:2333</code>, rồi bật node thứ hai bằng <code>docker compose --profile ha up -d</code>. Khi một node ngừng, các trình phát được chuyển sang node khác. Mọi node phải thấy cùng một thư mục nhạc. <code>/stats</code> hiện số node đang chạy.</p></div>
+      </details>
+      <details>
+        <summary>Khi nào cần chia shard?</summary>
+        <div class="ans"><p>Chia shard là tùy chọn: đặt <code>SHARDS=auto</code> hoặc một con số. Mọi shard chạy trong cùng một tiến trình, và một shard là đủ cho tới 2.500 server. <code>/stats</code> hiện số shard.</p></div>
       </details>
       <details>
         <summary>Bot có tự rời kênh không?</summary>
@@ -174,7 +186,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>C-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

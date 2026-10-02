@@ -46,7 +46,7 @@
   <span class="strip__name">Nhật ký</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>G</span>
+  <span class="hide-sm"><b>Bản</b>H</span>
 </div>
 
 <header class="top">
@@ -78,7 +78,7 @@
     <p class="lead">Đây là nhật ký thật của tôi khi làm musiDISCORD, từ lúc chọn công nghệ cho tới khi nó chạy 24/7 trên một chiếc Raspberry Pi 5 ở nhà. Tôi ghi cả những lúc làm sai và cách tôi tìm ra nguyên nhân, vì phần lớn thứ tôi học được nằm ở đó.</p>
     <div class="legal__meta">
       <span>30/09 đến 02/10/2026</span>
-      <span class="stamp" style="font-size:18px">bản G</span>
+      <span class="stamp" style="font-size:18px">bản H</span>
     </div>
 
     <div class="legal__body">
@@ -211,6 +211,21 @@
       <p>Cuối cùng tôi dọn cả hai máy. Trên PC: dừng và xoá container, image và cache Docker của dự án (đã chuyển hết sang Pi), xoá dữ liệu cũ sau khi lấy về một bản sao lưu mới từ Pi (để có một bản nằm ngoài thẻ SD). Trên Pi: xoá file tạm và image dư. Những thứ không thuộc dự án này tôi giữ nguyên. Sau đó tôi tách website thành nhiều trang cho dễ đọc và viết nhật ký này.</p>
     </section>
     <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Bản 2.4: playlist, radio, bộ lọc xếp chồng và nhiều node</h2>
+      <p>Sau khi dọn xong tôi quay lại với bot. Lô này gom những thứ tôi thấy thiếu khi tự dùng hằng ngày.</p>
+      <ul>
+        <li><strong>Bộ lọc âm thanh.</strong> <code>/filter</code> trước đây chỉ cho một hiệu ứng mỗi lúc. Giờ nó có các lệnh con: <code>effect</code> bật hoặc tắt từng hiệu ứng (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono) và các hiệu ứng xếp chồng được, <code>speed</code> và <code>pitch</code> từ 0.5 đến 2 lần (đổi cái này không đổi cái kia), <code>eq</code> chỉnh bass, mid, treble từ -2 đến 10, cùng <code>status</code> và <code>reset</code>.</li>
+        <li><strong>Playlist.</strong> <code>/playlist</code> có hai loại: cá nhân (của bạn, dùng được ở mọi server) và của server (dùng chung; nếu server đặt role DJ thì sửa phải có role đó). Chứa được cả file trong thư viện lẫn bài trực tuyến, tối đa 25 playlist mỗi chủ và 200 bài mỗi playlist. <code>/privacy delete</code> xóa các playlist cá nhân.</li>
+        <li><strong>Radio của server.</strong> <code>/radio</code> phát không ngừng từ thư viện nhạc. Mỗi vòng được xếp theo 👍/👎 của server, bài nào nghe hết hay bị bỏ qua sớm (90 ngày gần nhất) và bài hay phát quanh giờ hiện tại; khi bật <code>ANALYSIS=on</code> thì thêm một chút nghiêng về tâm trạng hợp giờ (chill ban đêm, đều đều buổi sáng, sôi động ban ngày). Radio sống qua lần khởi động lại.</li>
+        <li><strong>Wrapped và thống kê.</strong> <code>/wrapped</code> và <code>/mystats</code> có thêm <code>format</code> (thẻ, hoặc story 9:16 cỡ 1080x1920 để đăng story), <code>theme</code> (tối hoặc sáng) và <code>private</code> (chỉ mình bạn thấy).</li>
+        <li><strong>Đố nhạc.</strong> <code>/quiz start</code> có thêm <code>mode</code>: đoán bài (mặc định), nghệ sĩ, năm phát hành (đúng hẳn được trọn điểm, lệch trong 2 năm được một phần, cần bài có thẻ năm) hoặc đoán từ một dòng lời. <code>/quiz top</code> có <code>period</code>: tháng này (mặc định), tháng trước, mọi thời gian. Mùa đố nhạc là tháng dương lịch. Thêm hai huy hiệu: Tai thính (50 câu đúng) và Quán quân mùa (người đứng đầu đố nhạc của một tháng đã kết thúc), nâng tổng số lên 10.</li>
+        <li><strong>Nhiều node Lavalink và shard.</strong> Biến <code>LAVALINK_NODES</code> khai báo nhiều node, ví dụ <code>main=lavalink:2333,backup=lavalink2:2333</code>; khi một node ngừng, các trình phát được chuyển sang node khác. Node thứ hai chạy bằng <code>docker compose --profile ha up -d</code> và mọi node phải thấy cùng một thư mục nhạc. Chia shard là tùy chọn (<code>SHARDS=auto</code> hoặc một con số), tất cả shard chạy trong một tiến trình; một shard là đủ tới 2.500 server. <code>/stats</code> giờ hiện số node đang chạy và số shard.</li>
+        <li><strong>Trình cài đặt một lệnh.</strong> <code>scripts/install-pi.sh</code> cài Docker và git, hỏi token và Application ID, tự sinh mật khẩu, khởi động bot, đăng ký lệnh, và tùy chọn cài sao lưu, tự cập nhật và màn TFT (<code>--tft</code>). Chạy lại nhiều lần được, <code>--dry-run</code> để xem trước.</li>
+      </ul>
+      <p>Bot giờ có 38 lệnh. Tôi cũng viết lại phần quyền riêng tư trên website cho rõ: bot tự host, dữ liệu nằm trong <code>data/</code> trên máy chạy bot, và bot không đọc nội dung tin nhắn.</p>
+    </section>
+    <section class="clause">
       <h2>Những gì tôi học được</h2>
       <ul>
         <li>Khi một hướng phụ thuộc vào thứ mình không kiểm soát (YouTube), đổi hướng sớm.</li>
@@ -254,7 +269,8 @@
           <tr><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Thư viện nhạc thông minh, thẻ Đang phát mới, tên bài trên kênh thoại, đố nhạc, hàng chờ công bằng và <code>/bump</code>, thống kê, Wrapped và đánh giá bài hát, lời bài hát chạy theo giọng, chế độ 24/7.</td></tr>
           <tr><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Đóng góp file có chủ bot duyệt (<code>/contribute</code>, <code>/settings contributions</code>) và danh sách mong muốn (<code>/request</code>), bot không tải gì từ YouTube.</td></tr>
         <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Tự gắn thẻ bằng dấu vân âm thanh (<code>/library</code>), radio theo tâm trạng và bài giống nhau (<code>/vibe</code>, <code>/similar</code>), nhiều bot cùng lúc, trang trạng thái cho màn hình nhỏ, sao lưu, tự cập nhật và giám sát cho Raspberry Pi.</td></tr>
-        <tr class="now"><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>Màn TFT 3.5 inch trên Raspberry Pi 5 (giao diện bìa tạp chí, cảm ứng bằng bút), trang <code>/display</code> mới, sao lưu, tự cập nhật, giám sát và truy cập từ xa qua Tailscale, website tách nhiều trang.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+        <tr><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>Màn TFT 3.5 inch trên Raspberry Pi 5 (giao diện bìa tạp chí, cảm ứng bằng bút), trang <code>/display</code> mới, sao lưu, tự cập nhật, giám sát và truy cập từ xa qua Tailscale, website tách nhiều trang.</td></tr>
+        <tr class="now"><th scope="row">H</th><td>2.4</td><td>2026-10-02</td><td>Bộ lọc âm thanh xếp chồng (<code>/filter</code> có lệnh con), playlist cá nhân và của server (<code>/playlist</code>), radio của server (<code>/radio</code>), thẻ Wrapped dạng story, chế độ đố nhạc mới và mùa theo tháng, nhiều node Lavalink có tự chuyển dự phòng, chia shard tùy chọn, trình cài đặt một lệnh cho Raspberry Pi.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -270,7 +286,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>N-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Command list, musiDISCORD</title>
-<meta name="description" content="All 36 slash commands of musiDISCORD by group, plus a schedule of the configuration items.">
+<meta name="description" content="All 38 slash commands of musiDISCORD by group, plus a schedule of the configuration items.">
 <link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/lenh.html">
 <link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/commands.html">
 <link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/lenh.html">
@@ -46,7 +46,7 @@
   <span class="strip__name">Commands</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -80,7 +80,7 @@
     <header class="sheet__head">
       <span class="sheet__no">S-01</span>
       <h2 id="h-lenh">Command table</h2>
-      <p class="sheet__scale">36 slash commands<br>type / in Discord to see suggestions</p>
+      <p class="sheet__scale">38 slash commands<br>type / in Discord to see suggestions</p>
     </header>
     <div class="table-wrap">
       <table class="cmds">
@@ -94,8 +94,10 @@
           <tr><th scope="row"><code>/album</code> album name</th><td>Plays a whole album from the library, in track order.</td></tr>
           <tr><th scope="row"><code>/artist</code> artist name</th><td>Plays the songs of one artist from the library.</td></tr>
           <tr><th scope="row"><code>/nhaajt</code></th><td>Shuffles the entire music folder, avoids back-to-back songs by the same artist and favors liked songs; when a round ends it reshuffles and keeps going until <code>/stop</code> or <code>/leave</code>.</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">Favorites</th></tr>
+          <tr><th scope="row"><code>/radio</code></th><td>An endless server radio over the music library. Each round is ordered by the server's 👍/👎, the tracks it plays through versus skips early (last 90 days), what it usually plays around the current hour, and (with <code>ANALYSIS=on</code>) a small push toward a mood that fits the time of day: chill at night, steady in the morning, upbeat by day. It survives restarts.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Favorites and playlists</th></tr>
           <tr><th scope="row"><code>/favorites</code> add, remove, list, play</th><td>Manages your own favorites list: add, remove, view, and play the whole list.</td></tr>
+          <tr><th scope="row"><code>/playlist</code> create, save, add, play (shuffle), view, remove, delete, list</th><td>Personal playlists (yours, working on every server) and server playlists (shared; changing them needs the DJ role if one is set). <code>save</code> stores the current track plus the queue, <code>add</code> adds the current track, and <code>play</code> can shuffle. They hold both local files and online tracks, up to 25 playlists per owner and 200 tracks each.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Controls</th></tr>
           <tr><th scope="row"><code>/pause</code>, <code>/resume</code></th><td>Pause and resume.</td></tr>
           <tr><th scope="row"><code>/skip</code></th><td>Skips the current song; with a crowd listening, it goes to a vote.</td></tr>
@@ -105,14 +107,14 @@
           <tr><th scope="row"><code>/volume</code> level</th><td>Volume from 1 to 150.</td></tr>
           <tr><th scope="row"><code>/loop</code> mode</th><td>Loop off, repeat the current song, or repeat the whole queue.</td></tr>
           <tr><th scope="row"><code>/shuffle</code></th><td>Shuffles the queue.</td></tr>
-          <tr><th scope="row"><code>/filter</code> effect</th><td>Applies an audio filter: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, or off. Only one filter is active at a time.</td></tr>
+          <tr><th scope="row"><code>/filter</code> effect, speed, pitch, eq, status, reset</th><td><code>effect</code> toggles an effect on or off (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono), and effects stack. <code>speed</code> changes tempo from 0.5 to 2x with the pitch unchanged, <code>pitch</code> changes pitch from 0.5 to 2x with the speed unchanged, <code>eq</code> sets bass, mid and treble levels from -2 to 10. <code>status</code> shows what is applied and <code>reset</code> clears everything.</td></tr>
           <tr><th scope="row"><code>/remove</code> position</th><td>Removes one song from the queue.</td></tr>
           <tr><th scope="row"><code>/bump</code></th><td>Starts a vote to move a queued song to the front.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Info</th></tr>
           <tr><th scope="row"><code>/queue</code></th><td>Shows the queue as a new-style card, paged, with page buttons.</td></tr>
           <tr><th scope="row"><code>/nowplaying</code></th><td>Shows the Now Playing card with a live progress bar.</td></tr>
           <tr><th scope="row"><code>/lyrics</code></th><td>Synced lyrics, with the line being sung highlighted.</td></tr>
-          <tr><th scope="row"><code>/stats</code></th><td>Bot status: uptime, ping, server count, Lavalink.</td></tr>
+          <tr><th scope="row"><code>/stats</code></th><td>Bot status: uptime, ping, server count, Lavalink, nodes up and shard count.</td></tr>
           <tr><th scope="row"><code>/help</code></th><td>The command list, grouped.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Contributions and requests</th></tr>
           <tr><th scope="row"><code>/contribute</code> submit, pending, stats</th><td>Submit your own music file (with a confirmation that you have the right to share it) for the bot owner to review, see pending files, and view stats. Off by default.</td></tr>
@@ -122,12 +124,12 @@
           <tr><th scope="row"><code>/similar</code> (count)</th><td>Queues the library songs most similar to the one playing.</td></tr>
           <tr><th scope="row"><code>/library</code> status, run, stop, review, forget</th><td>For the bot owner: check tagging and analysis progress, run or stop it, review suggested tags, and drop an automatic tag from a song.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Music quiz</th></tr>
-          <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Starts or stops a music quiz round drawn from the server's library, and shows the leaderboard.</td></tr>
+          <tr><th scope="row"><code>/quiz</code> start (mode), stop, top (period)</th><td>Starts or stops a music quiz round drawn from the server's library, and shows the leaderboard. <code>mode</code>: guess the song (default), the artist, the release year (exact is full points, within 2 years is partial, needs a year tag) or from a lyric line (shows a line from the song's lyrics and plays the clip starting there when the lyrics are synced). <code>period</code>: this month (default), last month, all time. Quiz seasons are calendar months.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Stats and privacy</th></tr>
-          <tr><th scope="row"><code>/mystats</code></th><td>Your listening stats: time, top songs, top artists, skips, badges.</td></tr>
+          <tr><th scope="row"><code>/mystats</code> (format, theme, private)</th><td>Your listening stats: time, top songs, top artists, skips, badges. Pick a card or a 9:16 story (1080x1920) for Instagram and TikTok stories, a dark or light theme, and <code>private</code> so only you see it.</td></tr>
           <tr><th scope="row"><code>/leaderboard</code></th><td>The server leaderboard and the most-liked songs.</td></tr>
-          <tr><th scope="row"><code>/wrapped</code></th><td>A year-in-review image, drawn like a cyanotype blueprint.</td></tr>
-          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Stops recording stats about you, or deletes your data.</td></tr>
+          <tr><th scope="row"><code>/wrapped</code> (format, theme, private)</th><td>A year-in-review image, drawn like a cyanotype blueprint. Pick a card or a 9:16 story (1080x1920) for Instagram and TikTok stories, a dark or light theme, and <code>private</code> so only you see it.</td></tr>
+          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Stops recording stats about you, or deletes your data (personal playlists included).</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Administration</th></tr>
           <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status, contributions</th><td>View and change server settings: DJ role, default volume, fair queue, song name on the voice channel, and accepting contributions. Requires the Manage Server permission.</td></tr>
           <tr><th scope="row"><code>/247</code> on, off (radio)</th><td>Turns 24/7 mode (staying in the voice channel) on or off; the radio option plays the whole folder nonstop.</td></tr>
@@ -158,7 +160,7 @@
           <tr><td>D-07</td><td>24/7 mode</td><td><code>/247</code></td><td>The bot stays in the channel even when it is empty and rejoins after a restart. A radio option plays the whole folder.</td></tr>
           <tr><td>D-08</td><td>Queue memory</td><td>automatic</td><td>When the bot restarts, the queue is reloaded so you can keep listening without re-adding songs.</td></tr>
           <tr><td>D-09</td><td>Auto leave</td><td>automatic</td><td>When the channel empties or the songs run out, the bot leaves after 60 seconds so it does not hog the spot. With <code>/247</code> on, it stays.</td></tr>
-          <tr><td>D-10</td><td>Privacy</td><td><code>/privacy</code></td><td>Everyone can stop stats being recorded about them or delete their own data.</td></tr>
+          <tr><td>D-10</td><td>Privacy</td><td><code>/privacy</code></td><td>Everyone can stop stats being recorded about them or delete their own data, personal playlists included.</td></tr>
           <tr><td>D-11</td><td>File contributions</td><td><code>/contribute</code>, <code>/settings contributions</code></td><td>Off by default. The bot owner reviews every file before it enters the library.</td></tr>
           <tr><td>D-12</td><td>Wish list</td><td><code>/request</code></td><td>Records a song name with votes and downloads nothing. If a matching file turns up, the requester is notified.</td></tr>
           <tr><td>D-13</td><td>Auto tagging</td><td><code>/library</code></td><td>Off by default. Identifies untagged songs by audio fingerprint (AcoustID, MusicBrainz) and fills in title, artist, album and cover. Tags are stored separately and the original music files are never modified; low-confidence matches go to the bot owner for manual review.</td></tr>
@@ -166,7 +168,9 @@
           <tr><td>D-15</td><td>Several bots at once</td><td>docker compose <code>--profile multi</code></td><td>Each bot has its own token but shares Lavalink and the music folder; tags and audio features are shared, stats data is separate.</td></tr>
           <tr><td>D-16</td><td>Status display</td><td>the <code>/display</code> page</td><td>Off by default. A 480×320 page showing the current song, with touch buttons; suits a 3.5 inch TFT screen on a Raspberry Pi or a phone on your home network. Controls need a token.</td></tr>
           <tr><td>D-17</td><td>Backup, auto update, monitoring</td><td>scripts in <code>scripts/</code></td><td>Periodic data backups, auto updates from GitHub that roll back if the bot is unhealthy, and Uptime Kuma watching over it.</td></tr>
-          <tr><td>D-18</td><td>Help and status</td><td><code>/help</code>, <code>/stats</code></td><td>A grouped command list; ping, server count, Lavalink RAM.</td></tr>
+          <tr><td>D-18</td><td>Help and status</td><td><code>/help</code>, <code>/stats</code></td><td>A grouped command list; ping, server count, Lavalink RAM, nodes and shards.</td></tr>
+          <tr><td>D-19</td><td>Several Lavalink nodes</td><td><code>LAVALINK_NODES</code>, docker compose <code>--profile ha</code></td><td>List several nodes, for example <code>main=lavalink:2333,backup=lavalink2:2333</code>. When one node goes down its players move to another. Every node must see the same music folder.</td></tr>
+          <tr><td>D-20</td><td>Sharding</td><td><code>SHARDS</code></td><td>Optional: <code>auto</code> or a number; all shards run in one process. One shard is enough up to 2,500 servers.</td></tr>
         </tbody>
       </table>
     </div>
@@ -183,7 +187,7 @@
       <div class="w2"><small>Sheet no.</small><strong>L-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

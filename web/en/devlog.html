@@ -46,7 +46,7 @@
   <span class="strip__name">Devlog</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -78,7 +78,7 @@
     <p class="lead">This is my real devlog from building musiDISCORD, from picking the stack to getting it running 24/7 on a Raspberry Pi 5 at home. I wrote down the times I got things wrong and how I tracked down the cause, because that is where most of what I learned came from.</p>
     <div class="legal__meta">
       <span>Sep 30 to Oct 2, 2026</span>
-      <span class="stamp" style="font-size:18px">rev G</span>
+      <span class="stamp" style="font-size:18px">rev H</span>
     </div>
 
     <div class="legal__body">
@@ -211,6 +211,21 @@
       <p>Finally I cleaned up both machines. On the PC: stopped and removed the project's Docker containers, images and cache (everything had moved to the Pi), and deleted the old data after pulling a fresh backup from the Pi (so a copy exists outside the SD card). On the Pi: removed temp files and leftover images. Things that do not belong to this project I left alone. After that I split the website into several pages to make it easier to read and wrote this devlog.</p>
     </section>
     <section class="clause">
+      <p class="when">Oct 2</p>
+      <h2>Version 2.4: playlists, radio, stackable filters and several nodes</h2>
+      <p>After the cleanup I went back to the bot. This batch collects the things I missed while using it every day.</p>
+      <ul>
+        <li><strong>Audio filters.</strong> <code>/filter</code> used to allow one effect at a time. It now has subcommands: <code>effect</code> toggles an effect on or off (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono) and effects stack, <code>speed</code> and <code>pitch</code> from 0.5 to 2x (changing one leaves the other alone), <code>eq</code> for bass, mid and treble from -2 to 10, plus <code>status</code> and <code>reset</code>.</li>
+        <li><strong>Playlists.</strong> <code>/playlist</code> comes in two kinds: personal (yours, working on every server) and server playlists (shared; if the server sets a DJ role, changing them needs that role). They hold both library files and online tracks, up to 25 playlists per owner and 200 tracks each. <code>/privacy delete</code> removes personal playlists.</li>
+        <li><strong>Server radio.</strong> <code>/radio</code> plays endlessly from the music library. Each round is ordered by the server's 👍/👎, the tracks it plays through versus skips early (last 90 days), and what it usually plays around the current hour; with <code>ANALYSIS=on</code> it adds a small push toward a mood that fits the time of day (chill at night, steady in the morning, upbeat by day). The radio survives restarts.</li>
+        <li><strong>Wrapped and stats.</strong> <code>/wrapped</code> and <code>/mystats</code> gained <code>format</code> (card, or a 9:16 1080x1920 story for stories), <code>theme</code> (dark or light) and <code>private</code> (only you see it).</li>
+        <li><strong>Quiz.</strong> <code>/quiz start</code> gained <code>mode</code>: guess the song (default), the artist, the release year (exact is full points, within 2 years is partial, and it needs a year tag) or from a lyric line. <code>/quiz top</code> gained <code>period</code>: this month (default), last month, all time. Quiz seasons are calendar months. Two new badges, Sharp Ear (50 correct answers) and Season Champion (top quiz player of a finished month), bring the total to 10.</li>
+        <li><strong>Several Lavalink nodes and sharding.</strong> The <code>LAVALINK_NODES</code> variable lists several nodes, for example <code>main=lavalink:2333,backup=lavalink2:2333</code>; when one node goes down, its players move to another. The second node starts with <code>docker compose --profile ha up -d</code>, and every node must see the same music folder. Sharding is optional (<code>SHARDS=auto</code> or a number); all shards run in one process, and one shard is enough up to 2,500 servers. <code>/stats</code> now shows nodes up and the shard count.</li>
+        <li><strong>One-command installer.</strong> <code>scripts/install-pi.sh</code> installs Docker and git, asks for the bot token and application ID, generates the passwords, starts the bot, registers the commands, and can optionally install the backup and auto-update timers and set up the TFT screen (<code>--tft</code>). It is safe to run again, and <code>--dry-run</code> previews it.</li>
+      </ul>
+      <p>The bot now has 38 commands. I also rewrote the privacy statement on the website to be plainer: the bot is self-hosted, the data lives in <code>data/</code> on the bot's own machine, and it does not read message content.</p>
+    </section>
+    <section class="clause">
       <h2>What I learned</h2>
       <ul>
         <li>When a direction depends on something you do not control (YouTube), change course early.</li>
@@ -254,7 +269,8 @@
           <tr><th scope="row">D</th><td>2.0</td><td>2026-10-01</td><td>Smart music library, new Now playing card, track title on the voice channel, music quiz, fair queue and <code>/bump</code>, stats, Wrapped and track ratings, lyrics that follow the singing, 24/7 mode.</td></tr>
           <tr><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Owner-approved file contributions (<code>/contribute</code>, <code>/settings contributions</code>) and a wishlist (<code>/request</code>); the bot downloads nothing from YouTube.</td></tr>
         <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Auto-tagging with audio fingerprints (<code>/library</code>), mood radio and similar tracks (<code>/vibe</code>, <code>/similar</code>), several bots at once, a status page for small screens, backups, self-updates and monitoring for the Raspberry Pi.</td></tr>
-        <tr class="now"><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>3.5 inch TFT screen on the Raspberry Pi 5 (magazine-cover interface, stylus touch), a new <code>/display</code> page, backups, self-updates, monitoring and remote access through Tailscale, the website split into multiple pages.<span class="revstamp" id="rev-stamp" aria-hidden="true">CURRENT</span></td></tr>
+        <tr><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>3.5 inch TFT screen on the Raspberry Pi 5 (magazine-cover interface, stylus touch), a new <code>/display</code> page, backups, self-updates, monitoring and remote access through Tailscale, the website split into multiple pages.</td></tr>
+        <tr class="now"><th scope="row">H</th><td>2.4</td><td>2026-10-02</td><td>Stackable audio filters (<code>/filter</code> subcommands), personal and server playlists (<code>/playlist</code>), server radio (<code>/radio</code>), story-format Wrapped cards, new quiz modes and monthly seasons, several Lavalink nodes with automatic failover, optional sharding, a one-command installer for the Raspberry Pi.<span class="revstamp" id="rev-stamp" aria-hidden="true">CURRENT</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -270,7 +286,7 @@
       <div class="w2"><small>Sheet no.</small><strong>N-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

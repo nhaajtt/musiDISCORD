@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tính năng, musiDISCORD</title>
-<meta name="description" content="Thư viện nhạc thông minh, thẻ Đang phát, hàng chờ, /search chọn kết quả bằng nút, bộ lọc âm thanh /filter, chế độ /nhaajt, đố nhạc, thống kê và Wrapped, lời bài hát, 24/7 và cổng đóng góp của bot nhạc musiDISCORD.">
+<meta name="description" content="Thư viện nhạc thông minh, thẻ Đang phát, hàng chờ, /search chọn kết quả bằng nút, bộ lọc âm thanh xếp chồng /filter, playlist /playlist, radio /radio, chế độ /nhaajt, đố nhạc, thống kê và Wrapped, lời bài hát, 24/7 và cổng đóng góp của bot nhạc musiDISCORD.">
 <link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/tinh-nang.html">
 <link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/features.html">
 <link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/tinh-nang.html">
@@ -46,7 +46,7 @@
   <span class="strip__name">Tính năng</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>G</span>
+  <span class="hide-sm"><b>Bản</b>H</span>
 </div>
 
 <header class="top">
@@ -309,7 +309,7 @@
         <p>Thêm bao nhiêu bài tùy thích, bài nào tới lượt bài đó. <code>/queue</code> chia hàng chờ thành từng trang mười bài, có ảnh bìa và nút lật trang theo bố cục thẻ mới.</p>
         <p>Cần dọn dẹp? <code>/remove</code> bỏ một bài, <code>/shuffle</code> xáo trộn, <code>/loop</code> cho cả hàng chờ lặp lại, <code>/seek</code> tua tới đoạn hay nhất, <code>/volume</code> chỉnh từ 1 đến 150.</p>
         <p>Không nhớ chính xác tên bài? <code>/search</code> tìm theo từ khóa (YouTube, YouTube Music, SoundCloud hoặc Spotify) và hiện tối đa 10 kết quả dưới dạng nút đánh số: bấm số nào, bài đó vào hàng chờ.</p>
-        <p>Muốn đổi màu âm thanh? <code>/filter</code> áp một hiệu ứng lên bài đang phát: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, hoặc <code>off</code> để tắt.</p>
+        <p>Muốn đổi màu âm thanh? <code>/filter effect</code> bật hoặc tắt từng hiệu ứng lên bài đang phát (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono) và các hiệu ứng xếp chồng được. <code>/filter speed</code> đổi tốc độ 0.5 đến 2 lần mà giữ nguyên cao độ, <code>/filter pitch</code> đổi cao độ mà giữ nguyên tốc độ, <code>/filter eq</code> chỉnh bass, mid, treble từ -2 đến 10. <code>/filter status</code> xem đang áp gì, <code>/filter reset</code> tắt hết.</p>
         <p>Hai thứ mới cho đỡ cãi nhau: hàng chờ công bằng, và <code>/bump</code>.</p>
         <p class="note">ghi chú: bài tầng 3 là bài ai đó xin "chỉ nghe thử một chút"</p>
       </div>
@@ -444,7 +444,8 @@
           <li><strong>Nhanh được điểm nhiều.</strong> Điểm giảm dần theo từng giây.</li>
           <li><strong>Gợi ý có giá.</strong> Xin gợi ý thì trừ điểm của câu đó.</li>
           <li><strong>Chuỗi đúng liên tiếp có thưởng.</strong></li>
-          <li><strong>Bảng xếp hạng của server</strong> xem bằng <code>/quiz top</code>; dừng ván bằng <code>/quiz stop</code>.</li>
+          <li><strong>Bốn chế độ</strong> qua tùy chọn <code>mode</code> của <code>/quiz start</code>: đoán bài (mặc định), đoán nghệ sĩ, đoán năm phát hành (đúng hẳn được trọn điểm, lệch trong 2 năm được một phần, cần bài có thẻ năm), hoặc đoán từ một dòng lời (bot hiện một dòng trong lời bài và phát đoạn nhạc bắt đầu từ đó khi lời có đồng bộ thời gian).</li>
+          <li><strong>Bảng xếp hạng của server</strong> xem bằng <code>/quiz top</code>, chọn <code>period</code>: tháng này (mặc định), tháng trước hoặc mọi thời gian. Mùa đố nhạc là tháng dương lịch. Dừng ván bằng <code>/quiz stop</code>.</li>
         </ul>
         <p class="note">thử bên cạnh: đáp án là "Đêm ở ga cuối"</p>
       </div>
@@ -535,16 +536,18 @@
       <div class="copy">
         <p>Bot nhớ bạn nghe gì, lúc nào, và biến thành con số vui vẻ.</p>
         <dl class="cmdlist">
-          <div><dt><code>/mystats</code></dt><dd>Thời gian nghe, bài và nghệ sĩ nghe nhiều nhất, số lần bấm bỏ qua, và huy hiệu của bạn.</dd></div>
+          <div><dt><code>/mystats</code></dt><dd>Thời gian nghe, bài và nghệ sĩ nghe nhiều nhất, số lần bấm bỏ qua, và huy hiệu của bạn. Có tùy chọn <code>format</code> (thẻ, hoặc story 9:16 cỡ 1080x1920), <code>theme</code> (tối hoặc sáng) và <code>private</code> (chỉ mình bạn thấy).</dd></div>
           <div><dt><code>/leaderboard</code></dt><dd>Bảng xếp hạng của server, cùng những bài được cả phòng yêu thích nhất.</dd></div>
-          <div><dt><code>/wrapped</code></dt><dd>Ảnh tổng kết một năm của bạn, vẽ như tờ bản vẽ cyanotype, để khoe trong server.</dd></div>
-          <div><dt><code>/privacy</code></dt><dd><code>stats</code> để bật tắt việc ghi thống kê về bạn, <code>delete</code> để xóa dữ liệu của bạn.</dd></div>
+          <div><dt><code>/wrapped</code></dt><dd>Ảnh tổng kết một năm của bạn, vẽ như tờ bản vẽ cyanotype, để khoe trong server. Cũng có <code>format</code> (thẻ, hoặc story 9:16 cỡ 1080x1920 cho story Instagram, TikTok), <code>theme</code> và <code>private</code>.</dd></div>
+          <div><dt><code>/privacy</code></dt><dd><code>stats</code> để bật tắt việc ghi thống kê về bạn, <code>delete</code> để xóa dữ liệu của bạn, gồm cả playlist cá nhân.</dd></div>
         </dl>
         <ul class="badges" id="badges">
           <li><span class="badge"><b>Cú đêm</b></span><i>nghe nhiều nhất sau nửa đêm</i></li>
           <li><span class="badge"><b>Tàn nhẫn</b></span><i>bấm bỏ qua còn nhiều hơn nghe hết bài</i></li>
           <li><span class="badge"><b>Bậc thầy hàng chờ</b></span><i>xếp nhiều bài vào hàng chờ nhất server</i></li>
           <li><span class="badge"><b>Fan cứng</b></span><i>nghe đi nghe lại cùng một nghệ sĩ</i></li>
+          <li><span class="badge"><b>Tai thính</b></span><i>50 câu trả lời đúng trong đố nhạc</i></li>
+          <li><span class="badge"><b>Quán quân mùa</b></span><i>người chơi đố nhạc số một của một tháng đã kết thúc</i></li>
         </ul>
         <p class="cmd-note">Không muốn bị ghi? <code>/privacy stats</code> tắt việc ghi thống kê về bạn, <code>/privacy delete</code> xóa dữ liệu đã có. Xem thêm ở trang <a href="privacy.html">Quyền riêng tư</a>.</p>
       </div>
@@ -670,6 +673,29 @@
   </div>
 </section>
 
+<section class="sheet" id="playlist-radio" data-sheet="S-10|Playlist và radio của server" aria-labelledby="h-playlist">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-10</span>
+      <h2 id="h-playlist">Playlist và radio của server</h2>
+      <p class="sheet__scale">Lưu lại những gì hay<br>để radio tự phát tiếp</p>
+    </header>
+    <div class="copy">
+      <p><code>/playlist</code> có hai loại: playlist cá nhân (của bạn, dùng được ở mọi server) và playlist của server (dùng chung; nếu server đặt role DJ thì sửa chúng cần role đó). Playlist chứa được cả file trong thư viện lẫn bài trực tuyến, tối đa 25 playlist mỗi chủ và 200 bài mỗi playlist.</p>
+      <dl class="cmdlist">
+        <div><dt><code>/playlist create</code></dt><dd>Tạo một playlist mới.</dd></div>
+        <div><dt><code>/playlist save</code></dt><dd>Lưu bài đang phát cùng cả hàng chờ vào playlist.</dd></div>
+        <div><dt><code>/playlist add</code></dt><dd>Thêm bài đang phát vào playlist.</dd></div>
+        <div><dt><code>/playlist play</code></dt><dd>Phát playlist, có tùy chọn <code>shuffle</code> để xáo trộn.</dd></div>
+        <div><dt><code>/playlist view</code>, <code>list</code></dt><dd>Xem các bài trong một playlist, hoặc liệt kê các playlist.</dd></div>
+        <div><dt><code>/playlist remove</code>, <code>delete</code></dt><dd>Bỏ một bài khỏi playlist, hoặc xóa cả playlist.</dd></div>
+      </dl>
+      <p><code>/radio</code> mở một đài radio không ngừng của server trên thư viện nhạc. Mỗi vòng được xếp theo 👍/👎 của server, những bài mà server nghe hết so với bỏ qua sớm (90 ngày gần nhất), và những bài hay phát quanh giờ hiện tại. Khi bật <code>ANALYSIS=on</code>, radio còn nghiêng nhẹ về tâm trạng hợp với giờ: chill vào ban đêm, đều đều buổi sáng, sôi động ban ngày. Radio vẫn còn sau khi bot khởi động lại.</p>
+      <p class="cmd-note"><code>/privacy delete</code> xóa playlist cá nhân của bạn. Xem thêm ở trang <a href="privacy.html">Quyền riêng tư</a>.</p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot" data-sheet="F-01|Khung tên bản vẽ">
@@ -680,7 +706,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>F-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

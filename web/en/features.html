@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Features, musiDISCORD</title>
-<meta name="description" content="Smart music library, the Now Playing card, queue, /search with numbered result buttons, /filter audio effects, /nhaajt mode, music quiz, stats and Wrapped, synced lyrics, 24/7 mode and the contribution gate of the musiDISCORD music bot.">
+<meta name="description" content="Smart music library, the Now Playing card, queue, /search with numbered result buttons, stackable /filter audio effects, /playlist, /radio, /nhaajt mode, music quiz, stats and Wrapped, synced lyrics, 24/7 mode and the contribution gate of the musiDISCORD music bot.">
 <link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/tinh-nang.html">
 <link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/features.html">
 <link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/tinh-nang.html">
@@ -46,7 +46,7 @@
   <span class="strip__name">Features</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -309,7 +309,7 @@
         <p>Add as many tracks as you like; each plays in its turn. <code>/queue</code> splits the queue into pages of ten, with cover art and page buttons in the new card layout.</p>
         <p>Need to tidy up? <code>/remove</code> drops a track, <code>/shuffle</code> mixes the queue, <code>/loop</code> repeats the whole queue, <code>/seek</code> jumps to the best part, and <code>/volume</code> goes from 1 to 150.</p>
         <p>Not sure of the exact title? <code>/search</code> looks things up by keyword (YouTube, YouTube Music, SoundCloud or Spotify) and shows up to 10 results as numbered buttons: press a number and that track joins the queue.</p>
-        <p>Want to change the sound? <code>/filter</code> applies an effect to what is playing: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, or <code>off</code> to clear it.</p>
+        <p>Want to change the sound? <code>/filter effect</code> toggles an effect on or off for what is playing (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono), and effects stack. <code>/filter speed</code> changes tempo from 0.5 to 2x with the pitch unchanged, <code>/filter pitch</code> changes pitch with the speed unchanged, and <code>/filter eq</code> sets bass, mid and treble from -2 to 10. <code>/filter status</code> shows what is applied and <code>/filter reset</code> clears everything.</p>
         <p>Two new things to keep the peace: a fair queue, and <code>/bump</code>.</p>
         <p class="note">note: the track on floor 3 is the one somebody asked to "just try for a second"</p>
       </div>
@@ -444,7 +444,8 @@
           <li><strong>Fast means more points.</strong> The score drops with every second.</li>
           <li><strong>Hints cost points.</strong> Asking for a hint deducts from that question's score.</li>
           <li><strong>Streaks earn a bonus.</strong></li>
-          <li><strong>The server leaderboard</strong> is under <code>/quiz top</code>; end a round with <code>/quiz stop</code>.</li>
+          <li><strong>Four modes</strong> through the <code>mode</code> option of <code>/quiz start</code>: guess the song (default), the artist, the release year (exact is full points, within 2 years is partial, and it needs a year tag), or from a lyric line (the bot shows a line from the song's lyrics and plays the clip starting there when the lyrics are synced).</li>
+          <li><strong>The server leaderboard</strong> is under <code>/quiz top</code>, with a <code>period</code> option: this month (default), last month or all time. Quiz seasons are calendar months. End a round with <code>/quiz stop</code>.</li>
         </ul>
         <p class="note">try it alongside: the answer is "Night at the Last Station"</p>
       </div>
@@ -535,16 +536,18 @@
       <div class="copy">
         <p>The bot remembers what you listen to and when, and turns it into fun numbers.</p>
         <dl class="cmdlist">
-          <div><dt><code>/mystats</code></dt><dd>Listening time, your most played tracks and artists, how often you hit skip, and your badges.</dd></div>
+          <div><dt><code>/mystats</code></dt><dd>Listening time, your most played tracks and artists, how often you hit skip, and your badges. Options: <code>format</code> (card, or a 9:16 1080x1920 story), <code>theme</code> (dark or light) and <code>private</code> (only you see it).</dd></div>
           <div><dt><code>/leaderboard</code></dt><dd>The server leaderboard, plus the tracks the whole room loves most.</dd></div>
-          <div><dt><code>/wrapped</code></dt><dd>Your year in review as an image, drawn like a cyanotype blueprint, ready to show off in the server.</dd></div>
-          <div><dt><code>/privacy</code></dt><dd><code>stats</code> turns stat tracking about you on or off, <code>delete</code> erases your data.</dd></div>
+          <div><dt><code>/wrapped</code></dt><dd>Your year in review as an image, drawn like a cyanotype blueprint, ready to show off in the server. It also has <code>format</code> (card, or a 9:16 1080x1920 story for Instagram and TikTok stories), <code>theme</code> and <code>private</code>.</dd></div>
+          <div><dt><code>/privacy</code></dt><dd><code>stats</code> turns stat tracking about you on or off, <code>delete</code> erases your data, personal playlists included.</dd></div>
         </dl>
         <ul class="badges" id="badges">
           <li><span class="badge"><b>Night owl</b></span><i>listens the most after midnight</i></li>
           <li><span class="badge"><b>Ruthless</b></span><i>skips more tracks than they finish</i></li>
           <li><span class="badge"><b>Queue master</b></span><i>queues the most tracks on the server</i></li>
           <li><span class="badge"><b>Superfan</b></span><i>plays the same artist over and over</i></li>
+          <li><span class="badge"><b>Sharp Ear</b></span><i>50 correct quiz answers</i></li>
+          <li><span class="badge"><b>Season Champion</b></span><i>top quiz player of a finished month</i></li>
         </ul>
         <p class="cmd-note">Would rather not be recorded? <code>/privacy stats</code> turns off stat tracking about you, and <code>/privacy delete</code> erases what is already stored. See the <a href="privacy.html">Privacy</a> page for more.</p>
       </div>
@@ -670,6 +673,29 @@
   </div>
 </section>
 
+<section class="sheet" id="playlist-radio" data-sheet="S-10|Playlists and server radio" aria-labelledby="h-playlist">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-10</span>
+      <h2 id="h-playlist">Playlists and server radio</h2>
+      <p class="sheet__scale">Keep what is good<br>and let the radio carry on</p>
+    </header>
+    <div class="copy">
+      <p><code>/playlist</code> comes in two kinds: personal playlists (yours, working on every server) and server playlists (shared; changing them needs the DJ role if one is set). A playlist holds both library files and online tracks, up to 25 playlists per owner and 200 tracks each.</p>
+      <dl class="cmdlist">
+        <div><dt><code>/playlist create</code></dt><dd>Creates a new playlist.</dd></div>
+        <div><dt><code>/playlist save</code></dt><dd>Saves the current track plus the whole queue into a playlist.</dd></div>
+        <div><dt><code>/playlist add</code></dt><dd>Adds the current track to a playlist.</dd></div>
+        <div><dt><code>/playlist play</code></dt><dd>Plays a playlist, with an optional <code>shuffle</code>.</dd></div>
+        <div><dt><code>/playlist view</code>, <code>list</code></dt><dd>Shows the tracks in a playlist, or lists the playlists.</dd></div>
+        <div><dt><code>/playlist remove</code>, <code>delete</code></dt><dd>Removes one track from a playlist, or deletes the whole playlist.</dd></div>
+      </dl>
+      <p><code>/radio</code> starts an endless server radio over the music library. Each round is ordered by the server's 👍/👎, the tracks the server plays through versus skips early (last 90 days), and what it usually plays around the current hour. With <code>ANALYSIS=on</code> the radio also leans a little toward a mood that fits the time of day: chill at night, steady in the morning, upbeat by day. The radio survives bot restarts.</p>
+      <p class="cmd-note"><code>/privacy delete</code> removes your personal playlists. See also the <a href="privacy.html">Privacy</a> page.</p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot" data-sheet="F-01|Title block">
@@ -680,7 +706,7 @@
       <div class="w2"><small>Sheet no.</small><strong>F-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

@@ -46,7 +46,7 @@
   <span class="strip__name">Home</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -169,8 +169,8 @@
 
 <section class="gauges" aria-label="A few numbers from the project">
   <div class="wrap gauges__row">
-    <figure class="gauge" data-gauge="36" data-max="40"><div class="gauge__dial"></div><figcaption><b data-num>36</b><span>slash commands</span></figcaption></figure>
-    <figure class="gauge" data-gauge="161" data-max="200"><div class="gauge__dial"></div><figcaption><b data-num>161</b><span>automated tests</span></figcaption></figure>
+    <figure class="gauge" data-gauge="38" data-max="40"><div class="gauge__dial"></div><figcaption><b data-num>38</b><span>slash commands</span></figcaption></figure>
+    <figure class="gauge" data-gauge="191" data-max="250"><div class="gauge__dial"></div><figcaption><b data-num>191</b><span>automated tests</span></figcaption></figure>
     <figure class="gauge" data-gauge="3" data-max="4"><div class="gauge__dial"></div><figcaption><b data-num>3</b><span>containers on one Pi</span></figcaption></figure>
     <figure class="gauge" data-gauge="24" data-max="24"><div class="gauge__dial"></div><figcaption><b data-num>24</b><span>hours a day, nonstop</span></figcaption></figure>
   </div>
@@ -201,18 +201,43 @@
   </div>
 </section>
 
-<section class="sheet sheet--short" id="doc-tiep" data-sheet="S-02|Keep reading" aria-labelledby="h-doc-tiep">
+<section class="sheet sheet--short" id="du-lieu" data-sheet="S-02|Your data" aria-labelledby="h-du-lieu">
   <div class="wrap">
     <header class="sheet__head">
       <span class="sheet__no">S-02</span>
+      <h2 id="h-du-lieu">Where your data lives</h2>
+      <p class="sheet__scale">Self-hosted means the data<br>stays on the bot owner's machine</p>
+    </header>
+    <div class="cards">
+      <div class="card">
+        <h3>Stays on the bot's machine</h3>
+        <p>The bot is self-hosted: stats, playlists and ratings live in the <code>data/</code> folder on the machine of whoever runs the bot, and are not sent to any service of mine.</p>
+      </div>
+      <div class="card">
+        <h3>Nothing goes to third parties</h3>
+        <p>Apart from the two optional lookups already documented on the privacy page (AcoustID and MusicBrainz to identify tracks, LRCLIB for lyrics), the bot sends no data out. It does not read message content.</p>
+      </div>
+      <div class="card">
+        <h3>You can delete it yourself</h3>
+        <p><code>/privacy delete</code> removes your data, personal playlists included; <code>/privacy stats</code> stops stats being recorded about you.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="sheet sheet--short" id="doc-tiep" data-sheet="S-03|Keep reading" aria-labelledby="h-doc-tiep">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
       <h2 id="h-doc-tiep">Keep reading</h2>
       <p class="sheet__scale">One topic per page<br>nothing crammed into one place</p>
     </header>
     <div class="cards">
       <a class="card" href="raspberry-pi.html"><h3>Running on the Raspberry Pi 5</h3><p>The hardware, the architecture, each deployment step, day-to-day operations and the story of the TFT screen.</p><span class="more">See the Pi 5 page</span></a>
       <a class="card" href="devlog.html"><h3>Project devlog</h3><p>Where I got stuck, how I found the cause, what I decided and what I learned.</p><span class="more">Read the devlog</span></a>
-      <a class="card" href="features.html"><h3>Features</h3><p>The smart library, the Now Playing card, music quiz, stats, lyrics, contributions, search and audio filters.</p><span class="more">See the features</span></a>
-      <a class="card" href="commands.html"><h3>Command list</h3><p>All 36 slash commands, grouped, plus the configuration options.</p><span class="more">See the commands</span></a>
+      <a class="card" href="features.html"><h3>Features</h3><p>The smart library, playlists, server radio, music quiz, stats, lyrics, search and stackable audio filters.</p><span class="more">See the features</span></a>
+      <a class="card" href="commands.html"><h3>Command list</h3><p>All 38 slash commands, grouped, plus the configuration options.</p><span class="more">See the commands</span></a>
       <a class="card" href="setup.html"><h3>Setup and FAQ</h3><p>Self-host the bot with Docker, and answers to common questions.</p><span class="more">See the guide</span></a>
       <a class="card" href="privacy.html"><h3>Privacy and terms</h3><p>What the bot stores, what it does not do, and how to turn off stats and delete your data.</p><span class="more">Read</span></a>
     </div>
@@ -230,7 +255,7 @@
       <div class="w2"><small>Sheet no.</small><strong>S-00</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Attached documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

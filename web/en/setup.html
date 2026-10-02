@@ -46,7 +46,7 @@
   <span class="strip__name">Setup</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -82,6 +82,10 @@
       <h2 id="h-tu-host">Self-hosting: construction sequence</h2>
       <p class="sheet__scale">You need Docker and somewhere to run 24/7<br>work through the steps in order</p>
     </header>
+    <p><strong>Fastest way on a Raspberry Pi or a Debian machine: one command.</strong> The script installs Docker and git, asks for the bot token and application ID, generates the passwords, starts the bot and registers the slash commands. Optionally it also installs the backup and auto-update timers, and with <code>--tft</code> it sets up the 3.5-inch TFT screen too. It is safe to run again, and <code>--dry-run</code> only previews what it would do.</p>
+    <div class="code"><pre><code>curl -fsSL https://raw.githubusercontent.com/nhaajtt/musiDISCORD/main/scripts/install-pi.sh | sh</code></pre><button type="button" data-copy>Copy</button></div>
+    <p class="sub">To preview, add <code>-s -- --dry-run</code> after <code>sh</code>. If you want to control each step, or you are on another machine, follow the manual steps below.</p>
+    <p><strong>The manual way, step by step:</strong></p>
     <ol class="build">
       <li>
         <h3>Get the token and Application ID</h3>
@@ -100,13 +104,13 @@
       </li>
       <li>
         <h3>Register the slash commands</h3>
-        <p>Run it once, and again whenever you add or change commands (version 2.2 added <code>/library</code>, <code>/vibe</code> and <code>/similar</code>). Set <code>GUILD_ID</code> in .env if you want the commands to appear instantly in one server while testing.</p>
+        <p>Run it once, and again whenever you add or change commands (version 2.4 added <code>/playlist</code> and <code>/radio</code>). Set <code>GUILD_ID</code> in .env if you want the commands to appear instantly in one server while testing.</p>
         <div class="code"><pre><code>docker compose run --rm bot node src/deploy-commands.js</code></pre><button type="button" data-copy>Copy</button></div>
       </li>
       <li>
         <h3>Invite the bot and add music</h3>
         <p>Invite the bot with the link at the top of the page (change <code>client_id</code> to your own ID and keep the <code>permissions=281474979908608</code> part). Drop music files into the <code>music/</code> folder, and put a <code>.lrc</code> file next to a song if it has lyrics; new files do not need a bot restart.</p>
-        <p class="sub">Settings, the queue, stats and favorites are stored in the data/ folder next to docker-compose.yml. Keep this folder so nothing is lost when you rebuild the containers.</p>
+        <p class="sub">Settings, the queue, stats, playlists and favorites are stored in the data/ folder next to docker-compose.yml. Keep this folder so nothing is lost when you rebuild the containers.</p>
       </li>
     </ol>
   </div>
@@ -154,7 +158,15 @@
       </details>
       <details>
         <summary>What does the bot remember about the server and about me?</summary>
-        <div class="ans"><p>Server settings, the saved queue and, since version 2.0, listening history, ratings, favorites, quiz scores and badges, keyed by Discord ID. Since version 2.1 it also keeps your contribution and request profile. You can stop stats being recorded with <code>/privacy stats</code> and delete your data with <code>/privacy delete</code>. Details are on the <a href="privacy.html">Privacy</a> page.</p></div>
+        <div class="ans"><p>Server settings, the saved queue and, since version 2.0, listening history, ratings, favorites, quiz scores and badges, keyed by Discord ID. Since version 2.4 it also keeps playlists; everything lives in the data/ folder on the machine running the bot. Since version 2.1 it also keeps your contribution and request profile. You can stop stats being recorded with <code>/privacy stats</code> and delete your data, personal playlists included, with <code>/privacy delete</code>. Details are on the <a href="privacy.html">Privacy</a> page.</p></div>
+      </details>
+      <details>
+        <summary>How do I run several Lavalink nodes?</summary>
+        <div class="ans"><p>List them in .env with <code>LAVALINK_NODES</code>, for example <code>main=lavalink:2333,backup=lavalink2:2333</code>, then start the second node with <code>docker compose --profile ha up -d</code>. When one node goes down, its players move to another. Every node must see the same music folder. <code>/stats</code> shows how many nodes are up.</p></div>
+      </details>
+      <details>
+        <summary>When do I need sharding?</summary>
+        <div class="ans"><p>Sharding is optional: set <code>SHARDS=auto</code> or a number. All shards run in the same process, and one shard is enough up to 2,500 servers. <code>/stats</code> shows the shard count.</p></div>
       </details>
       <details>
         <summary>Does the bot leave the channel by itself?</summary>
@@ -174,7 +186,7 @@
       <div class="w2"><small>Sheet no.</small><strong>C-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

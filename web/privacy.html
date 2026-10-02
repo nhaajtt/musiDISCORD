@@ -46,7 +46,7 @@
   <span class="strip__name">Quyền riêng tư</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>G</span>
+  <span class="hide-sm"><b>Bản</b>H</span>
 </div>
 
 <header class="top">
@@ -89,6 +89,7 @@
           <li>Hàng chờ đã lưu: tên bài hoặc mã định danh bài, ID kênh thoại và kênh chữ, để khôi phục việc phát nhạc sau khi bot khởi động lại.</li>
           <li>Lịch sử nghe: bài nào đã phát, vào lúc nào, do người dùng nào (ID Discord) yêu cầu, và những người dùng nào (ID Discord) đang nghe trong kênh lúc đó.</li>
           <li>Đánh giá 👍 👎 và danh sách yêu thích của từng người dùng.</li>
+          <li>Playlist (<code>/playlist</code>): playlist cá nhân gắn với ID Discord của chủ, và playlist của server gắn với server. Mỗi playlist ghi tên và các bài trong đó.</li>
           <li>Điểm đố nhạc và huy hiệu của từng người dùng trong từng server.</li>
           <li>Hồ sơ đóng góp (nếu tính năng được bật): ID Discord của người gửi, tên file, dung lượng, mã băm SHA-256, thẻ của file, trạng thái duyệt và lý do từ chối.</li>
           <li>File âm thanh đang chờ duyệt, giữ tạm cho tới khi được duyệt hoặc bị từ chối (xóa khi bị từ chối, hoặc sau 14 ngày không ai duyệt).</li>
@@ -108,7 +109,7 @@
       </section>
       <section class="clause">
         <h2>Dữ liệu dùng vào việc gì</h2>
-        <p>Để bot hoạt động: nhớ cài đặt của server, khôi phục hàng chờ sau khi khởi động lại, và tìm nguyên nhân khi có lỗi. Để tính năng thống kê chạy: <code>/mystats</code>, <code>/leaderboard</code>, <code>/wrapped</code>, huy hiệu, bảng xếp hạng đố nhạc, danh sách yêu thích, và trọng số xáo trộn của <code>/nhaajt</code> (bài được 👍 hay xuất hiện hơn).</p>
+        <p>Để bot hoạt động: nhớ cài đặt của server, khôi phục hàng chờ sau khi khởi động lại, và tìm nguyên nhân khi có lỗi. Để tính năng thống kê chạy: <code>/mystats</code>, <code>/leaderboard</code>, <code>/wrapped</code>, huy hiệu, bảng xếp hạng đố nhạc, danh sách yêu thích, playlist, trọng số xáo trộn của <code>/nhaajt</code> (bài được 👍 hay xuất hiện hơn) và thứ tự các vòng của <code>/radio</code> (dựa trên 👍/👎, bài bị bỏ qua và giờ hay nghe của server).</p>
       </section>
       <section class="clause">
         <h2>Tên bài trên kênh thoại</h2>
@@ -127,9 +128,9 @@
         <h2>Quyền của bạn: tắt và xóa</h2>
         <ul>
           <li><code>/privacy stats</code>: bật hoặc tắt việc ghi thống kê về bạn. Khi tắt, bot ngừng ghi lịch sử nghe của bạn.</li>
-          <li><code>/privacy delete</code>: xóa dữ liệu của bạn mà bot đang lưu, gồm lịch sử nghe, đánh giá, yêu thích, điểm đố nhạc và huy hiệu, đồng thời ẩn danh các đề xuất và đóng góp của bạn. File đã được duyệt vẫn nằm trong kho nhưng không còn gắn tên bạn.</li>
+          <li><code>/privacy delete</code>: xóa dữ liệu của bạn mà bot đang lưu, gồm lịch sử nghe, đánh giá, yêu thích, playlist cá nhân, điểm đố nhạc và huy hiệu, đồng thời ẩn danh các đề xuất và đóng góp của bạn. File đã được duyệt vẫn nằm trong kho nhưng không còn gắn tên bạn.</li>
         </ul>
-        <p>Hai lệnh này tự bạn bấm, không cần xin ai.</p>
+        <p>Playlist của server là tài sản chung của server nên không bị xóa theo; người được phép sửa playlist của server (role DJ nếu có đặt) xóa chúng bằng <code>/playlist delete</code>. Hai lệnh <code>/privacy</code> tự bạn bấm, không cần xin ai.</p>
       </section>
       <section class="clause">
         <h2>Bên thứ ba</h2>
@@ -161,7 +162,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>P-02</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

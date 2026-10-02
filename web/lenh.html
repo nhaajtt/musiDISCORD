@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Danh sách lệnh, musiDISCORD</title>
-<meta name="description" content="Toàn bộ 36 lệnh gạch chéo của musiDISCORD chia theo nhóm, cùng bảng các hạng mục cấu hình.">
+<meta name="description" content="Toàn bộ 38 lệnh gạch chéo của musiDISCORD chia theo nhóm, cùng bảng các hạng mục cấu hình.">
 <link rel="alternate" hreflang="vi" href="https://musidiscord.vercel.app/lenh.html">
 <link rel="alternate" hreflang="en" href="https://musidiscord.vercel.app/en/commands.html">
 <link rel="alternate" hreflang="x-default" href="https://musidiscord.vercel.app/lenh.html">
@@ -46,7 +46,7 @@
   <span class="strip__name">Lệnh</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>G</span>
+  <span class="hide-sm"><b>Bản</b>H</span>
 </div>
 
 <header class="top">
@@ -80,7 +80,7 @@
     <header class="sheet__head">
       <span class="sheet__no">S-01</span>
       <h2 id="h-lenh">Bảng lệnh</h2>
-      <p class="sheet__scale">36 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
+      <p class="sheet__scale">38 lệnh gạch chéo<br>gõ / trong Discord để thấy gợi ý</p>
     </header>
     <div class="table-wrap">
       <table class="cmds">
@@ -94,8 +94,10 @@
           <tr><th scope="row"><code>/album</code> tên album</th><td>Phát cả một album trong thư viện, đúng thứ tự track.</td></tr>
           <tr><th scope="row"><code>/artist</code> tên nghệ sĩ</th><td>Phát các bài của một nghệ sĩ trong thư viện.</td></tr>
           <tr><th scope="row"><code>/nhaajt</code></th><td>Xáo trộn cả thư mục music, tránh cùng nghệ sĩ phát liền nhau, ưu tiên bài được thích; hết vòng thì xáo trộn lại, không dừng tới khi <code>/stop</code> hoặc <code>/leave</code>.</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">Yêu thích</th></tr>
+          <tr><th scope="row"><code>/radio</code></th><td>Radio của server phát không ngừng từ thư viện nhạc. Mỗi vòng xếp theo 👍/👎 của server, bài nghe hết hay bị bỏ qua sớm (90 ngày gần nhất), bài hay phát quanh giờ hiện tại, và (khi bật <code>ANALYSIS=on</code>) một chút nghiêng về tâm trạng hợp giờ: chill ban đêm, đều đều buổi sáng, sôi động ban ngày. Sống qua lần khởi động lại.</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Yêu thích và playlist</th></tr>
           <tr><th scope="row"><code>/favorites</code> add, remove, list, play</th><td>Quản lý danh sách yêu thích của riêng bạn: thêm, bỏ, xem, và phát cả danh sách.</td></tr>
+          <tr><th scope="row"><code>/playlist</code> create, save, add, play (shuffle), view, remove, delete, list</th><td>Playlist cá nhân (của bạn, dùng ở mọi server) và playlist của server (dùng chung; nếu server đặt role DJ thì sửa phải có role đó). <code>save</code> lưu bài đang phát cùng hàng chờ, <code>add</code> thêm bài đang phát, <code>play</code> có thể xáo trộn. Chứa cả file trong thư viện lẫn bài trực tuyến; tối đa 25 playlist mỗi chủ, 200 bài mỗi playlist.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Điều khiển</th></tr>
           <tr><th scope="row"><code>/pause</code>, <code>/resume</code></th><td>Tạm dừng, tiếp tục.</td></tr>
           <tr><th scope="row"><code>/skip</code></th><td>Bỏ qua bài đang phát; đông người nghe thì bỏ phiếu.</td></tr>
@@ -105,14 +107,14 @@
           <tr><th scope="row"><code>/volume</code> mức</th><td>Âm lượng từ 1 đến 150.</td></tr>
           <tr><th scope="row"><code>/loop</code> chế độ</th><td>Tắt lặp, lặp bài hiện tại, hoặc lặp cả hàng chờ.</td></tr>
           <tr><th scope="row"><code>/shuffle</code></th><td>Xáo trộn hàng chờ.</td></tr>
-          <tr><th scope="row"><code>/filter</code> hiệu ứng</th><td>Áp bộ lọc âm thanh: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, hoặc tắt. Mỗi lúc chỉ có một bộ lọc hoạt động.</td></tr>
+          <tr><th scope="row"><code>/filter</code> effect, speed, pitch, eq, status, reset</th><td><code>effect</code> bật hoặc tắt một hiệu ứng (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono), các hiệu ứng xếp chồng được. <code>speed</code> đổi tốc độ 0.5 đến 2 lần mà không đổi cao độ, <code>pitch</code> đổi cao độ 0.5 đến 2 lần mà không đổi tốc độ, <code>eq</code> chỉnh bass, mid, treble từ -2 đến 10. <code>status</code> xem đang áp gì, <code>reset</code> tắt hết.</td></tr>
           <tr><th scope="row"><code>/remove</code> vị trí</th><td>Bỏ một bài khỏi hàng chờ.</td></tr>
           <tr><th scope="row"><code>/bump</code></th><td>Bỏ phiếu đưa một bài trong hàng chờ lên đầu.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Thông tin</th></tr>
           <tr><th scope="row"><code>/queue</code></th><td>Xem hàng chờ theo thẻ mới, chia trang, có nút lật trang.</td></tr>
           <tr><th scope="row"><code>/nowplaying</code></th><td>Xem thẻ Đang phát với thanh tiến trình chạy trực tiếp.</td></tr>
           <tr><th scope="row"><code>/lyrics</code></th><td>Lời bài hát chạy theo giọng, dòng đang hát được tô sáng.</td></tr>
-          <tr><th scope="row"><code>/stats</code></th><td>Tình trạng bot: thời gian chạy, ping, số server, Lavalink.</td></tr>
+          <tr><th scope="row"><code>/stats</code></th><td>Tình trạng bot: thời gian chạy, ping, số server, Lavalink, số node đang chạy và số shard.</td></tr>
           <tr><th scope="row"><code>/help</code></th><td>Danh sách lệnh chia nhóm.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Đóng góp và đề xuất</th></tr>
           <tr><th scope="row"><code>/contribute</code> submit, pending, stats</th><td>Gửi file nhạc của chính bạn (kèm xác nhận bạn có quyền chia sẻ) để chủ bot duyệt, xem file đang chờ, xem thống kê. Tắt sẵn.</td></tr>
@@ -122,12 +124,12 @@
           <tr><th scope="row"><code>/similar</code> (số bài)</th><td>Thêm vào hàng chờ các bài trong thư viện giống bài đang phát nhất.</td></tr>
           <tr><th scope="row"><code>/library</code> status, run, stop, review, forget</th><td>Dành cho chủ bot: xem tiến độ gắn thẻ và phân tích, chạy hoặc dừng, duyệt gợi ý thẻ, bỏ thẻ tự động của một bài.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Đố nhạc</th></tr>
-          <tr><th scope="row"><code>/quiz</code> start, stop, top</th><td>Bắt đầu hoặc dừng một ván đố nhạc từ thư viện của server, xem bảng xếp hạng.</td></tr>
+          <tr><th scope="row"><code>/quiz</code> start (mode), stop, top (period)</th><td>Bắt đầu hoặc dừng một ván đố nhạc từ thư viện của server, xem bảng xếp hạng. <code>mode</code>: đoán bài (mặc định), nghệ sĩ, năm phát hành (đúng hẳn được trọn điểm, lệch trong 2 năm được một phần, cần thẻ năm) hoặc từ một dòng lời (hiện một dòng lời, phát đoạn nhạc bắt đầu từ đó khi lời có đồng bộ thời gian). <code>period</code>: tháng này (mặc định), tháng trước, mọi thời gian. Mùa đố nhạc là tháng dương lịch.</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Thống kê và riêng tư</th></tr>
-          <tr><th scope="row"><code>/mystats</code></th><td>Thống kê nghe nhạc của bạn: thời gian, top bài, top nghệ sĩ, số lần bỏ qua, huy hiệu.</td></tr>
+          <tr><th scope="row"><code>/mystats</code> (format, theme, private)</th><td>Thống kê nghe nhạc của bạn: thời gian, top bài, top nghệ sĩ, số lần bỏ qua, huy hiệu. Chọn thẻ hoặc story 9:16 (1080x1920) để đăng story, giao diện tối hoặc sáng, và <code>private</code> để chỉ mình bạn thấy.</td></tr>
           <tr><th scope="row"><code>/leaderboard</code></th><td>Bảng xếp hạng của server và những bài được yêu thích nhất.</td></tr>
-          <tr><th scope="row"><code>/wrapped</code></th><td>Ảnh tổng kết một năm của bạn, vẽ như bản vẽ cyanotype.</td></tr>
-          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Tắt việc ghi thống kê về bạn, hoặc xóa dữ liệu của bạn.</td></tr>
+          <tr><th scope="row"><code>/wrapped</code> (format, theme, private)</th><td>Ảnh tổng kết một năm của bạn, vẽ như bản vẽ cyanotype. Chọn thẻ hoặc story 9:16 (1080x1920) cho Instagram, TikTok, giao diện tối hoặc sáng, và <code>private</code> để chỉ mình bạn thấy.</td></tr>
+          <tr><th scope="row"><code>/privacy</code> stats, delete</th><td>Tắt việc ghi thống kê về bạn, hoặc xóa dữ liệu của bạn (gồm cả playlist cá nhân).</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">Quản trị</th></tr>
           <tr><th scope="row"><code>/settings</code> view, dj-role, volume, fair-queue, vc-status, contributions</th><td>Xem và đổi cài đặt của server: role DJ, âm lượng mặc định, hàng chờ công bằng, hiện tên bài trên kênh thoại, bật nhận đóng góp. Cần quyền Manage Server.</td></tr>
           <tr><th scope="row"><code>/247</code> on, off (radio)</th><td>Bật hoặc tắt chế độ ở lại kênh thoại 24/7; tùy chọn radio phát cả thư mục không ngừng.</td></tr>
@@ -158,7 +160,7 @@
           <tr><td>D-07</td><td>Chế độ 24/7</td><td><code>/247</code></td><td>Bot ở lại kênh cả khi vắng người và tự vào lại sau khi khởi động lại. Có tùy chọn radio phát cả thư mục.</td></tr>
           <tr><td>D-08</td><td>Nhớ hàng chờ</td><td>tự động</td><td>Bot khởi động lại thì hàng chờ được nạp lại, bạn nghe tiếp mà không phải thêm bài từ đầu.</td></tr>
           <tr><td>D-09</td><td>Tự rời kênh</td><td>tự động</td><td>Kênh không còn ai, hoặc hết bài, bot rời sau 60 giây cho đỡ chiếm chỗ. Bật <code>/247</code> thì bot không rời.</td></tr>
-          <tr><td>D-10</td><td>Quyền riêng tư</td><td><code>/privacy</code></td><td>Mỗi người tự tắt việc ghi thống kê về mình hoặc xóa dữ liệu của mình.</td></tr>
+          <tr><td>D-10</td><td>Quyền riêng tư</td><td><code>/privacy</code></td><td>Mỗi người tự tắt việc ghi thống kê về mình hoặc xóa dữ liệu của mình, kể cả playlist cá nhân.</td></tr>
           <tr><td>D-11</td><td>Đóng góp file</td><td><code>/contribute</code>, <code>/settings contributions</code></td><td>Tắt sẵn. Chủ bot duyệt từng file trước khi vào kho nhạc.</td></tr>
           <tr><td>D-12</td><td>Danh sách mong muốn</td><td><code>/request</code></td><td>Ghi tên bài kèm phiếu bầu, không tải gì. Có file khớp thì báo người đề xuất.</td></tr>
           <tr><td>D-13</td><td>Tự gắn thẻ</td><td><code>/library</code></td><td>Tắt sẵn. Nhận diện bài thiếu thẻ bằng dấu vân âm thanh (AcoustID, MusicBrainz) rồi điền tên, nghệ sĩ, album, bìa. Thẻ lưu riêng, file nhạc gốc không bị sửa; độ tin cậy thấp thì chủ bot duyệt tay.</td></tr>
@@ -166,7 +168,9 @@
           <tr><td>D-15</td><td>Nhiều bot cùng lúc</td><td>docker compose <code>--profile multi</code></td><td>Mỗi bot một token riêng, chung Lavalink và thư mục nhạc; thẻ và đặc trưng âm thanh dùng chung, dữ liệu thống kê riêng.</td></tr>
           <tr><td>D-16</td><td>Màn hình trạng thái</td><td>trang <code>/display</code></td><td>Tắt sẵn. Trang 480×320 hiện bài đang phát, có nút cảm ứng; hợp màn TFT 3.5 inch gắn Raspberry Pi hoặc điện thoại trong mạng nhà. Điều khiển cần token.</td></tr>
           <tr><td>D-17</td><td>Sao lưu, tự cập nhật, giám sát</td><td>script trong <code>scripts/</code></td><td>Sao lưu dữ liệu định kỳ, tự cập nhật từ GitHub và quay về bản cũ nếu bot không khỏe, Uptime Kuma theo dõi.</td></tr>
-          <tr><td>D-18</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink.</td></tr>
+          <tr><td>D-18</td><td>Hướng dẫn và tình trạng</td><td><code>/help</code>, <code>/stats</code></td><td>Danh sách lệnh chia nhóm; ping, số server, RAM của Lavalink, số node và shard.</td></tr>
+          <tr><td>D-19</td><td>Nhiều node Lavalink</td><td><code>LAVALINK_NODES</code>, docker compose <code>--profile ha</code></td><td>Khai báo nhiều node, ví dụ <code>main=lavalink:2333,backup=lavalink2:2333</code>. Một node ngừng thì các trình phát chuyển sang node khác. Mọi node phải thấy cùng một thư mục nhạc.</td></tr>
+          <tr><td>D-20</td><td>Chia shard</td><td><code>SHARDS</code></td><td>Tùy chọn: <code>auto</code> hoặc một con số; mọi shard chạy trong một tiến trình. Một shard là đủ tới 2.500 server.</td></tr>
         </tbody>
       </table>
     </div>
@@ -183,7 +187,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>L-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

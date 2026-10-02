@@ -10,38 +10,46 @@ Website: https://musidiscord.vercel.app (there is also a Vietnamese version of t
 - **`/nhaajt`:** plays the whole library in random order, reshuffles when the round ends and keeps going forever. The shuffle is weighted by the server's 👍/👎 votes and avoids repeating the same artist back to back.
 - **"Now Playing" panel (Components V2):** cover art, an accent color taken from the track, an auto-updating progress bar and two rows of buttons (playback controls, 👍 👎 ❤️ 📜).
 - **Track title on the voice channel:** writes "Now playing: ..." into the voice channel status automatically.
-- **Music quiz:** listen to a clip from the library and guess the title; answers go through a modal (no message-read permission needed), with hints, a streak counter and a leaderboard.
+- **`/radio`:** an endless server radio that learns from the server's 👍/👎, which tracks it plays through and which it skips early, and what it usually plays around the current hour. With `ANALYSIS=on` it also nudges toward a mood that fits the time of day. It survives restarts.
+- **Music quiz:** listen to a clip from the library and guess the title, the artist, the release year or a lyric line; answers go through a modal (no message-read permission needed), with hints, a streak counter, a monthly season leaderboard and badges.
 - **Search and pick:** `/search` shows up to 10 results as numbered buttons so you can pick one to play.
-- **Audio filters:** `/filter` applies effects such as bass boost, nightcore, vaporwave and 8D to the current playback.
+- **Playlists:** `/playlist` keeps personal playlists (yours, on every server) and shared server playlists, holding local files and online tracks.
+- **Audio filters:** `/filter` stacks effects (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono) and has separate speed, pitch and 3-band equalizer controls.
 - **Fair queue, `/bump` and skip voting** when many people are listening.
-- **Stats:** `/mystats`, `/leaderboard`, `/wrapped` (a year-in-review image card drawn like a blueprint) and fun badges.
+- **Stats:** `/mystats`, `/leaderboard`, `/wrapped` (a year-in-review image card drawn like a blueprint, also as a 9:16 story image for Instagram or TikTok) and 10 fun badges.
 - **Lyrics:** from a `.lrc` file next to the track, lyrics embedded in the tags, or a LRCLIB lookup, shown karaoke-style with the current line highlighted.
 - **Member contributions:** `/contribute` lets people submit their own music files for the bot owner to approve, and `/request` suggests tracks that are not in the library yet and notifies you when they show up. The bot does **not** download music from YouTube or any converter site.
 - **Auto-tagging (optional):** tracks without tags are identified by audio fingerprint (AcoustID, MusicBrainz) and filled in with title, artist, album and cover. Tags are stored separately in `data/shared/`, and **your original music files are never modified**.
 - **Audio analysis (optional):** estimates tempo, energy and brightness on your own machine to power `/vibe` (mood radio) and `/similar` (tracks like the current one).
 - **Multiple bots, status display, Raspberry Pi operations:** run 2 or 3 bots at once, a `/display` page for a 3.5-inch TFT screen, backups, auto-update and Uptime Kuma. See "Running on a Raspberry Pi".
 - **24/7:** stays in the channel even when it is empty and after a restart; an optional radio mode plays the library forever.
+- **Scaling:** several Lavalink nodes with automatic failover and optional Discord sharding. See "Operations".
+- **One-command Raspberry Pi installer:** `scripts/install-pi.sh` sets up Docker, `.env` and the bot in one go. See "Running on a Raspberry Pi".
 - **Operations:** queue recovery after a restart, healthcheck, an alert when Lavalink disconnects, and auto-leave when idle (except in 24/7 mode).
 
 ## Commands
+
+The bot has 38 slash commands.
 
 | Command | Description |
 | --- | --- |
 | `/play query [source]` | Play by name or link (track, playlist, album) |
 | `/search query [source]` | Show up to 10 results as numbered buttons; pick one to play |
-| `/filter effect` | Audio effect: bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono, or off |
+| `/filter effect \| speed \| pitch \| eq \| status \| reset` | Audio filters. `effect` toggles one on or off and effects stack (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono); `speed` 0.5-2x with the pitch unchanged; `pitch` 0.5-2x; `eq` sets bass, mid and treble levels from -2 to 10 |
 | `/local file` | Play one track from the library (autocomplete by title, artist, album) |
 | `/album name [shuffle]`, `/artist name [shuffle]` | Play a whole album or all tracks by an artist |
 | `/favorites add \| remove \| list \| play` | Your own favorite tracks |
+| `/playlist create \| save \| add \| play [shuffle] \| view \| remove \| delete \| list` | Playlists. `save` stores the current track plus the queue, `add` the current track. Personal playlists are yours on every server; server playlists are shared (editing needs the DJ role if one is set). They hold local files and online tracks, up to 25 playlists per owner and 200 tracks each |
 | `/nhaajt` | Play the whole library in random order, looping until `/stop` |
+| `/radio` | Endless server radio, ordered by the server's 👍/👎, tracks played through versus skipped early (last 90 days) and what it usually plays around the current hour; with `ANALYSIS=on` it leans toward a mood that fits the time of day (chill at night, steady in the morning, upbeat by day). Survives restarts |
 | `/pause`, `/resume`, `/skip`, `/stop`, `/leave` | Basic controls (`/skip` needs a vote when 3 or more people are listening) |
 | `/queue`, `/nowplaying` | Show the queue and the current track |
 | `/volume`, `/loop`, `/shuffle`, `/remove`, `/seek` | Volume, repeat, shuffle, remove a track, seek |
 | `/bump position` | Start a vote to move a track up to play next |
 | `/lyrics [live]` | Lyrics of the current track; `live` shows them karaoke-style |
-| `/quiz start \| stop \| top` | Music quiz from the library |
-| `/mystats`, `/leaderboard`, `/wrapped [year]` | Personal stats, leaderboard, year in review |
-| `/privacy stats \| delete` | Turn off your stats or delete all of your data |
+| `/quiz start [mode] \| stop \| top [period]` | Music quiz from the library. `mode`: song (default), artist, release year (exact is full points, within 2 years is partial; needs a year tag) or a lyric line (shows a lyric and plays the clip from there when lyrics are synced). `period`: this month (default), last month, all time. Seasons are calendar months |
+| `/mystats`, `/leaderboard`, `/wrapped [year]` | Personal stats, leaderboard, year in review. `/mystats` and `/wrapped` take `format` (card, or story = 9:16, 1080x1920, for Instagram/TikTok stories), `theme` (dark or light) and `private` (only you see it) |
+| `/privacy stats \| delete` | Turn off your stats or delete all of your data (including personal playlists) |
 | `/247 on [radio] \| off` | 24/7 mode |
 | `/contribute submit \| pending \| stats` | Submit your music file for the bot owner to review (off by default) |
 | `/request add \| list \| vote \| mine \| remove \| done \| dismiss` | Suggest tracks that are missing, vote, and get notified when they arrive |
@@ -58,7 +66,7 @@ Website: https://musidiscord.vercel.app (there is also a Vietnamese version of t
 3. Invite the bot with this link (replace `CLIENT_ID`). The permissions are View Channel, Send Messages, Embed Links, Attach Files, Connect, Speak and Set Voice Channel Status:
    `https://discord.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot%20applications.commands&permissions=281474979908608`
 4. Create a Spotify app at https://developer.spotify.com/dashboard to get a Client ID and Secret (only needed if you want Spotify links).
-5. Run `cp .env.example .env` and fill in the values.
+5. Run `cp .env.example .env` and fill in the values. The required ones are `DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID`, `LAVALINK_PASSWORD` and the Spotify keys (the Spotify keys only if you want Spotify links); `.env.example` lists them at the top.
 
 ## Music library
 
@@ -116,16 +124,33 @@ Requires Node.js 22 or newer (it uses the built-in `node:sqlite`, so no extra da
 - **Fewer disk writes (Raspberry Pi):** the heartbeat is written to RAM, Lavalink only logs warnings, and Docker logs are size-limited. Set `AUTOSAVE_SECONDS=0` in `.env` to turn off periodic queue saving (the bot still saves when each new track starts and on shutdown). Prefer an SSD/USB drive over an SD card.
 - **Queue recovery:** the playback state is saved every 15 seconds and on shutdown; after a restart the bot rejoins the channel and resumes playing if anyone is still listening.
 - **24/7:** `/247 on` keeps the bot in the channel; add `radio` to play the library forever, even after a restart.
-- **Health checks:** the bot container has a healthcheck (`docker compose ps` shows `healthy`/`unhealthy`). If you set `ALERT_WEBHOOK_URL` (a webhook for a dedicated Discord channel), you get an alert when Lavalink disconnects.
+- **Health checks:** the bot container has a healthcheck (`docker compose ps` shows `healthy`/`unhealthy`). If you set `ALERT_WEBHOOK_URL` (a webhook for a dedicated Discord channel), you get an alert when a Lavalink node goes down.
+- **Several Lavalink nodes:** set `LAVALINK_NODES` in `.env` to a comma-separated list of `[id=]host:port[:password[:secure]]`, for example `main=lavalink:2333,backup=lavalink2:2333`, or to a JSON array (use JSON when a password contains `:` or `,`). A node without a password uses `LAVALINK_PASSWORD`. When a node goes down, its players move to another connected node automatically and the owner is alerted through `ALERT_WEBHOOK_URL`; the "Lavalink disconnected" warning only appears when every node is down. Start the second Lavalink with `docker compose --profile ha up -d` (service `lavalink2`, plugins in `lavalink/plugins2`). All nodes must see the same music folder; on separate machines that means shared storage such as NFS.
+- **Sharding:** `SHARDS` in `.env`: empty = one shard (enough up to 2,500 servers, Discord's per-shard limit), `auto` = the count Discord recommends, or a number. All shards run inside the one bot process (not separate processes), which is simple but still one Node.js thread. This has not been load-tested against thousands of servers. `/stats` shows the nodes that are up and the shard count.
 - **Time zone:** set `TIMEZONE` (default `Asia/Ho_Chi_Minh`) for listening-hour stats and day streaks.
 - **Online lyrics:** when a file has no lyrics, the bot sends the title, artist and length to the public LRCLIB service. Set `LYRICS_LOOKUP=off` to disable this.
 - **Privacy:** users can turn off their stats with `/privacy stats` and delete their data with `/privacy delete`. The bot does not read message content.
+
+### Capacity and scaling
+
+There are two separate limits, and the numbers below are estimates, not measurements.
+
+- **Discord:** unverified bots are capped at 100 servers. Beyond that the bot needs verification (it uses no privileged intents).
+- **Practical:** the real limit is how many servers play music at the same time, which depends on the machine and on Lavalink. On a Raspberry Pi 5 with one node, treat tens of simultaneous servers as a rough expectation; this was not measured. If you run more, raise `_JAVA_OPTIONS=-Xmx512M` for Lavalink. Audio filters and 24/7 mode add CPU load. Beyond one machine, use several Lavalink nodes (above).
 
 ## Running on a Raspberry Pi
 
 Both Lavalink and the bot have arm64 builds. Use an SSD over USB instead of an SD card, keep the Pi cooled with a fan, and set `AUTOSAVE_SECONDS=0`.
 
-**Install (Kali or Debian/Raspberry Pi OS):**
+**One-command installer (Kali or Debian/Raspberry Pi OS):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nhaajtt/musiDISCORD/main/scripts/install-pi.sh | sh
+# or, from a clone:
+sh scripts/install-pi.sh [--tft] [--timers] [--yes] [--dry-run]
+```
+It installs Docker and git, asks for the bot token and application ID (typed hidden), generates the Lavalink password and the display token, writes `.env` (an existing one is never overwritten), builds and starts the bot, waits until it is healthy and registers the slash commands. Options: `--timers` installs the backup and auto-update timers; `--tft` sets up the 3.5-inch TFT screen (it edits `config.txt` with a backup and needs a reboot); `--yes` runs without prompts and reads `DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID` and `TIMEZONE` from the environment; `--dry-run` shows what it would do. It is safe to run again.
+
+**Manual install, if you prefer (Kali or Debian/Raspberry Pi OS):**
 ```bash
 sudo apt update && sudo apt install -y docker.io git
 docker compose version             # if Compose v2 is missing, install docker-compose-v2 or docker-compose-plugin depending on your release

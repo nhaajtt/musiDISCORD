@@ -46,7 +46,7 @@
   <span class="strip__name">Raspberry Pi 5</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -125,6 +125,10 @@
       <h2 id="h-deploy">Deploying step by step</h2>
       <p class="sheet__scale">From a blank Pi<br>to a bot running 24/7</p>
     </header>
+    <p><strong>The fastest way: one command.</strong> The script installs Docker and git, asks for the bot token and application ID, generates the passwords, starts the bot and registers the slash commands. Optionally it also installs the backup and auto-update timers, and with <code>--tft</code> it sets up the 3.5-inch TFT screen too. It is safe to run again, and <code>--dry-run</code> only previews. It works on a Raspberry Pi or a Debian machine.</p>
+    <div class="code"><pre><code>curl -fsSL https://raw.githubusercontent.com/nhaajtt/musiDISCORD/main/scripts/install-pi.sh | sh</code></pre><button type="button" data-copy>Copy</button></div>
+    <p class="sub">To preview, add <code>-s -- --dry-run</code> after <code>sh</code>. The manual steps below are the hands-on way, for anyone who wants to control each part.</p>
+    <p><strong>The manual way, step by step:</strong></p>
     <ol class="build">
       <li>
         <h3>SSH with a key, no passwords</h3>
@@ -180,6 +184,8 @@ tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type=
           <tr><th scope="row">Monitoring</th><td>Uptime Kuma checks the bot and Lavalink and reports to a Discord channel through a webhook.</td></tr>
           <tr><th scope="row">Remote access</th><td>Tailscale with <code>serve</code>: an HTTPS address that only devices on my account can reach.</td></tr>
           <tr><th scope="row">Easing SD card wear</th><td>The "still alive" heartbeat is written to RAM, periodic queue saving is turned off, and Docker logs rotate.</td></tr>
+          <tr><th scope="row">Several Lavalink nodes</th><td>List them in <code>LAVALINK_NODES</code> (for example <code>main=lavalink:2333,backup=lavalink2:2333</code>) and start the second node with <code>docker compose --profile ha up -d</code>. When one node goes down, its players move to another. Every node must see the same music folder; <code>/stats</code> shows how many nodes are up.</td></tr>
+          <tr><th scope="row">Sharding</th><td>Optional, <code>SHARDS=auto</code> or a number; all shards run in one process. One shard is enough up to 2,500 servers.</td></tr>
           <tr><th scope="row">Auto restart</th><td>Docker's <code>restart</code> policy, system services set to <code>enable</code>, and <code>@reboot</code> for the TFT screen.</td></tr>
         </tbody>
       </table>
@@ -245,7 +251,7 @@ tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type=
       <div class="w2"><small>Sheet no.</small><strong>P-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

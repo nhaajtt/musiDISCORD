@@ -46,7 +46,7 @@
   <span class="strip__name">Privacy</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>G</span>
+  <span class="hide-sm"><b>Rev</b>H</span>
 </div>
 
 <header class="top">
@@ -89,6 +89,7 @@
           <li>Saved queues: track names or track identifiers, plus the voice and text channel IDs, so playback can be restored after the bot restarts.</li>
           <li>Listening history: which track played, when, which user (Discord ID) requested it, and which users (Discord IDs) were listening in the channel at the time.</li>
           <li>Each user's 👍 👎 ratings and favorites list.</li>
+          <li>Playlists (<code>/playlist</code>): personal playlists tied to the owner's Discord ID, and server playlists tied to the server. Each playlist stores its name and the tracks in it.</li>
           <li>Each user's quiz scores and badges, per server.</li>
           <li>Contribution records (if the feature is on): the sender's Discord ID, file name, size, SHA-256 hash, the file's tags, review status and rejection reason.</li>
           <li>Audio files awaiting review, kept temporarily until approved or rejected (deleted on rejection, or after 14 days if nobody reviews them).</li>
@@ -108,7 +109,7 @@
       </section>
       <section class="clause">
         <h2>What the data is used for</h2>
-        <p>To make the bot work: remembering server settings, restoring queues after a restart, and tracking down the cause of errors. To power the stats features: <code>/mystats</code>, <code>/leaderboard</code>, <code>/wrapped</code>, badges, quiz leaderboards, favorites lists, and the shuffle weighting in <code>/nhaajt</code> (tracks with a 👍 turn up more often).</p>
+        <p>To make the bot work: remembering server settings, restoring queues after a restart, and tracking down the cause of errors. To power the stats features: <code>/mystats</code>, <code>/leaderboard</code>, <code>/wrapped</code>, badges, quiz leaderboards, favorites lists, playlists, the shuffle weighting in <code>/nhaajt</code> (tracks with a 👍 turn up more often) and the ordering of <code>/radio</code> rounds (based on the server's 👍/👎, skipped tracks and usual listening hours).</p>
       </section>
       <section class="clause">
         <h2>Track title on the voice channel</h2>
@@ -127,9 +128,9 @@
         <h2>Your rights: turn off and delete</h2>
         <ul>
           <li><code>/privacy stats</code>: turn recording of stats about you on or off. When it is off, the bot stops recording your listening history.</li>
-          <li><code>/privacy delete</code>: delete the data the bot holds about you, including listening history, ratings, favorites, quiz scores and badges, and anonymize your suggestions and contributions. Files that were already approved stay in the library but are no longer tied to your name.</li>
+          <li><code>/privacy delete</code>: delete the data the bot holds about you, including listening history, ratings, favorites, personal playlists, quiz scores and badges, and anonymize your suggestions and contributions. Files that were already approved stay in the library but are no longer tied to your name.</li>
         </ul>
-        <p>You run these two commands yourself, with no need to ask anyone.</p>
+        <p>Server playlists belong to the server, so they are not deleted with your data; whoever may change server playlists (the DJ role, if one is set) removes them with <code>/playlist delete</code>. You run the two <code>/privacy</code> commands yourself, with no need to ask anyone.</p>
       </section>
       <section class="clause">
         <h2>Third parties</h2>
@@ -161,7 +162,7 @@
       <div class="w2"><small>Sheet no.</small><strong>P-02</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>G / 2.3</strong></div>
+      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

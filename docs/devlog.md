@@ -142,6 +142,22 @@ I iterated many times by feel: a typographic poster, a big clock when idle, a la
 
 Finally I cleaned up both machines. On the PC: stopped and removed the project's Docker containers, images and cache (everything had moved to the Pi), and deleted old data after pulling a fresh backup from the Pi (so one copy exists off the SD card). On the Pi: removed temp files and leftover images. I left alone anything that did not belong to this project. After that I split the website into several pages to make it easier to read and wrote this devlog.
 
+## Oct 2: More features, scaling and a one-command installer
+
+With the bot running on the Pi, I went back to features and to the question of what happens when it grows.
+
+- **`/filter` reworked.** One command with a single dropdown was too limiting. It now has subcommands: `effect` toggles an effect on or off and effects stack (bass boost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, mono), `speed` (0.5 to 2x, pitch unchanged), `pitch`, `eq` (bass, mid and treble from -2 to 10), `status` and `reset`.
+- **`/playlist`.** Personal playlists (mine, on every server) and server playlists (shared; editing needs the DJ role if one is set). They hold local files and online tracks, with limits of 25 playlists per owner and 200 tracks each. `/privacy delete` also removes personal playlists, because a playlist is personal data too.
+- **`/radio`.** An endless server radio. Each round is ordered by the server's 👍/👎, by the tracks it plays through versus skips early (last 90 days) and by what it usually plays around the current hour. With `ANALYSIS=on` there is a small push toward a mood that fits the time of day: chill at night, steady in the morning, upbeat by day. It survives restarts.
+- **Wrapped, stats and quiz.** `/wrapped` and `/mystats` got `format` (card, or a 9:16 1080x1920 story for Instagram and TikTok), `theme` and `private`. `/quiz start` got modes (song, artist, release year, or a lyric line) and `/quiz top` got monthly seasons. There are two new badges, Sharp Ear and Season Champion, for 10 in total. The bot now has 38 slash commands.
+- **Scaling.** `LAVALINK_NODES` lists several Lavalink nodes. When one goes down, its players move to another connected node automatically and I get an alert; the "Lavalink disconnected" warning only appears when every node is down. `SHARDS` turns on Discord sharding, but all shards run inside the one bot process, so it is still one Node.js thread. `/stats` shows the nodes that are up and the shard count. I wrote a "Capacity and scaling" section in the README that says plainly that the numbers for a Pi are estimates.
+- **One-command installer.** `scripts/install-pi.sh` installs Docker and git, asks for the token and application ID, generates the Lavalink and display tokens, writes `.env` (never overwriting one), builds the bot, waits until it is healthy and registers the commands. It can also set up the backup and update timers and the TFT screen. It is safe to run again.
+
+Two honest lessons from this round:
+
+- **A missing variable, found by the installer.** While writing the installer I listed every variable the bot needs, and found that `.env.example` did not list the required ones (`DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID`, `LAVALINK_PASSWORD`, the Spotify keys). It worked for me only because my own `.env` already had them. Anyone starting from the example file would have hit confusing errors. Writing a setup script for someone else is a good way to find what the docs forgot.
+- **A test that kept the process alive.** The quiz mode test never finished: the process stayed open after the assertions passed. The cause was the idle-leave timer, which the code under test had started and nothing cancelled. I fixed the test so it stops that timer. Lesson: a hanging test runner is often a leftover timer, not a failed assertion.
+
 ## What I learned
 
 - When a direction depends on something you do not control (YouTube), change course early.
@@ -151,6 +167,9 @@ Finally I cleaned up both machines. On the PC: stopped and removed the project's
 - Design has to fit inside the limits of the hardware, not the other way around.
 - For a feature that could do harm (downloading copyrighted music), weigh the risk and pick the safer option instead of forcing it through.
 - Operations matter as much as writing code: backups, self-updating with rollback, monitoring, automatic restarts.
+- Writing a setup script for someone else shows what the docs forgot (the required variables were missing from `.env.example`).
+- A test that will not exit usually has a leftover timer behind it.
+- Be honest about capacity: say what is measured and what is an estimate.
 - Write tests for the parts with logic (BPM, path blocking, the API, string sanitizing) and be clear about what has no tests yet.
 
 ## Still open
@@ -160,4 +179,7 @@ Finally I cleaned up both machines. On the PC: stopped and removed the project's
 - The TFT's Python code has no automated tests; for now it is checked only with exported images and by running on the device.
 - The rollback part of the auto-update script was only just written and checked for the "no new version" case; I have not tried it with a genuinely broken release.
 - The multi-bot profile (`multi`) has not been run with a second token.
+- Several Lavalink nodes and sharding are written, but not load-tested; the "tens of simultaneous servers on a Pi 5" figure is an estimate, not a measurement.
+- Failover between nodes has not been tried across two separate machines (that needs shared storage such as NFS for the music folder).
+- The installer has not been run on every Pi OS variant; `--dry-run` shows what it would do.
 - The SD card is still the weak point; moving to a USB SSD is recommended for long-term running.
