@@ -17,6 +17,7 @@ const Q = await import("../src/quiz/engine.js");
 const S = await import("../src/stats.js");
 const { awardBadges } = await import("../src/badges.js");
 const { startQuiz } = await import("../src/quiz/session.js");
+const { cancelIdleLeave } = await import("../src/utils/idle.js");
 
 test.after(() => rmSync(root, { recursive: true, force: true }));
 
@@ -132,5 +133,6 @@ test("a year-mode game asks only tracks with a year and scores close guesses as 
   session.abort();
   for (let i = 0; i < 100 && player.getData("quiz"); i++) await new Promise((r) => setTimeout(r, 10));
   assert.equal(player.getData("quiz"), undefined);
+  cancelIdleLeave(player); // finishing a game schedules an idle leave that would keep the test process alive
   assert.ok(sent.some((m) => JSON.stringify(m.embeds?.[0]?.data ?? {}).includes("Guess the year")));
 });
