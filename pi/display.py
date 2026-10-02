@@ -147,8 +147,9 @@ class State:
 INK = (255, 246, 236)
 MARGIN = 28
 RIGHT = W - 20
-AVATAR = 36  # đường kính ảnh đại diện (góc trên phải, cách mép màn bằng lề)
-TITLE_BOX = (MARGIN, 50, RIGHT, 188)  # khung của tên bài
+AVATAR = int(os.environ.get("AVATAR_SIZE", "206"))  # đường kính ảnh đại diện: gần nửa màn, nằm bên phải
+AVATAR_POS = (W - 18 - AVATAR, 16)
+TEXT_TOP, TEXT_BOTTOM = 40, 228  # vùng chữ (giữa dòng tên server và thanh tiến trình)
 BAR_Y = 236
 BTN_Y = 282
 BTN_TOP = 258  # từ đây trở xuống là vùng nút
@@ -214,12 +215,11 @@ def wrap(d, text, f, width):
 _fit_cache = {}
 
 
-def fit_title(d, text):
+def fit_title(d, text, avail_w, avail_h):
     """Cỡ chữ lớn nhất để cả tên bài nằm gọn trong khung: tên ngắn thì rất to, tên dài thì nhỏ dần."""
-    if text in _fit_cache:
-        return _fit_cache[text]
-    x0, y0, x1, y1 = TITLE_BOX
-    avail_w, avail_h = x1 - x0, y1 - y0
+    key = (text, avail_w, avail_h)
+    if key in _fit_cache:
+        return _fit_cache[key]
     result = None
     for size in range(120, 27, -2):
         f = face("display", size)
@@ -237,7 +237,7 @@ def fit_title(d, text):
         result = (size, lines, lh)
     if len(_fit_cache) > 40:
         _fit_cache.clear()
-    _fit_cache[text] = result
+    _fit_cache[key] = result
     return result
 
 
@@ -302,14 +302,14 @@ def load_avatar():
 
 
 def draw_avatar(img, d, accent):
-    """Ảnh đại diện luôn nằm ở góc trên phải, có viền mảnh màu nhấn. Trả về mép trái của nó (để chừa chỗ cho chữ)."""
+    """Ảnh đại diện lớn bên phải, viền mảnh màu nhấn. Trả về mép phải của cột chữ (không có ảnh thì chiếm hết bề ngang)."""
     av = load_avatar()
     if av is None:
         return RIGHT
-    x, y = RIGHT - AVATAR, 9
-    d.ellipse((x - 3, y - 3, x + AVATAR + 2, y + AVATAR + 2), outline=accent, width=2)
+    x, y = AVATAR_POS
+    d.ellipse((x - 4, y - 4, x + AVATAR + 3, y + AVATAR + 3), outline=accent, width=3)
     img.paste(av[0], (x, y), av[1])
-    return x - 14
+    return x - 22
 
 
 def fmt(ms):
@@ -317,7 +317,7 @@ def fmt(ms):
     return f"{t // 60}:{t % 60:02d}"
 
 
-def render_idle(d, np, bg, accent):
+def render_idle(d, np, bg, accent, col_right):
     """Chưa phát: đồng hồ lớn, yên tĩnh. Các trạng thái lỗi dùng cùng bố cục."""
     if np.get("hidden"):
         big, line, hint = "?", "Đang chơi đố nhạc", "Tên bài được giấu để không lộ đáp án."
@@ -330,10 +330,15 @@ def render_idle(d, np, bg, accent):
         big = time.strftime("%H:%M", now)
         line = f"{WEEKDAYS[now.tm_wday]}, {now.tm_mday} tháng {now.tm_mon}"
         hint = "Chưa có bài nào đang phát. Vào kênh thoại rồi dùng /play, /local hoặc /nhaajt."
-    d.text((MARGIN - 4, 44), big, fill=INK, font=face("display", 132))
-    d.text((MARGIN, 186), line, fill=accent, font=face("semi", 26))
-    y = 230
-    for part in wrap(d, hint, face("mono", 11), RIGHT - MARGIN):
+    width = col_right - MARGIN
+    size = 132
+    while size > 40 and d.textlength(big, font=face("display", size)) > width + 6:
+        size -= 4
+    d.text((MARGIN - 4, 46), big, fill=INK, font=face("display", size))
+    y = 46 + int(size * 0.98)
+    d.text((MARGIN, y), ellipsize(d, line, face("semi", 24), width), fill=accent, font=face("semi", 24))
+    y += 40
+    for part in wrap(d, hint, face("mono", 11), width):
         d.text((MARGIN, y), part, fill=mix(bg, INK, 0.55), font=face("mono", 11))
         y += 17
 
@@ -347,34 +352,37 @@ def render(state, w=W, h=H):
     dim = mix(bg, INK, 0.55)
     d.rectangle((0, 0, 5, h), fill=accent)  # vạch mép trái: dấu hiệu duy nhất của màu bài
 
+    col_right = draw_avatar(img, d, accent)
     if not np.get("title"):
-        draw_avatar(img, d, accent)
-        render_idle(d, np, bg, accent)
+        render_idle(d, np, bg, accent, col_right)
         return img
 
-    # dòng trên: tên server bên trái, nhịp độ hoặc trạng thái tạm dừng bên phải
-    edge = draw_avatar(img, d, accent)
-    where = ellipsize(d, np.get("guild") or np.get("bot") or "", face("mono", 11), 200)
-    d.text((MARGIN, 21), where, fill=dim, font=face("mono", 11))
-    if np.get("paused"):
-        d.text((edge, 21), "Tạm dừng", fill=accent, font=face("mono", 11), anchor="ra")
-    elif np.get("bpm"):
-        d.text((edge, 21), f"{round(np['bpm'])} nhịp/phút", fill=dim, font=face("mono", 11), anchor="ra")
+    width = col_right - MARGIN
+    d.text((MARGIN, 18), ellipsize(d, np.get("guild") or np.get("bot") or "", face("mono", 11), width), fill=dim, font=face("mono", 11))
 
-    # tên bài: cỡ chữ lớn nhất cho vừa khung
-    size, lines, lh = fit_title(d, np["title"].upper())
+    # khối chữ: tên bài cỡ lớn nhất cho vừa cột, rồi nghệ sĩ, rồi nhịp độ/trạng thái; cả khối căn giữa theo chiều dọc
     artist = np.get("artist") or ""
-    block = len(lines) * lh + (30 if artist else 0)
-    top, area = 48, 180  # vùng giữa dòng trên và thanh tiến trình; căn khối chữ vào giữa
-    y = top + max(0, (area - block) // 2) - int(size * 0.12)
+    info = ["Tạm dừng"] if np.get("paused") else []
+    if np.get("bpm"):
+        info.append(f"{round(np['bpm'])} nhịp/phút")
+    reserve = (30 if artist else 0) + (20 if info else 0)
+    size, lines, lh = fit_title(d, np["title"].upper(), width, TEXT_BOTTOM - TEXT_TOP - reserve)
+    block = len(lines) * lh + reserve
+    y = TEXT_TOP + max(0, (TEXT_BOTTOM - TEXT_TOP - block) // 2) - int(size * 0.12)
     f = face("display", size)
     for line in lines:
         d.text((MARGIN - 2, y), line, fill=INK, font=f)
         y += lh
-
-    # nghệ sĩ, ngay dưới tên bài
+    y += int(size * 0.12) + 4
     if artist:
-        d.text((MARGIN, y + int(size * 0.12) + 4), ellipsize(d, artist, face("semi", 22), RIGHT - MARGIN), fill=accent, font=face("semi", 22))
+        d.text((MARGIN, y), ellipsize(d, artist, face("semi", 22), width), fill=accent, font=face("semi", 22))
+        y += 30
+    if info:
+        x = MARGIN
+        for k, part in enumerate(info):
+            color = accent if part == "Tạm dừng" else dim
+            d.text((x, y), part, fill=color, font=face("mono", 11))
+            x += int(d.textlength(part, font=face("mono", 11))) + 16
 
     # thanh tiến trình: một đường mảnh
     pos = np.get("position", 0) + ((time.time() - at) * 1000 if np.get("playing") else 0)
