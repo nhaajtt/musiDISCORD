@@ -46,7 +46,7 @@
   <span class="strip__name">Cài đặt</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>H</span>
+  <span class="hide-sm"><b>Bản</b>I</span>
 </div>
 
 <header class="top">
@@ -176,6 +176,41 @@
   </div>
 </section>
 
+<section class="sheet" id="bot-dong-hanh" data-sheet="S-03|Bot đồng hành, tùy chọn" aria-labelledby="h-dong-hanh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
+      <h2 id="h-dong-hanh">Bot đồng hành (tùy chọn)</h2>
+      <p class="sheet__scale">Chương trình riêng, bot nhạc không cần nó<br>xem <a href="tinh-nang.html#bot-dong-hanh">tính năng S-11</a></p>
+    </header>
+    <p>Muốn có vài con bot nhỏ giữ không khí trong một kênh thì cài thêm bộ bot đồng hành. Nó là một chương trình riêng, chạy độc lập với bot nhạc.</p>
+    <ol class="build">
+      <li>
+        <h3>Tạo từ 2 đến 8 ứng dụng</h3>
+        <p>Trong Developer Portal, tạo mỗi bot một application, thêm Bot và chép token. Bộ bot đồng hành không cần intent đặc quyền nào.</p>
+      </li>
+      <li>
+        <h3>Tạo file .env.companions</h3>
+        <p>Sao chép file mẫu, điền các token vào <code>COMPANION_TOKENS</code> (cách nhau bằng dấu phẩy) và múi giờ vào <code>COMPANION_TIMEZONE</code>. Mời từng bot vào server bằng link có trong file mẫu.</p>
+        <div class="code"><pre><code>cp .env.companions.example .env.companions</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Chạy lên</h3>
+        <p>Bằng Docker, hoặc không dùng Docker thì chạy bằng npm.</p>
+        <div class="code"><pre><code>docker compose --profile companions up -d --build
+# hoặc, không dùng Docker:
+npm run companions</code></pre><button type="button" data-copy>Chép</button></div>
+      </li>
+      <li>
+        <h3>Chọn kênh trong Discord</h3>
+        <p>Bot đồng hành đầu tiên nhận lệnh này, và bạn cần quyền Manage Server.</p>
+        <div class="code"><pre><code>/companions setup channel:#general language:English</code></pre><button type="button" data-copy>Chép</button></div>
+        <p class="sub">Phần logic đã có test tự động với đồng hồ giả nhưng chưa chạy thử trên server thật, nên giờ giấc và nội dung có thể phải chỉnh. Dùng ở server do bạn quản lý và nói cho thành viên biết chúng là bot.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot" data-sheet="C-01|Khung tên bản vẽ">
@@ -186,7 +221,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>C-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
+      <div class="w2"><small>Bản</small><strong>I / 2.5</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

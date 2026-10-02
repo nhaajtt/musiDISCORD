@@ -46,7 +46,7 @@
   <span class="strip__name">Raspberry Pi 5</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>H</span>
+  <span class="hide-sm"><b>Rev</b>I</span>
 </div>
 
 <header class="top">
@@ -185,6 +185,7 @@ tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type=
           <tr><th scope="row">Remote access</th><td>Tailscale with <code>serve</code>: an HTTPS address that only devices on my account can reach.</td></tr>
           <tr><th scope="row">Easing SD card wear</th><td>The "still alive" heartbeat is written to RAM, periodic queue saving is turned off, and Docker logs rotate.</td></tr>
           <tr><th scope="row">Several Lavalink nodes</th><td>List them in <code>LAVALINK_NODES</code> (for example <code>main=lavalink:2333,backup=lavalink2:2333</code>) and start the second node with <code>docker compose --profile ha up -d</code>. When one node goes down, its players move to another. Every node must see the same music folder; <code>/stats</code> shows how many nodes are up.</td></tr>
+          <tr><th scope="row">Companion bots</th><td>Optional, <code>docker compose --profile companions up -d --build</code>. The bots share one process, so they are fairly light on RAM and suit a Pi.</td></tr>
           <tr><th scope="row">Sharding</th><td>Optional, <code>SHARDS=auto</code> or a number; all shards run in one process. One shard is enough up to 2,500 servers.</td></tr>
           <tr><th scope="row">Auto restart</th><td>Docker's <code>restart</code> policy, system services set to <code>enable</code>, and <code>@reboot</code> for the TFT screen.</td></tr>
         </tbody>
@@ -251,7 +252,7 @@ tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type=
       <div class="w2"><small>Sheet no.</small><strong>P-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
+      <div class="w2"><small>Rev</small><strong>I / 2.5</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

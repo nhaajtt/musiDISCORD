@@ -46,7 +46,7 @@
   <span class="strip__name">Raspberry Pi 5</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>H</span>
+  <span class="hide-sm"><b>Bản</b>I</span>
 </div>
 
 <header class="top">
@@ -186,6 +186,7 @@ tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type=
           <tr><th scope="row">Giảm mòn thẻ SD</th><td>Tín hiệu "còn sống" ghi vào RAM, tắt lưu hàng chờ định kỳ, log Docker xoay vòng.</td></tr>
           <tr><th scope="row">Nhiều node Lavalink</th><td>Khai báo <code>LAVALINK_NODES</code> (ví dụ <code>main=lavalink:2333,backup=lavalink2:2333</code>) rồi chạy <code>docker compose --profile ha up -d</code> cho node thứ hai. Một node ngừng thì các trình phát chuyển sang node khác. Mọi node phải thấy cùng một thư mục nhạc; <code>/stats</code> hiện số node đang chạy.</td></tr>
           <tr><th scope="row">Chia shard</th><td>Tùy chọn, <code>SHARDS=auto</code> hoặc một con số; mọi shard chạy trong một tiến trình. Một shard là đủ tới 2.500 server.</td></tr>
+          <tr><th scope="row">Bot đồng hành</th><td>Tùy chọn, <code>docker compose --profile companions up -d --build</code>. Các bot dùng chung một tiến trình nên khá nhẹ RAM, hợp với một chiếc Pi.</td></tr>
           <tr><th scope="row">Tự khởi động lại</th><td>Chính sách <code>restart</code> của Docker, các dịch vụ hệ thống đã <code>enable</code>, <code>@reboot</code> cho màn TFT.</td></tr>
         </tbody>
       </table>
@@ -251,7 +252,7 @@ tailscale serve --bg --https=443 http://127.0.0.1:8787</code></pre><button type=
       <div class="w2"><small>Bản vẽ số</small><strong>P-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
+      <div class="w2"><small>Bản</small><strong>I / 2.5</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

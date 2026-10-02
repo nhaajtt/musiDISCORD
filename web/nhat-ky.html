@@ -46,7 +46,7 @@
   <span class="strip__name">Nhật ký</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>H</span>
+  <span class="hide-sm"><b>Bản</b>I</span>
 </div>
 
 <header class="top">
@@ -78,7 +78,7 @@
     <p class="lead">Đây là nhật ký thật của tôi khi làm musiDISCORD, từ lúc chọn công nghệ cho tới khi nó chạy 24/7 trên một chiếc Raspberry Pi 5 ở nhà. Tôi ghi cả những lúc làm sai và cách tôi tìm ra nguyên nhân, vì phần lớn thứ tôi học được nằm ở đó.</p>
     <div class="legal__meta">
       <span>30/09 đến 02/10/2026</span>
-      <span class="stamp" style="font-size:18px">bản H</span>
+      <span class="stamp" style="font-size:18px">bản I</span>
     </div>
 
     <div class="legal__body">
@@ -226,6 +226,18 @@
       <p>Bot giờ có 38 lệnh. Tôi cũng viết lại phần quyền riêng tư trên website cho rõ: bot tự host, dữ liệu nằm trong <code>data/</code> trên máy chạy bot, và bot không đọc nội dung tin nhắn.</p>
     </section>
     <section class="clause">
+      <p class="when">02/10</p>
+      <h2>Bản 2.5: bot đồng hành</h2>
+      <p>Một kênh Discord vắng thì buồn, còn kênh có bot nhạc mà không ai ở đó thì buồn kiểu có nhạc nền. Nên tôi viết một chương trình riêng, tùy chọn, trong <code>src/companions/</code>: từ 2 đến 8 con bot nhỏ chạy chung một tiến trình, thỉnh thoảng hỏi một câu, kể chuyện cười hoặc câu đố, chia sẻ một điều thú vị, hoặc tán gẫu với nhau. Không ai đáp sau vài phút thì một con khác nhảy vào; có người thật chen vào thì chúng lùi lại, và ai trả lời được cảm ơn một câu ngắn.</p>
+      <ul>
+        <li><strong>Khai thật là bot.</strong> Giữ thẻ BOT, có năm tính cách (Pip, Grumble, Nova, Sage, Bean), không giả làm người, chỉ dùng token bot bình thường.</li>
+        <li><strong>Phép lịch sự.</strong> Một kênh do bạn chọn, giờ yên lặng (mặc định 23:00 đến 08:00), giới hạn mỗi ngày (Calm 4, Normal 8, Lively 14 cuộc trò chuyện), im khi người ta đang chat, không ping.</li>
+        <li><strong>Nội dung nằm trong kho mã,</strong> bằng cả tiếng Anh và tiếng Việt, không gửi gì ra dịch vụ nào và không lặp lại cho tới khi các mục khác đã dùng hết.</li>
+        <li><strong>Không đọc nội dung tin nhắn,</strong> chỉ dùng intent <code>Guilds</code> và <code>GuildMessages</code>.</li>
+      </ul>
+      <p>Bài học thật: bản test đầu tiên của tôi dùng các khung thời gian quá ngắn, nên có những cuộc trò chuyện "xảy ra" trong test mà ngoài đời sẽ không bao giờ xảy ra, và ngược lại. Chỗ khó của việc này không nằm ở những câu đùa mà ở giờ giấc: bao lâu thì được coi là không ai đáp, bao lâu thì được coi là người ta đang chat. Giờ test dùng đồng hồ giả và các khung thời gian sát với thực tế. Phần logic được test như vậy, nhưng tôi chưa chạy nó trên một server Discord thật, nên tôi vẫn chưa biết nó có làm phiền ai không.</p>
+    </section>
+    <section class="clause">
       <h2>Những gì tôi học được</h2>
       <ul>
         <li>Khi một hướng phụ thuộc vào thứ mình không kiểm soát (YouTube), đổi hướng sớm.</li>
@@ -236,6 +248,7 @@
         <li>Với tính năng có thể gây hại (tải nhạc có bản quyền), cân nhắc rủi ro rồi chọn phương án an toàn hơn thay vì làm cho bằng được.</li>
         <li>Vận hành quan trọng ngang viết code: sao lưu, tự cập nhật có quay lui, giám sát, tự khởi động lại.</li>
         <li>Viết test cho phần có logic (BPM, chặn đường dẫn, API, làm sạch chuỗi) và ghi rõ chỗ chưa có test.</li>
+        <li>Với thứ chạy theo thời gian, cái khó là giờ giấc chứ không phải nội dung; test cần đồng hồ giả và khung thời gian giống ngoài đời.</li>
       </ul>
     </section>
     <section class="clause">
@@ -246,6 +259,7 @@
         <li>Code Python của màn TFT chưa có test tự động; hiện chỉ kiểm bằng ảnh xuất ra và chạy trên thiết bị.</li>
         <li>Phần quay về bản cũ của script tự cập nhật mới được viết và kiểm với trường hợp "không có bản mới"; chưa thử bằng một bản hỏng thật.</li>
         <li>Profile nhiều bot (<code>multi</code>) chưa được chạy thử với token thứ hai.</li>
+        <li>Bộ bot đồng hành chưa được chạy trên một server Discord thật; giờ giấc và nội dung nhiều khả năng cần chỉnh.</li>
         <li>Thẻ SD vẫn là điểm yếu; nên chuyển sang SSD USB để chạy lâu dài.</li>
       </ul>
     </section>
@@ -270,7 +284,8 @@
           <tr><th scope="row">E</th><td>2.1</td><td>2026-10-01</td><td>Đóng góp file có chủ bot duyệt (<code>/contribute</code>, <code>/settings contributions</code>) và danh sách mong muốn (<code>/request</code>), bot không tải gì từ YouTube.</td></tr>
         <tr><th scope="row">F</th><td>2.2</td><td>2026-10-01</td><td>Tự gắn thẻ bằng dấu vân âm thanh (<code>/library</code>), radio theo tâm trạng và bài giống nhau (<code>/vibe</code>, <code>/similar</code>), nhiều bot cùng lúc, trang trạng thái cho màn hình nhỏ, sao lưu, tự cập nhật và giám sát cho Raspberry Pi.</td></tr>
         <tr><th scope="row">G</th><td>2.3</td><td>2026-10-02</td><td>Màn TFT 3.5 inch trên Raspberry Pi 5 (giao diện bìa tạp chí, cảm ứng bằng bút), trang <code>/display</code> mới, sao lưu, tự cập nhật, giám sát và truy cập từ xa qua Tailscale, website tách nhiều trang.</td></tr>
-        <tr class="now"><th scope="row">H</th><td>2.4</td><td>2026-10-02</td><td>Bộ lọc âm thanh xếp chồng (<code>/filter</code> có lệnh con), playlist cá nhân và của server (<code>/playlist</code>), radio của server (<code>/radio</code>), thẻ Wrapped dạng story, chế độ đố nhạc mới và mùa theo tháng, nhiều node Lavalink có tự chuyển dự phòng, chia shard tùy chọn, trình cài đặt một lệnh cho Raspberry Pi.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
+        <tr><th scope="row">H</th><td>2.4</td><td>2026-10-02</td><td>Bộ lọc âm thanh xếp chồng (<code>/filter</code> có lệnh con), playlist cá nhân và của server (<code>/playlist</code>), radio của server (<code>/radio</code>), thẻ Wrapped dạng story, chế độ đố nhạc mới và mùa theo tháng, nhiều node Lavalink có tự chuyển dự phòng, chia shard tùy chọn, trình cài đặt một lệnh cho Raspberry Pi.</td></tr>
+        <tr class="now"><th scope="row">I</th><td>2.5</td><td>2026-10-02</td><td>Bot đồng hành: chương trình riêng, tùy chọn gồm 2 đến 8 bot nhỏ giữ kênh đỡ vắng (lệnh <code>/companions</code>), có giờ yên lặng và giới hạn mỗi ngày.<span class="revstamp" id="rev-stamp" aria-hidden="true">HIỆN HÀNH</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -286,7 +301,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>N-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
+      <div class="w2"><small>Bản</small><strong>I / 2.5</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>

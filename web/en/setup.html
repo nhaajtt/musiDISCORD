@@ -46,7 +46,7 @@
   <span class="strip__name">Setup</span>
   <span class="hide-sm"><b>Scale</b>1:1</span>
   <span class="hide-sm"><b>Drawn</b>nhaajt</span>
-  <span class="hide-sm"><b>Rev</b>H</span>
+  <span class="hide-sm"><b>Rev</b>I</span>
 </div>
 
 <header class="top">
@@ -176,6 +176,41 @@
   </div>
 </section>
 
+<section class="sheet" id="bot-dong-hanh" data-sheet="S-03|Companion bots, optional" aria-labelledby="h-dong-hanh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-03</span>
+      <h2 id="h-dong-hanh">Companion bots (optional)</h2>
+      <p class="sheet__scale">A separate program, the music bot does not need it<br>see <a href="features.html#bot-dong-hanh">feature S-11</a></p>
+    </header>
+    <p>If you want a few small bots keeping a channel lively, add the companion bots. It is a separate program that runs independently of the music bot.</p>
+    <ol class="build">
+      <li>
+        <h3>Create 2 to 8 applications</h3>
+        <p>In the Developer Portal, create one application per bot, add a Bot to each and copy the token. The companions need no privileged intents.</p>
+      </li>
+      <li>
+        <h3>Create .env.companions</h3>
+        <p>Copy the example file, put the tokens in <code>COMPANION_TOKENS</code> (comma-separated) and your time zone in <code>COMPANION_TIMEZONE</code>. Invite each bot to your server with the link in that file.</p>
+        <div class="code"><pre><code>cp .env.companions.example .env.companions</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Start them</h3>
+        <p>With Docker, or with npm if you prefer to skip Docker.</p>
+        <div class="code"><pre><code>docker compose --profile companions up -d --build
+# or, without Docker:
+npm run companions</code></pre><button type="button" data-copy>Copy</button></div>
+      </li>
+      <li>
+        <h3>Choose the channel in Discord</h3>
+        <p>The first companion bot hosts the command, and you need the Manage Server permission.</p>
+        <div class="code"><pre><code>/companions setup channel:#general language:English</code></pre><button type="button" data-copy>Copy</button></div>
+        <p class="sub">The logic is covered by automated tests with a fake clock but has not been run against a live server, so expect to tune the timing and content. Use it in servers you run and tell your members they are bots.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot" data-sheet="C-01|Title block">
@@ -186,7 +221,7 @@
       <div class="w2"><small>Sheet no.</small><strong>C-01</strong></div>
       <div class="w2"><small>Drawn by</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Date</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Rev</small><strong>H / 2.4</strong></div>
+      <div class="w2"><small>Rev</small><strong>I / 2.5</strong></div>
       <div class="w6">
         <small>Documents</small>
         <span><a href="devlog.html">Devlog</a> &nbsp;&nbsp; <a href="privacy.html">Privacy</a> &nbsp;&nbsp; <a href="terms.html">Terms of use</a></span>

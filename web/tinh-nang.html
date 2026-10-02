@@ -46,7 +46,7 @@
   <span class="strip__name">Tính năng</span>
   <span class="hide-sm"><b>Tỷ lệ</b>1:1</span>
   <span class="hide-sm"><b>Vẽ</b>nhaajt</span>
-  <span class="hide-sm"><b>Bản</b>H</span>
+  <span class="hide-sm"><b>Bản</b>I</span>
 </div>
 
 <header class="top">
@@ -700,6 +700,35 @@
   </div>
 </section>
 
+<section class="sheet" id="bot-dong-hanh" data-sheet="S-11|Bot đồng hành" aria-labelledby="h-dong-hanh">
+  <div class="wrap">
+    <header class="sheet__head">
+      <span class="sheet__no">S-11</span>
+      <h2 id="h-dong-hanh">Bot đồng hành</h2>
+      <p class="sheet__scale">Vài con bot nhỏ giữ cho kênh đỡ vắng<br>chương trình riêng, chạy hay không tùy bạn</p>
+    </header>
+    <div class="copy">
+      <p>Đây là một chương trình <strong>riêng và tùy chọn</strong> trong cùng kho mã (thư mục <code>src/companions/</code>), không phải một phần của bot nhạc. Bạn cho nó từ 2 đến 8 bot nhỏ, mỗi bot một ứng dụng Discord và một token, tất cả chạy trong một tiến trình. Thỉnh thoảng một bot hỏi một câu, kể một chuyện cười hoặc câu đố, chia sẻ một điều thú vị, hoặc tán gẫu với bot khác. Vài phút không ai trả lời thì một bot khác nhảy vào đỡ lời. Có người thật bước vào cuộc trò chuyện thì mấy con bot lùi lại nhường chỗ, và ai trả lời được cảm ơn một câu ngắn. Kênh vắng là chuyện của kênh, đừng để nó thành chuyện của bạn.</p>
+      <ul class="ticks">
+        <li><strong>Khai thật là bot.</strong> Giữ nguyên thẻ BOT của Discord, có năm tính cách: Pip (bot cổ vũ hào hứng), Grumble (ông cụ cáu kỉnh mỉa mai), Nova (mọt vũ trụ và kiến thức), Sage (triết gia mặt lạnh) và Bean (con quỷ nhỏ hỗn loạn). Không bao giờ giả làm người, và chỉ dùng token bot bình thường.</li>
+        <li><strong>Nội dung viết sẵn trong kho mã.</strong> Kho tiếng Anh và tiếng Việt gồm câu hỏi, chuyện cười và câu đố, điều thú vị, và những đoạn đối đáp giữa các bot. Không gửi gì tới dịch vụ bên ngoài, và không lặp lại cho tới khi các mục còn lại đã dùng hết.</li>
+        <li><strong>Phép lịch sự có sẵn.</strong> Chỉ một kênh do bạn chọn; giờ yên lặng (mặc định 23:00 đến 08:00 theo múi giờ đã cấu hình); giới hạn mỗi ngày (Calm tối đa 4 cuộc trò chuyện, Normal 8, Lively 14); im lặng khi mọi người đang chat; có hiệu ứng đang gõ; không ping ai.</li>
+        <li><strong>Không đọc nội dung tin nhắn.</strong> Chúng chỉ dùng intent không đặc quyền <code>Guilds</code> và <code>GuildMessages</code>.</li>
+      </ul>
+      <p>Lệnh nằm ở <strong>bot đồng hành đầu tiên</strong> và cần quyền Manage Server. Đây là lệnh của bộ bot đồng hành, <strong>không tính</strong> vào 38 lệnh của bot nhạc.</p>
+      <dl class="cmdlist">
+        <div><dt><code>/companions setup channel [language]</code></dt><dd>Chọn kênh và ngôn ngữ, đồng thời bật.</dd></div>
+        <div><dt><code>/companions on</code>, <code>off</code></dt><dd>Bật hoặc tắt.</dd></div>
+        <div><dt><code>/companions frequency level</code></dt><dd>Calm (tối đa 4 một ngày), Normal (8) hoặc Lively (14).</dd></div>
+        <div><dt><code>/companions quiet from until</code></dt><dd>Khung giờ chúng ngồi im.</dd></div>
+        <div><dt><code>/companions now</code></dt><dd>Bắt đầu một cuộc trò chuyện ngay, để thử.</dd></div>
+        <div><dt><code>/companions status</code></dt><dd>Xem cài đặt hiện tại và lúc nào có cuộc trò chuyện kế tiếp.</dd></div>
+      </dl>
+      <p class="cmd-note">Cách cài ở trang <a href="cai-dat.html#bot-dong-hanh">Cài đặt</a>. Lời nói thật: phần logic đã có test tự động với đồng hồ giả, nhưng <strong>chưa chạy thử trên một server Discord thật</strong>, nên nhiều khả năng giờ giấc và nội dung cần chỉnh thêm. Hãy dùng ở server do bạn quản lý, và nói cho thành viên biết mấy con bot này là gì.</p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot" data-sheet="F-01|Khung tên bản vẽ">
@@ -710,7 +739,7 @@
       <div class="w2"><small>Bản vẽ số</small><strong>F-01</strong></div>
       <div class="w2"><small>Vẽ bởi</small><strong>nhaajt</strong></div>
       <div class="w2"><small>Ngày</small><strong>2026-10-02</strong></div>
-      <div class="w2"><small>Bản</small><strong>H / 2.4</strong></div>
+      <div class="w2"><small>Bản</small><strong>I / 2.5</strong></div>
       <div class="w6">
         <small>Tài liệu kèm theo</small>
         <span><a href="nhat-ky.html">Nhật ký</a> &nbsp;&nbsp; <a href="privacy.html">Quyền riêng tư</a> &nbsp;&nbsp; <a href="terms.html">Điều khoản sử dụng</a></span>
