@@ -157,20 +157,20 @@ const GLYPHS = {
 };
 
 const GLYPH_KEYS = [
-  ["quiz", ["do nhac", "quiz", "dap an", "sharp"]],
+  ["quiz", ["do nhac", "quiz", "dap an", "sharp", "smarty", "bat ears"]],
   ["heart", ["fan cung", "fan", "yeu thich", "favorite", "favourite"]],
   ["phones", ["thinh phong", "audiophile", "concert"]],
-  ["star", ["phe binh", "critic"]],
+  ["star", ["phe binh", "critic", "armchair"]],
   ["queue", ["hang cho", "queue", "bac thay", "yeu cau", "request"]],
-  ["moon", ["cu dem", "dem", "night", "owl", "khuya"]],
+  ["moon", ["cu dem", "dem", "night", "owl", "khuya", "vampire"]],
   ["bolt", ["tan nhan", "nhan", "bolt", "ruthless"]],
   ["skip", ["bo qua", "skip"]],
   ["flame", ["chuoi", "streak", "lua"]],
   ["sun", ["som", "dawn", "sang"]],
-  ["phones", ["tai nghe", "nghe nhieu", "ham", "marathon", "headphone", "listener"]],
-  ["crown", ["vua", "king", "chua", "top 1", "champion", "season"]],
+  ["phones", ["tai nghe", "nghe nhieu", "ham", "marathon", "headphone", "listener", "zombie"]],
+  ["crown", ["vua", "king", "chua", "top 1", "champion", "season", "menace"]],
   ["clock", ["gio", "time", "hour"]],
-  ["note", ["nhac", "track", "bai", "music"]],
+  ["note", ["nhac", "track", "bai", "music", "record"]],
   ["star", ["sao", "star", "dau tien", "first"]],
 ];
 

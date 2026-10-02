@@ -33,7 +33,7 @@ export function announceBadges(client, player, userId) {
   for (const badge of awardBadges(player.guildId, userId)) {
     client.channels.cache
       .get(player.textChannelId)
-      ?.send({ content: `🏅 <@${userId}> just earned the badge **${badge.icon} ${badge.name}** (${badge.hint})`, allowedMentions: { parse: [] } })
+      ?.send({ content: `🏅 <@${userId}> just unlocked **${badge.icon} ${badge.name}**. ${badge.hint}`, allowedMentions: { parse: [] } })
       .catch(() => {});
   }
 }

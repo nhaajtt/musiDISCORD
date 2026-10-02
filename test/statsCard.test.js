@@ -110,15 +110,15 @@ test("deterministic and fast enough", async () => {
 });
 
 test("every official badge has its own glyph", () => {
-  const names = ["Night Owl", "Ruthless", "Queue Master", "Die-Hard Fan", "Audiophile", "Critic", "Quiz Master", "7-Day Streak", "Cú đêm", "Bậc thầy hàng chờ"];
+  const names = ["Vampire Hours", "Skip Goblin", "Queue Gremlin", "Broken Record", "Headphone Zombie", "Armchair Critic", "Smarty Pants", "Streak Addict", "Bat Ears", "Monthly Menace", "Cú đêm", "Bậc thầy hàng chờ"];
   for (const kind of ["wrapped", "profile"]) {
     for (const n of names) {
       const { svg } = _internals.build({ ...full(kind), badges: [{ name: n }] }, { theme: "dark" });
       assert.ok(!svg.includes('<text x="0" y="6"'), "fell back to the numbered circle: " + n);
     }
   }
-  const q = _internals.build({ ...full(), badges: [{ name: "Quiz Master" }] }, { theme: "dark" }).svg;
-  const l = _internals.build({ ...full(), badges: [{ name: "Queue Master" }] }, { theme: "dark" }).svg;
+  const q = _internals.build({ ...full(), badges: [{ name: "Smarty Pants" }] }, { theme: "dark" }).svg;
+  const l = _internals.build({ ...full(), badges: [{ name: "Queue Gremlin" }] }, { theme: "dark" }).svg;
   const g = (x) => x.slice(x.indexOf('<g fill="none" stroke'), x.indexOf("</g></g>"));
   assert.notEqual(g(q), g(l));
 });
