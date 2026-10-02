@@ -39,7 +39,7 @@ export default {
       return interaction.editReply({ embeds: [errorEmbed(`No tracks match this mood yet (${p.analyzed}/${p.total} tracks analyzed). Wait for the bot to analyze more, then try again.`)] });
     }
 
-    const count = await startNhaajt(player, files, interaction.user);
+    const count = await startNhaajt(player, files, interaction.user, { sync: false });
     if (!count) return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files.")] });
     await interaction.editReply({
       embeds: [infoEmbed(`${MOODS[mood]}: playing **${count}** tracks that fit this mood, shuffled and on repeat until \`/stop\`.\n*Tempo is only an estimate from audio analysis.*`)],
