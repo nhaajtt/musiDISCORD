@@ -15,3 +15,5 @@ backups/
 pi/display.env
 pi/.venv/
 __pycache__/
+profilePic/
+pi/avatar.*

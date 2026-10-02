@@ -147,7 +147,8 @@ class State:
 INK = (255, 246, 236)
 MARGIN = 28
 RIGHT = W - 20
-TITLE_BOX = (MARGIN, 38, RIGHT, 186)  # khung của tên bài
+AVATAR = 36  # đường kính ảnh đại diện (góc trên phải, cách mép màn bằng lề)
+TITLE_BOX = (MARGIN, 50, RIGHT, 188)  # khung của tên bài
 BAR_Y = 236
 BTN_Y = 282
 BTN_TOP = 258  # từ đây trở xuống là vùng nút
@@ -267,6 +268,50 @@ def icon(d, name, cx, cy, ink, accent, np):
             d.text((cx, cy + 1), "1", fill=color, font=face("mono", 10), anchor="mm")
 
 
+_avatar = {"img": None, "loaded": False}
+
+
+def load_avatar():
+    """Ảnh đại diện bo tròn từ AVATAR_PATH (mặc định pi/avatar.jpg). Không có ảnh thì bỏ qua.
+    AVATAR_CROP="x0,y0,x1,y1" để tự chọn vùng cắt; mặc định cắt hình vuông phần trên, chính giữa (hợp ảnh chân dung)."""
+    if _avatar["loaded"]:
+        return _avatar["img"]
+    _avatar["loaded"] = True
+    path = os.environ.get("AVATAR_PATH") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "avatar.jpg")
+    if not os.path.exists(path):
+        return None
+    try:
+        src = Image.open(path).convert("RGB")
+        sw, sh = src.size
+        if os.environ.get("AVATAR_CROP"):
+            box = tuple(int(v) for v in os.environ["AVATAR_CROP"].split(","))
+        else:
+            side = int(min(sw, sh) * 0.82)
+            x0 = (sw - side) // 2
+            y0 = int(sh * 0.03)
+            box = (x0, y0, x0 + side, y0 + side)
+        big = AVATAR * 4  # vẽ lớn rồi thu nhỏ để viền tròn mịn
+        face_img = src.crop(box).resize((big, big), Image.LANCZOS)
+        mask = Image.new("L", (big, big), 0)
+        ImageDraw.Draw(mask).ellipse((0, 0, big - 1, big - 1), fill=255)
+        out = face_img.resize((AVATAR, AVATAR), Image.LANCZOS)
+        _avatar["img"] = (out, mask.resize((AVATAR, AVATAR), Image.LANCZOS))
+    except Exception as e:
+        print("Không đọc được ảnh đại diện:", e, file=sys.stderr)
+    return _avatar["img"]
+
+
+def draw_avatar(img, d, accent):
+    """Ảnh đại diện luôn nằm ở góc trên phải, có viền mảnh màu nhấn. Trả về mép trái của nó (để chừa chỗ cho chữ)."""
+    av = load_avatar()
+    if av is None:
+        return RIGHT
+    x, y = RIGHT - AVATAR, 9
+    d.ellipse((x - 3, y - 3, x + AVATAR + 2, y + AVATAR + 2), outline=accent, width=2)
+    img.paste(av[0], (x, y), av[1])
+    return x - 14
+
+
 def fmt(ms):
     t = max(0, int(ms // 1000))
     return f"{t // 60}:{t % 60:02d}"
@@ -303,22 +348,24 @@ def render(state, w=W, h=H):
     d.rectangle((0, 0, 5, h), fill=accent)  # vạch mép trái: dấu hiệu duy nhất của màu bài
 
     if not np.get("title"):
+        draw_avatar(img, d, accent)
         render_idle(d, np, bg, accent)
         return img
 
     # dòng trên: tên server bên trái, nhịp độ hoặc trạng thái tạm dừng bên phải
-    where = ellipsize(d, np.get("guild") or np.get("bot") or "", face("mono", 11), 250)
-    d.text((MARGIN, 16), where, fill=dim, font=face("mono", 11))
+    edge = draw_avatar(img, d, accent)
+    where = ellipsize(d, np.get("guild") or np.get("bot") or "", face("mono", 11), 200)
+    d.text((MARGIN, 21), where, fill=dim, font=face("mono", 11))
     if np.get("paused"):
-        d.text((RIGHT, 16), "Tạm dừng", fill=accent, font=face("mono", 11), anchor="ra")
+        d.text((edge, 21), "Tạm dừng", fill=accent, font=face("mono", 11), anchor="ra")
     elif np.get("bpm"):
-        d.text((RIGHT, 16), f"{round(np['bpm'])} nhịp/phút", fill=dim, font=face("mono", 11), anchor="ra")
+        d.text((edge, 21), f"{round(np['bpm'])} nhịp/phút", fill=dim, font=face("mono", 11), anchor="ra")
 
     # tên bài: cỡ chữ lớn nhất cho vừa khung
     size, lines, lh = fit_title(d, np["title"].upper())
     artist = np.get("artist") or ""
     block = len(lines) * lh + (30 if artist else 0)
-    top, area = 34, 192  # vùng giữa dòng trên và thanh tiến trình; căn khối chữ vào giữa
+    top, area = 48, 180  # vùng giữa dòng trên và thanh tiến trình; căn khối chữ vào giữa
     y = top + max(0, (area - block) // 2) - int(size * 0.12)
     f = face("display", size)
     for line in lines:
