@@ -156,10 +156,10 @@ class State:
 INK = (255, 246, 236)
 MARGIN = 28
 RIGHT = W - 20
-AVATAR_W = int(os.environ.get("AVATAR_W", "200"))  # ảnh đại diện: khung chữ nhật bo góc, gần nửa màn, nằm bên phải
-AVATAR_H = int(os.environ.get("AVATAR_H", "190"))
-AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "10"))  # 0 = góc vuông
-AVATAR_POS = (W - 24 - AVATAR_W, 26)  # chừa chỗ quanh ảnh cho thước chia vạch
+AVATAR_W = int(os.environ.get("AVATAR_W", "228"))  # ảnh bìa: tràn sát mép trên và mép phải màn, gần nửa màn
+AVATAR_H = int(os.environ.get("AVATAR_H", "226"))
+AVATAR_RADIUS = int(os.environ.get("AVATAR_RADIUS", "0"))  # 0 = góc vuông (kiểu bìa tạp chí)
+AVATAR_POS = (W - AVATAR_W, 0)  # sát mép trên và mép phải
 NEXT_Y = 190  # dòng "Tiếp theo" ở đáy cột chữ
 TEXT_TOP, TEXT_BOTTOM = 70, 228  # vùng chữ (giữa đầu trang kiểu tạp chí và thanh tiến trình)
 BAR_Y = 236
@@ -312,35 +312,15 @@ def load_avatar():
 
 
 def draw_avatar(img, d, bg, seed="musiDISCORD"):
-    """Ảnh đại diện lớn bên phải. Quanh ảnh là một thước chia vạch mảnh (như thước trên bản vẽ kỹ thuật):
-    vạch ngắn đều đặn, cứ năm vạch có một vạch dài. Màu trung tính, không dùng màu của bài.
+    """Ảnh bìa tràn sát mép trên và mép phải màn, góc vuông, không khung. Mã vạch nhỏ ở góc dưới phải.
     Trả về mép phải của cột chữ (không có ảnh thì chiếm hết bề ngang)."""
     av = load_avatar()
     if av is None:
         return RIGHT
     x, y = AVATAR_POS
     img.paste(av[0], (x, y), av[1])
-    draw_barcode(d, x + AVATAR_W - 8 - 46, y + AVATAR_H - 8 - 26, seed)  # mã vạch ở góc dưới phải ảnh
-
-    minor, major = mix(bg, INK, 0.34), mix(bg, INK, 0.7)
-    gap, short, long_, step = 6, 4, 9, 8  # cách ảnh, độ dài vạch ngắn/dài, bước giữa hai vạch
-
-    def ticks(length):
-        pts = list(range(0, length, step))
-        if pts[-1] != length:
-            pts.append(length)  # luôn có vạch ở mép cuối
-        return [(p, (i % 5 == 0) or p == length) for i, p in enumerate(pts)]
-
-    right, bottom = x + AVATAR_W, y + AVATAR_H
-    for p, is_major in ticks(AVATAR_W):  # cạnh trên và dưới
-        n, c = (long_ if is_major else short), (major if is_major else minor)
-        d.line((x + p, y - gap, x + p, y - gap - n), fill=c, width=1)
-        d.line((x + p, bottom + gap - 1, x + p, bottom + gap - 1 + n), fill=c, width=1)
-    for p, is_major in ticks(AVATAR_H):  # cạnh trái và phải
-        n, c = (long_ if is_major else short), (major if is_major else minor)
-        d.line((x - gap, y + p, x - gap - n, y + p), fill=c, width=1)
-        d.line((right + gap - 1, y + p, right + gap - 1 + n, y + p), fill=c, width=1)
-    return x - gap - long_ - 8
+    draw_barcode(d, x + AVATAR_W - 12 - 46, y + AVATAR_H - 12 - 26, seed)
+    return x - 18
 
 
 def pi_status():
