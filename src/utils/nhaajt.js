@@ -1,4 +1,5 @@
 import { normalizeLocalTrack } from "../library/normalize.js";
+import { radioScores } from "../radio.js";
 import { ratingScores } from "../stats.js";
 import { musicPath } from "./library.js";
 import { smartOrder } from "./smartOrder.js";
@@ -29,7 +30,8 @@ export async function refillNhaajt(player) {
   const library = player.getData("nhaajtTracks");
   if (!library?.length) return;
 
-  const order = smartOrder(library, { scores: ratingScores(player.guildId) });
+  const scores = player.getData("radio") ? radioScores(player.guildId) : ratingScores(player.guildId);
+  const order = smartOrder(library, { scores });
   const current = player.queue.current;
   if (current && order.length > 1 && order[0].info.identifier === current.info.identifier) {
     [order[0], order[order.length - 1]] = [order[order.length - 1], order[0]];
@@ -39,10 +41,14 @@ export async function refillNhaajt(player) {
 
 export function stopNhaajt(player) {
   player.setData("nhaajt", false);
+  player.setData("radio", false);
 }
 
-/** Starts endless random playback of all `files`. Returns the number of tracks loaded. */
-export async function startNhaajt(player, files, requester) {
+/**
+ * Starts endless random playback of all `files`. Returns the number of tracks loaded.
+ * With `radio`, every new round is ordered by what the server likes and the time of day (see src/radio.js).
+ */
+export async function startNhaajt(player, files, requester, { radio = false } = {}) {
   stopNhaajt(player);
   if (player.queue.current || player.queue.tracks.length) await player.stopPlaying(true, false);
   await player.setRepeatMode("off");
@@ -52,6 +58,7 @@ export async function startNhaajt(player, files, requester) {
 
   player.setData("nhaajtTracks", tracks);
   player.setData("nhaajt", true);
+  player.setData("radio", radio);
   await refillNhaajt(player);
   await player.play();
   return tracks.length;

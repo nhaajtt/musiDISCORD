@@ -34,6 +34,7 @@ export function snapshotPlayer(player) {
     current: current ? toSaved(current) : null,
     tracks: player.queue.tracks.map(toSaved),
     nhaajt,
+    radio: nhaajt && player.getData("radio") === true,
     library: nhaajt ? (player.getData("nhaajtTracks") ?? []).map(toSaved) : [],
   };
 }
@@ -123,6 +124,7 @@ async function restoreOne(client, snap) {
     if (snap.nhaajt && snap.library?.length) {
       player.setData("nhaajtTracks", await decodeAll(player, snap.library, requester));
       player.setData("nhaajt", true);
+      player.setData("radio", snap.radio === true);
     }
     await player.setRepeatMode(snap.repeatMode ?? "off");
     // The position must be shorter than the track length, otherwise Lavalink refuses to play
