@@ -28,7 +28,7 @@ export default {
 
     if (sub === "pending" || sub === "stats") {
       if (!(await isOwner(interaction.client, interaction.user.id))) {
-        return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command.")));
+        return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command. Nice try, though.")));
       }
       if (sub === "stats") {
         const c = contributionCounts();
@@ -40,7 +40,7 @@ export default {
       }
 
       const rows = listPending(5);
-      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("No contributions are awaiting review.")));
+      if (!rows.length) return interaction.reply(ephemeral(infoEmbed("No contributions are awaiting review. Inbox zero.")));
       await interaction.reply(ephemeral(infoEmbed(`Showing the ${rows.length} longest-waiting contributions.`)));
       for (const row of rows) {
         await interaction.followUp({ embeds: [contributionEmbed(row)], components: [reviewButtons(row.id)], flags: MessageFlags.Ephemeral });
@@ -49,13 +49,13 @@ export default {
     }
 
     if (!config.contributions.enabled) {
-      return interaction.reply(ephemeral(errorEmbed("Contributions are turned off on this bot.")));
+      return interaction.reply(ephemeral(errorEmbed("Contributions are turned off on this bot. The door is closed.")));
     }
     if (!getSettings(interaction.guildId).contributions) {
-      return interaction.reply(ephemeral(errorEmbed("Contributions aren't enabled on this server. An admin can use `/settings contributions`.")));
+      return interaction.reply(ephemeral(errorEmbed("Contributions aren't enabled on this server yet. An admin can use `/settings contributions`.")));
     }
     if (!interaction.options.getBoolean("confirm", true)) {
-      return interaction.reply(ephemeral(errorEmbed("You must confirm you own this file or are allowed to share it (set confirm to True).")));
+      return interaction.reply(ephemeral(errorEmbed("Quick legal moment: confirm you own this file or may share it (set confirm to True).")));
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -70,13 +70,13 @@ export default {
       await interaction.editReply({
         embeds: [
           infoEmbed(
-            `✅ Received **${result.title}** (contribution #${result.id}). The bot owner will review it and you'll get a DM with the result.${delivered ? "" : "\n(The bot owner couldn't be notified right away, but the file is still in the pending list.)"}${result.similar ? "\n⚠️ This track seems to be in the library already; the bot owner will take that into account." : ""}`,
+            `✅ Received **${result.title}** (contribution #${result.id}). The bot owner will review it and you'll get a DM with the verdict.${delivered ? "" : "\n(The bot owner couldn't be notified right away, but the file is still in the pending list.)"}${result.similar ? "\n⚠️ This track seems to be in the library already; the bot owner will take that into account." : ""}`,
           ),
         ],
       });
     } catch (error) {
       if (!(error instanceof ContribError)) console.error("Failed to receive contribution:", error);
-      await interaction.editReply({ embeds: [errorEmbed(error instanceof ContribError ? error.message : "Something went wrong receiving the file, please try again later.")] });
+      await interaction.editReply({ embeds: [errorEmbed(error instanceof ContribError ? error.message : "Something went wrong receiving the file. Not you, probably me. Try again later.")] });
     }
   },
 };

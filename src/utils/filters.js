@@ -91,7 +91,7 @@ export async function resetFilters(player) {
 }
 
 export function describeState(state) {
-  if (isDefault(state)) return "No filters are active.";
+  if (isDefault(state)) return "No filters are active. Pure, unfiltered me.";
   const lines = [];
   if (state.effects.length) lines.push(`Effects: ${state.effects.map((e) => EFFECTS[e].label).join(", ")}`);
   if (state.speed !== 1) lines.push(`Speed: ${state.speed}x`);

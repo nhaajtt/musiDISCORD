@@ -63,7 +63,7 @@ export default {
       const rows = period === "all" ? quizLeaderboard(guildId, 10) : seasonLeaderboard(guildId, season, 10);
       if (!rows.length) {
         const where = period === "all" ? "yet" : period === "last" ? "last month" : "this month";
-        return interaction.reply(ephemeral(infoEmbed(`Nobody has played the music quiz on this server ${where}. Try \`/quiz start\`.`)));
+        return interaction.reply(ephemeral(infoEmbed(`Nobody has played the music quiz on this server ${where}. Be the first with \`/quiz start\`.`)));
       }
       const title = period === "all" ? "All time" : period === "last" ? `Season ${season}` : `This month (${season})`;
       const embed = new EmbedBuilder()
@@ -77,12 +77,12 @@ export default {
     if (sub === "stop") {
       const player = interaction.client.lavalink.getPlayer(guildId);
       const session = player?.getData("quiz");
-      if (!session) return interaction.reply(ephemeral(errorEmbed("There's no music quiz running right now.")));
+      if (!session) return interaction.reply(ephemeral(errorEmbed("There's no music quiz running right now. Nothing to stop.")));
       if (interaction.user.id !== session.starterId && !isDj(interaction.member, guildId)) {
         return interaction.reply(ephemeral(errorEmbed("Only the person who started the game or a DJ can stop it.")));
       }
       session.abort();
-      return interaction.reply({ embeds: [infoEmbed("🛑 Stopping the music quiz…")] });
+      return interaction.reply({ embeds: [infoEmbed("🛑 Stopping the music quiz… pencils down.")] });
     }
 
     if (!canControl(interaction.member, guildId)) return denyDj(interaction);
@@ -96,9 +96,9 @@ export default {
 
     const existing = interaction.client.lavalink.getPlayer(guildId);
     if (existing && (existing.queue.current || existing.queue.tracks.length)) {
-      return interaction.reply(ephemeral(errorEmbed("The bot is playing music. Use `/stop` before starting a music quiz.")));
+      return interaction.reply(ephemeral(errorEmbed("I'm already busy playing music. Use `/stop` before starting a music quiz.")));
     }
-    if (existing?.getData("quiz")) return interaction.reply(ephemeral(errorEmbed("A music quiz is already running.")));
+    if (existing?.getData("quiz")) return interaction.reply(ephemeral(errorEmbed("A music quiz is already running. One brain-teaser at a time.")));
 
     const player = await ensurePlayer(interaction);
     if (!player) return;
@@ -121,7 +121,7 @@ export default {
     await interaction.editReply({
       embeds: [
         infoEmbed(
-          `🎧 **Music quiz started: ${MODES[mode].label}!** ${rounds} rounds, ${seconds} seconds per clip. Listen to the clip, then press 🎯 to answer. The faster you answer, the more points you get.`,
+          `🎧 **Music quiz started: ${MODES[mode].label}!** ${rounds} rounds, ${seconds} seconds per clip. Listen to the clip, then press 🎯 to answer. Faster answers earn more points, so no pressure.`,
         ),
       ],
     });

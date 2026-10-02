@@ -34,7 +34,7 @@ export function reviewView() {
 /** Apply / Skip button press (customId "lb:<ok|no>:<key>"), bot owner only. */
 export async function handleLibraryButton(interaction) {
   if (!(await isOwner(interaction.client, interaction.user.id))) {
-    return interaction.reply({ content: "Only the bot owner can use this button.", flags: MessageFlags.Ephemeral });
+    return interaction.reply({ content: "Only the bot owner can use this button. Nice try, though.", flags: MessageFlags.Ephemeral });
   }
   const [, action, key] = interaction.customId.split(":");
   const target = suggestions().find(([rel]) => coverKey(rel) === key);

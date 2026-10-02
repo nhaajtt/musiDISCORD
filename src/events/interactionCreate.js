@@ -11,7 +11,7 @@ async function safely(label, interaction, handler) {
     await handler(interaction);
   } catch (error) {
     console.error(`${label} failed:`, error);
-    const payload = { embeds: [errorEmbed("Something went wrong, please try again.")], flags: MessageFlags.Ephemeral };
+    const payload = { embeds: [errorEmbed("Something went wrong. That one's on me, please try again.")], flags: MessageFlags.Ephemeral };
     if (interaction.deferred || interaction.replied) await interaction.followUp(payload).catch(() => {});
     else await interaction.reply(payload).catch(() => {});
   }

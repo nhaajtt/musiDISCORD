@@ -21,7 +21,7 @@ export async function handleControl(interaction) {
   const action = interaction.customId.slice(3);
 
   const player = interaction.client.lavalink.getPlayer(interaction.guildId);
-  if (!player) return interaction.reply(ephemeralError("This playback session has ended."));
+  if (!player) return interaction.reply(ephemeralError("This playback session has ended. The show's over."));
 
   // Same checks as commands: same voice channel, and DJ permission for control buttons
   if (!(await requirePlayer(interaction, { dj: !OPEN_ACTIONS.has(action) }))) return;
@@ -44,7 +44,7 @@ export async function handleControl(interaction) {
     case "stop":
       await interaction.deferUpdate();
       await stopPlayback(player);
-      return interaction.followUp(ephemeral("⏹️ Stopped and cleared the queue."));
+      return interaction.followUp(ephemeral("⏹️ Stopped and cleared the queue. Mic drop."));
 
     case "loop": {
       const mode = await cycleLoop(player);
@@ -53,35 +53,35 @@ export async function handleControl(interaction) {
     }
 
     case "shuffle":
-      if (player.queue.tracks.length < 2) return interaction.reply(ephemeralError("The queue needs at least 2 tracks to shuffle."));
+      if (player.queue.tracks.length < 2) return interaction.reply(ephemeralError("The queue needs at least 2 tracks to shuffle. One track is already shuffled enough."));
       await player.queue.shuffle();
-      return interaction.reply(ephemeral("🔀 Queue shuffled."));
+      return interaction.reply(ephemeral("🔀 Queue shuffled. Even I don't know what's next."));
 
     case "up":
     case "down": {
-      if (!track) return interaction.reply(ephemeralError("Nothing is playing."));
+      if (!track) return interaction.reply(ephemeralError("Nothing is playing. The silence is free, though."));
       if (isOptedOut(interaction.user.id)) {
         return interaction.reply(ephemeralError("You have stats turned off, so ratings are unavailable. Turn them back on with `/privacy stats` if you like."));
       }
       const value = toggleRating(interaction.guildId, interaction.user.id, trackKey(track), action === "up" ? 1 : -1);
       await refreshNowPlaying(player, interaction);
-      await interaction.followUp(ephemeral(value === 0 ? "Rating removed." : value > 0 ? `👍 You liked **${track.info.title}**` : `👎 You disliked **${track.info.title}**`));
+      await interaction.followUp(ephemeral(value === 0 ? "Rating removed." : value > 0 ? `👍 You liked **${track.info.title}**. Noted.` : `👎 You disliked **${track.info.title}**. Noted, and I won't take it personally.`));
       return announceBadges(interaction.client, player, interaction.user.id);
     }
 
     case "fav": {
-      if (!track) return interaction.reply(ephemeralError("Nothing is playing."));
+      if (!track) return interaction.reply(ephemeralError("Nothing is playing. The silence is free, though."));
       const key = trackKey(track);
       if (isFavorite(interaction.user.id, key)) {
         removeFavorite(interaction.user.id, key);
         return interaction.reply(ephemeral(`💔 Removed **${track.info.title}** from your favorites.`));
       }
       addFavorite(interaction.user.id, key, track.info.title, track.info.author);
-      return interaction.reply(ephemeral(`❤️ Added **${track.info.title}** to your favorites. Use \`/favorites play\` to listen again.`));
+      return interaction.reply(ephemeral(`❤️ **${track.info.title}** is now a favorite. Use \`/favorites play\` to listen again.`));
     }
 
     case "lyrics":
-      if (stopLive(player)) return interaction.reply(ephemeral("📜 Turned off live lyrics."));
+      if (stopLive(player)) return interaction.reply(ephemeral("📜 Turned off live lyrics. Back to humming."));
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       return showLyrics(interaction, player, { live: true });
   }

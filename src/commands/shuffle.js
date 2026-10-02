@@ -8,9 +8,9 @@ export default {
     const player = await requirePlayer(interaction);
     if (!player) return;
     if (player.queue.tracks.length < 2) {
-      return interaction.reply({ embeds: [errorEmbed("The queue needs at least 2 tracks to shuffle.")] });
+      return interaction.reply({ embeds: [errorEmbed("The queue needs at least 2 tracks to shuffle. One track is already shuffled enough.")] });
     }
     await player.queue.shuffle();
-    await interaction.reply({ embeds: [infoEmbed("🔀 Queue shuffled.")] });
+    await interaction.reply({ embeds: [infoEmbed("🔀 Queue shuffled. Even I don't know what's next.")] });
   },
 };

@@ -15,6 +15,6 @@ export default {
     if (was247) updateSettings(player.guildId, { stay247: null });
 
     await player.destroy();
-    await interaction.reply({ embeds: [infoEmbed(was247 ? "👋 Left the voice channel and turned off 24/7 mode." : "👋 Left the voice channel.")] });
+    await interaction.reply({ embeds: [infoEmbed(was247 ? "👋 Left the voice channel and turned off 24/7 mode. Gone, but not forgotten." : "👋 Left the voice channel. Smooth exit.")] });
   },
 };

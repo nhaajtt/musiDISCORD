@@ -14,7 +14,7 @@ export default {
     if (!player) return;
     const position = interaction.options.getInteger("position", true);
     const track = player.queue.tracks[position - 1];
-    if (!track) return interaction.reply({ embeds: [errorEmbed("No track at that position.")] });
+    if (!track) return interaction.reply({ embeds: [errorEmbed("No track at that position. Check the queue, I'll wait.")] });
     await player.queue.remove(position - 1);
     await interaction.reply({ embeds: [infoEmbed(`🗑️ Removed **${track.info.title}**`)] });
   },

@@ -22,7 +22,7 @@ export default {
 
   async execute(interaction) {
     if (!(await isOwner(interaction.client, interaction.user.id))) {
-      return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command.")));
+      return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command. Nice try, though.")));
     }
     const sub = interaction.options.getSubcommand();
 

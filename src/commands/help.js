@@ -20,7 +20,7 @@ export default {
       .setColor(0x5865f2)
       .setTitle("How to use")
       .setDescription(
-        "Join a voice channel and use `/play` or `/local` to get started. Use the buttons under the \"Now Playing\" message for quick controls, to rate 👍👎, add to your ❤️ favorites, or show lyrics 📜.",
+        "Join a voice channel and use `/play` or `/local` to get started. The buttons under the \"Now Playing\" message do quick controls, 👍👎 ratings, ❤️ favorites and 📜 lyrics. I'm only slightly lost without them.",
       );
 
     for (const [title, names] of GROUPS) {

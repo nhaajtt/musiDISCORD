@@ -23,7 +23,7 @@ export default {
     const current = player?.queue.current;
     const rel = current ? localRelativePath(current.info) : null;
     if (!rel) return interaction.reply(ephemeral(errorEmbed("Play a track from the library (`/local`) first.")));
-    if (!featuresOf(rel)) return interaction.reply(ephemeral(errorEmbed("This track hasn't been analyzed yet, try again later.")));
+    if (!featuresOf(rel)) return interaction.reply(ephemeral(errorEmbed("This track hasn't been analyzed yet. I'm still listening to it, try again later.")));
 
     const queued = new Set(player.queue.tracks.map((t) => localRelativePath(t.info)));
     const picks = similarTo(rel, 40)

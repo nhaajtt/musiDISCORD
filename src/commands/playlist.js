@@ -113,7 +113,7 @@ async function run(interaction) {
     const mine = listPlaylists("user", userId);
     const shared = listPlaylists("guild", guildId);
     if (!mine.length && !shared.length) {
-      return interaction.reply(ephemeral(infoEmbed("No playlists yet. Create one with `/playlist create` or `/playlist save`.")));
+      return interaction.reply(ephemeral(infoEmbed("No playlists yet. Create one with `/playlist create` or `/playlist save`. Empty shelves, big potential.")));
     }
     const lines = (rows) => rows.map((p) => `• **${safeText(p.name)}**: ${p.tracks} track${p.tracks === 1 ? "" : "s"}`).join("\n") || "None yet";
     const embed = new EmbedBuilder()
@@ -128,7 +128,7 @@ async function run(interaction) {
     const name = interaction.options.getString("name", true);
     const ownerId = ownerOf(scope, interaction);
     if (scope === "guild" && !canControl(interaction.member, guildId)) {
-      return interaction.reply(ephemeral(errorEmbed("You need the DJ role to change the server's playlists.")));
+      return interaction.reply(ephemeral(errorEmbed("You need the DJ role to change the server's playlists. Ask nicely.")));
     }
 
     if (sub === "create") {
@@ -138,7 +138,7 @@ async function run(interaction) {
 
     const player = interaction.client.lavalink.getPlayer(guildId);
     const current = player?.queue.current;
-    if (!current) return interaction.reply(ephemeral(errorEmbed("Nothing is playing right now.")));
+    if (!current) return interaction.reply(ephemeral(errorEmbed("Nothing is playing right now. Can't save silence.")));
     const playlist = findPlaylist(scope, ownerId, name) ?? createPlaylist({ scope, ownerId, name, createdBy: userId });
     const tracks = [current, ...player.queue.tracks].map((t) => toStoredTrack(t, trackKey(t)));
     const { added, duplicates, full } = addTracks(playlist.id, tracks);
@@ -148,7 +148,7 @@ async function run(interaction) {
 
   // Everything below works on an existing playlist
   const playlist = resolvePlaylist(interaction.options.getString("playlist", true), { userId, guildId });
-  if (!playlist) return interaction.reply(ephemeral(errorEmbed("I couldn't find that playlist. Pick one from the list that appears as you type.")));
+  if (!playlist) return interaction.reply(ephemeral(errorEmbed("Couldn't find that playlist. Pick one from the list that appears as you type.")));
   const title = safeText(playlist.name);
 
   if (sub === "view") {
@@ -160,13 +160,13 @@ async function run(interaction) {
     const embed = new EmbedBuilder()
       .setColor(0x5865f2)
       .setTitle(`📁 ${title} (${scopeLabel(playlist.scope)})`)
-      .setDescription(lines.join("\n") || "This playlist is empty.");
+      .setDescription(lines.join("\n") || "This playlist is empty. A blank mixtape.");
     return interaction.reply(ephemeral(embed));
   }
 
   if (sub === "play") {
     const rows = listTracks(playlist.id);
-    if (!rows.length) return interaction.reply(ephemeral(errorEmbed("This playlist is empty.")));
+    if (!rows.length) return interaction.reply(ephemeral(errorEmbed("This playlist is empty. A blank mixtape.")));
     const player = await ensurePlayer(interaction);
     if (!player) return;
     const { added, missing } = await queuePlaylist(player, rows, interaction.user, {
@@ -174,17 +174,17 @@ async function run(interaction) {
     });
     const note = missing ? ` (${missing} couldn't be loaded)` : "";
     return interaction.editReply({
-      embeds: [added ? infoEmbed(`📁 Queued **${added}** track${added === 1 ? "" : "s"} from **${title}**.${note}`) : errorEmbed("None of the tracks could be loaded.")],
+      embeds: [added ? infoEmbed(`📁 Queued **${added}** track${added === 1 ? "" : "s"} from **${title}**.${note}`) : errorEmbed("None of the tracks could be loaded. They all ghosted me.")],
     });
   }
 
   if (!canEdit(interaction, playlist)) {
-    return interaction.reply(ephemeral(errorEmbed("You need the DJ role to change the server's playlists.")));
+    return interaction.reply(ephemeral(errorEmbed("You need the DJ role to change the server's playlists. Ask nicely.")));
   }
 
   if (sub === "add") {
     const track = interaction.client.lavalink.getPlayer(guildId)?.queue.current;
-    if (!track) return interaction.reply(ephemeral(errorEmbed("Nothing is playing right now.")));
+    if (!track) return interaction.reply(ephemeral(errorEmbed("Nothing is playing right now. Can't save silence.")));
     const { added, full } = addTracks(playlist.id, [toStoredTrack(track, trackKey(track))]);
     const message = added
       ? `➕ Added **${safeText(track.info.title)}** to **${title}**.`

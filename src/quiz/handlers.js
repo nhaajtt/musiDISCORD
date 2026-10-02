@@ -17,7 +17,7 @@ function inVoice(interaction, player) {
 /** Quiz button press (customId "qz:<action>"). */
 export async function handleQuizButton(interaction) {
   const { player, session } = sessionOf(interaction);
-  if (!session) return interaction.reply(ephemeral(errorEmbed("This music quiz has ended.")));
+  if (!session) return interaction.reply(ephemeral(errorEmbed("This music quiz has ended. Thanks for playing.")));
   if (!inVoice(interaction, player)) return interaction.reply(ephemeral(errorEmbed("You need to be in the same voice channel as the bot to play.")));
 
   const action = interaction.customId.slice(3);
@@ -42,7 +42,7 @@ export async function handleQuizButton(interaction) {
 
   if (action === "hint") {
     const hint = session.hint();
-    return interaction.reply(ephemeral(infoEmbed(hint ?? "No hint available right now.")));
+    return interaction.reply(ephemeral(infoEmbed(hint ?? "No hint available right now. You're on your own.")));
   }
 
   if (action === "skip") {
@@ -50,24 +50,24 @@ export async function handleQuizButton(interaction) {
       return interaction.reply(ephemeral(errorEmbed("Only the player who started the game or a DJ can skip the round.")));
     }
     session.skipRound();
-    return interaction.reply(ephemeral(infoEmbed("⏭️ Skipping this round.")));
+    return interaction.reply(ephemeral(infoEmbed("⏭️ Skipping this round. Moving on, nothing to see.")));
   }
 }
 
 /** Submit an answer from the modal. */
 export async function handleQuizModal(interaction) {
   const { player, session } = sessionOf(interaction);
-  if (!session) return interaction.reply(ephemeral(errorEmbed("This music quiz has ended.")));
+  if (!session) return interaction.reply(ephemeral(errorEmbed("This music quiz has ended. Thanks for playing.")));
   if (!inVoice(interaction, player)) return interaction.reply(ephemeral(errorEmbed("You need to be in the same voice channel as the bot to play.")));
 
   const result = session.submit(interaction.user, interaction.fields.getTextInputValue("answer"));
   const messages = {
     correct: `✅ Correct! **+${result.points}** points${result.streak > 1 ? ` (streak ${result.streak} 🔥)` : ""}.`,
     artist: `🎤 Right artist! **+${result.points}** points. Now guess the title.`,
-    "artist-again": "You already got the artist points, now guess the title.",
-    already: "You already answered this round correctly.",
-    late: "This round hasn't started or has already ended.",
-    wrong: "❌ Not quite, try again.",
+    "artist-again": "You already got the artist points. Now guess the title, overachiever.",
+    already: "You already answered this round correctly. Showing off, are we?",
+    late: "This round hasn't started or has already ended. The clock won.",
+    wrong: "❌ Not quite. Close, but so is my cousin's guitar playing. Try again.",
   };
   const embed = result.status === "wrong" || result.status === "late" ? errorEmbed(messages[result.status]) : infoEmbed(messages[result.status]);
   return interaction.reply(ephemeral(embed));

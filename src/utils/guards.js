@@ -27,7 +27,7 @@ export function canControl(member, guildId) {
 
 export async function denyDj(interaction) {
   const { djRoleId } = getSettings(interaction.guildId);
-  return fail(interaction, `You need the <@&${djRoleId}> role to use this command.`);
+  return fail(interaction, `You need the <@&${djRoleId}> role to use this command. Velvet rope.`);
 }
 
 /**
@@ -36,11 +36,11 @@ export async function denyDj(interaction) {
  */
 export async function requirePlayer(interaction, { dj = true } = {}) {
   const player = interaction.client.lavalink.getPlayer(interaction.guildId);
-  if (!player) return fail(interaction, "Nothing is playing right now.");
+  if (!player) return fail(interaction, "Nothing is playing right now. The silence is free, though.");
 
   const voiceId = interaction.member.voice?.channelId;
-  if (!voiceId) return fail(interaction, "You need to join a voice channel first.");
-  if (voiceId !== player.voiceChannelId) return fail(interaction, "You must be in the same voice channel as the bot.");
+  if (!voiceId) return fail(interaction, "Join a voice channel first, I can't DJ for an empty hallway.");
+  if (voiceId !== player.voiceChannelId) return fail(interaction, "You must be in the same voice channel as me. I don't do long distance.");
   if (dj && !canControl(interaction.member, interaction.guildId)) return denyDj(interaction);
 
   return player;

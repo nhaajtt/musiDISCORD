@@ -42,23 +42,23 @@ export default {
 
     if (sub === "add") {
       const track = interaction.client.lavalink.getPlayer(interaction.guildId)?.queue.current;
-      if (!track) return interaction.reply(ephemeral(errorEmbed("Nothing is playing right now.")));
-      if (isFavorite(userId, trackKey(track))) return interaction.reply(ephemeral(infoEmbed("This track is already in your favorites.")));
+      if (!track) return interaction.reply(ephemeral(errorEmbed("Nothing is playing right now. Hard to favorite silence.")));
+      if (isFavorite(userId, trackKey(track))) return interaction.reply(ephemeral(infoEmbed("This track is already in your favorites. Good taste, twice.")));
       addFavorite(userId, trackKey(track), track.info.title, track.info.author);
-      return interaction.reply(ephemeral(infoEmbed(`❤️ Added **${track.info.title}** to your favorites.`)));
+      return interaction.reply(ephemeral(infoEmbed(`❤️ **${track.info.title}** is now a favorite. Noted.`)));
     }
 
     if (sub === "remove") {
       const key = interaction.options.getString("song", true);
       return interaction.reply(
-        ephemeral(removeFavorite(userId, key) ? infoEmbed("💔 Removed from your favorites.") : errorEmbed("This track isn't in your favorites.")),
+        ephemeral(removeFavorite(userId, key) ? infoEmbed("💔 Removed from your favorites. It's not you, it's the song.") : errorEmbed("This track isn't in your favorites, so there's nothing to remove.")),
       );
     }
 
     const favorites = listFavorites(userId);
 
     if (sub === "list") {
-      if (!favorites.length) return interaction.reply(ephemeral(infoEmbed("You don't have any favorites yet. Press ❤️ under the now-playing message to add one.")));
+      if (!favorites.length) return interaction.reply(ephemeral(infoEmbed("No favorites yet. Press ❤️ under the now-playing message to add one.")));
       const lines = favorites.slice(0, 25).map((f, i) => `**${i + 1}.** ${label(f)}`);
       const more = favorites.length > 25 ? `\n… and ${favorites.length - 25} more` : "";
       const embed = new EmbedBuilder().setColor(0xed4245).setTitle("❤️ Your favorites").setDescription(lines.join("\n") + more);
@@ -72,12 +72,12 @@ export default {
       .map((f) => f.track_key.slice("local:".length))
       .filter((rel) => library.get(rel));
     if (!files.length) {
-      return interaction.reply(ephemeral(errorEmbed("None of your favorites are in the music library, so there's nothing to play.")));
+      return interaction.reply(ephemeral(errorEmbed("None of your favorites are in the music library, so there's nothing to play. Awkward.")));
     }
 
     const player = await ensurePlayer(interaction);
     if (!player) return;
     const added = await queueFiles(player, files, interaction.user, { shuffle: interaction.options.getBoolean("shuffle") ?? true });
-    await interaction.editReply({ embeds: [added ? infoEmbed(`❤️ Added **${added}** of your favorites.`) : errorEmbed("Couldn't read any tracks.")] });
+    await interaction.editReply({ embeds: [added ? infoEmbed(`❤️ Added **${added}** of your favorites.`) : errorEmbed("Couldn't read any tracks. Weird.")] });
   },
 };

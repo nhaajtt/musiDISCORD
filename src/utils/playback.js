@@ -14,14 +14,14 @@ async function reject(interaction, message) {
  */
 export async function ensurePlayer(interaction) {
   const voiceChannel = interaction.member.voice?.channel;
-  if (!voiceChannel) return reject(interaction, "You need to join a voice channel first.");
+  if (!voiceChannel) return reject(interaction, "Join a voice channel first, I can't DJ for an empty hallway.");
 
   const manager = interaction.client.lavalink;
-  if (!manager.useable) return reject(interaction, "Not connected to Lavalink yet, try again in a few seconds.");
+  if (!manager.useable) return reject(interaction, "Not connected to Lavalink yet. Still warming up, try again in a few seconds.");
 
   let player = manager.getPlayer(interaction.guildId);
   if (player && player.voiceChannelId !== voiceChannel.id) {
-    return reject(interaction, "The bot is playing in another voice channel.");
+    return reject(interaction, "I'm already playing in another voice channel. Join me there, or wait your turn.");
   }
   if (player?.getData("quiz")) return reject(interaction, "A music quiz is in progress, wait for it to end or use `/quiz stop`.");
 
@@ -51,10 +51,10 @@ export async function queueAndPlay(interaction, { query, source }) {
   const res = await player.search({ query, source }, interaction.user);
 
   if (!res || res.loadType === "error") {
-    return interaction.editReply({ embeds: [errorEmbed("Could not load this track (it may be blocked or the source failed).")] });
+    return interaction.editReply({ embeds: [errorEmbed("Could not load this track (it may be blocked or the source failed). It said no.")] });
   }
   if (res.loadType === "empty" || !res.tracks.length) {
-    return interaction.editReply({ embeds: [errorEmbed("No results found.")] });
+    return interaction.editReply({ embeds: [errorEmbed("No results found. Even the internet shrugged.")] });
   }
 
   res.tracks.forEach(normalizeLocalTrack);

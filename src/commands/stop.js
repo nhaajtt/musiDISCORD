@@ -9,6 +9,6 @@ export default {
     const player = await requirePlayer(interaction);
     if (!player) return;
     await stopPlayback(player);
-    await interaction.reply({ embeds: [infoEmbed("⏹️ Stopped and cleared the queue.")] });
+    await interaction.reply({ embeds: [infoEmbed("⏹️ Stopped and cleared the queue. Mic drop.")] });
   },
 };

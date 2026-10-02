@@ -28,7 +28,7 @@ export default {
     const entry = library.resolve(interaction.options.getString("file", true));
     if (!entry) {
       return interaction.reply({
-        embeds: [errorEmbed("No matching track found in the music library.")],
+        embeds: [errorEmbed("No matching track found in the music library. Not even close.")],
         flags: MessageFlags.Ephemeral,
       });
     }

@@ -21,7 +21,7 @@ export default {
     if (library.size() === 0) await library.scan();
     const album = library.findAlbum(interaction.options.getString("name", true));
     if (!album) {
-      return interaction.reply({ embeds: [errorEmbed("Album not found.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [errorEmbed("Album not found. Maybe it's an EP in disguise.")], flags: MessageFlags.Ephemeral });
     }
 
     const player = await ensurePlayer(interaction);
@@ -34,7 +34,7 @@ export default {
       { shuffle: interaction.options.getBoolean("shuffle") ?? false },
     );
     await interaction.editReply({
-      embeds: [added ? infoEmbed(`💿 Added album **${album.name}** (${added} tracks).`) : errorEmbed("Couldn't read any tracks from this album.")],
+      embeds: [added ? infoEmbed(`💿 Added album **${album.name}** (${added} tracks).`) : errorEmbed("Couldn't read any tracks from this album. It's being shy.")],
     });
   },
 };

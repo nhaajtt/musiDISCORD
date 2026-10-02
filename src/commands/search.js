@@ -59,17 +59,17 @@ export default {
     const fail = (message) => interaction.reply({ embeds: [errorEmbed(message)], flags: MessageFlags.Ephemeral });
 
     if (URL_RE.test(query)) return fail("That looks like a link. Use `/play` to play a link directly.");
-    if (!interaction.member.voice?.channel) return fail("Join a voice channel first.");
+    if (!interaction.member.voice?.channel) return fail("Join a voice channel first. I don't do street performances.");
 
     const manager = interaction.client.lavalink;
-    if (!manager.useable) return fail("Not connected to Lavalink yet, try again in a few seconds.");
+    if (!manager.useable) return fail("Not connected to Lavalink yet. Still warming up, try again in a few seconds.");
 
     await interaction.deferReply();
     const player = manager.getPlayer(interaction.guildId);
     const node = manager.nodeManager.leastUsedNodes()[0];
     const res = await (player ?? node).search({ query, source }, interaction.user).catch(() => null);
     const tracks = res?.loadType === "search" ? res.tracks.slice(0, MAX_RESULTS) : [];
-    if (!tracks.length) return interaction.editReply({ embeds: [errorEmbed("No results found.")] });
+    if (!tracks.length) return interaction.editReply({ embeds: [errorEmbed("No results found. Even the internet shrugged.")] });
 
     const token = createSearchSession({ userId: interaction.user.id, tracks, interaction });
     await interaction.editReply({ embeds: [resultsEmbed(query, tracks)], components: resultRows(token, tracks.length) });

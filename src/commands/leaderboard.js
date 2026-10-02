@@ -13,7 +13,7 @@ export default {
     const board = guildLeaderboard(interaction.guildId, 5);
     const quiz = quizLeaderboard(interaction.guildId, 5);
     if (!board.topListeners.length && !quiz.length) {
-      return interaction.reply({ embeds: [infoEmbed("No data yet. Listen to a few tracks with the bot and come back.")] });
+      return interaction.reply({ embeds: [infoEmbed("No data yet. Listen to a few tracks with me and come back. The podium is empty and a bit lonely.")] });
     }
 
     const section = (rows, line) => (rows.length ? rows.map((r, i) => `${medal(i)} ${line(r)}`).join("\n") : "None yet");

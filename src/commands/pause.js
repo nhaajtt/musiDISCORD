@@ -7,8 +7,8 @@ export default {
   async execute(interaction) {
     const player = await requirePlayer(interaction);
     if (!player) return;
-    if (player.paused) return interaction.reply({ embeds: [infoEmbed("⏸️ The music is already paused.")] });
+    if (player.paused) return interaction.reply({ embeds: [infoEmbed("⏸️ The music is already paused. Maximum pause achieved.")] });
     await player.pause();
-    await interaction.reply({ embeds: [infoEmbed("⏸️ Paused.")] });
+    await interaction.reply({ embeds: [infoEmbed("⏸️ Paused. Take your time.")] });
   },
 };

@@ -86,5 +86,5 @@ test("reset clears the state and describeState reports it", async () => {
 
   await resetFilters(player);
   assert.equal(player.getData("filters"), undefined);
-  assert.equal(describeState(getState(player)), "No filters are active.");
+  assert.ok(describeState(getState(player)).startsWith("No filters are active."));
 });

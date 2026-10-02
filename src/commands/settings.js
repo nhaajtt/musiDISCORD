@@ -52,7 +52,7 @@ export default {
       const role = interaction.options.getRole("role");
       updateSettings(guildId, { djRoleId: role?.id ?? null });
       return interaction.reply({
-        embeds: [infoEmbed(role ? `🎚️ Only ${role} (and people with Manage Server) can control the music. Anyone can still vote to skip.` : "🎚️ DJ role turned off, anyone can control the music.")],
+        embeds: [infoEmbed(role ? `🎚️ Only ${role} (and people with Manage Server) can control the music. Anyone can still vote to skip.` : "🎚️ DJ role turned off. Anyone can control the music. Chaos is welcome.")],
         allowedMentions: { parse: [] },
       });
     }

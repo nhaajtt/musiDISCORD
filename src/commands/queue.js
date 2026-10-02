@@ -33,7 +33,7 @@ export function buildPage(player, page) {
     ),
   );
   container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
-  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join("\n") || "The queue is empty."));
+  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join("\n") || "Queue's empty. Awkward."));
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent(`-# Page ${page + 1}/${pages} • ${tracks.length} tracks • ${formatDuration(total)}`),
   );
@@ -55,7 +55,7 @@ export default {
   async execute(interaction) {
     const player = interaction.client.lavalink.getPlayer(interaction.guildId);
     if (!player || (!player.queue.current && !player.queue.tracks.length)) {
-      return interaction.reply({ embeds: [errorEmbed("The queue is empty.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [errorEmbed("Queue's empty. Awkward.")], flags: MessageFlags.Ephemeral });
     }
 
     let page = 0;

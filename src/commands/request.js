@@ -57,22 +57,22 @@ export default {
       const r = result.request;
       switch (result.status) {
         case "invalid":
-          return interaction.reply(ephemeral(errorEmbed("Enter a track name (at least 2 letters) or a valid YouTube, Spotify or SoundCloud link.")));
+          return interaction.reply(ephemeral(errorEmbed("Enter a track name (at least 2 letters) or a valid YouTube, Spotify or SoundCloud link. I can't read minds.")));
         case "in-library":
-          return interaction.reply(ephemeral(infoEmbed(`This track is already in the library: **${safeText(result.entry.title, 120)}**. Use \`/local\` to listen.`)));
+          return interaction.reply(ephemeral(infoEmbed(`Good news: this track is already in the library: **${safeText(result.entry.title, 120)}**. Use \`/local\` to listen.`)));
         case "limit":
-          return interaction.reply(ephemeral(errorEmbed(`You already have ${MAX_OPEN_PER_USER} open suggestions, wait for some to be resolved before suggesting more.`)));
+          return interaction.reply(ephemeral(errorEmbed(`You already have ${MAX_OPEN_PER_USER} open suggestions, wait for some to be resolved before suggesting more. Ambition noted.`)));
         case "fulfilled":
           return interaction.reply(ephemeral(infoEmbed(`This suggestion has already been fulfilled${r.fulfilled_file ? `: \`${r.fulfilled_file}\`` : ""}. Use \`/local\` to listen.`)));
         case "dismissed":
-          return interaction.reply(ephemeral(errorEmbed("The bot owner already dismissed this suggestion.")));
+          return interaction.reply(ephemeral(errorEmbed("The bot owner already dismissed this suggestion. The verdict is in.")));
         case "already-voted":
           return interaction.reply(ephemeral(infoEmbed(`You already voted for this suggestion (👍 ${r.votes}).`)));
         case "voted":
           return interaction.reply({ embeds: [infoEmbed(`👍 Someone already suggested this track, your vote was counted: ${line({ ...r, votes: r.votes + 1 })}`)], allowedMentions: { parse: [] } });
         default:
           return interaction.reply({
-            embeds: [infoEmbed(`📝 Suggestion recorded ${line(r)}. When the track is in the library, the bot will let you know. Others can use \`/request vote ${r.id}\` to back it.`)],
+            embeds: [infoEmbed(`📝 Suggestion recorded ${line(r)}. When the track is in the library, I'll let you know. Others can use \`/request vote ${r.id}\` to back it.`)],
             allowedMentions: { parse: [] },
           });
       }
@@ -80,7 +80,7 @@ export default {
 
     if (sub === "list" || sub === "mine") {
       const rows = sub === "list" ? listOpen(10) : listMine(userId);
-      if (!rows.length) return interaction.reply(ephemeral(infoEmbed(sub === "list" ? "No suggestions yet." : "You have no open suggestions.")));
+      if (!rows.length) return interaction.reply(ephemeral(infoEmbed(sub === "list" ? "No suggestions yet. The suggestion box is lonely." : "You have no open suggestions.")));
       const embed = new EmbedBuilder()
         .setColor(0x5865f2)
         .setTitle(sub === "list" ? "📝 Most-supported suggestions" : "📝 Your suggestions")
@@ -97,13 +97,13 @@ export default {
 
     if (sub === "remove") {
       return interaction.reply(
-        ephemeral(removeOwn(interaction.options.getInteger("id", true), userId) ? infoEmbed("🗑️ Your suggestion was deleted.") : errorEmbed("You can only delete suggestions you created that are still open.")),
+        ephemeral(removeOwn(interaction.options.getInteger("id", true), userId) ? infoEmbed("🗑️ Your suggestion was deleted. Never happened.") : errorEmbed("You can only delete suggestions you created that are still open.")),
       );
     }
 
     // done / dismiss: bot owner only
     if (!(await isOwner(interaction.client, userId))) {
-      return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command.")));
+      return interaction.reply(ephemeral(errorEmbed("Only the bot owner can use this command. Nice try, though.")));
     }
     const id = interaction.options.getInteger("id", true);
     const request = getRequest(id);

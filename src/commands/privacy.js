@@ -54,7 +54,7 @@ export default {
       });
       if (pressed.customId === "privacy:confirm") {
         deleteUserData(userId);
-        await pressed.update({ embeds: [infoEmbed("🗑️ All your data has been deleted.")], components: [] });
+        await pressed.update({ embeds: [infoEmbed("🗑️ All your data has been deleted. Clean slate.")], components: [] });
       } else {
         await pressed.update({ embeds: [infoEmbed("Cancelled, nothing was deleted.")], components: [] });
       }

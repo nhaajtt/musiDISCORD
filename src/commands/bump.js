@@ -16,16 +16,16 @@ export default {
     const result = await requestBump(player, interaction.member, interaction.options.getInteger("position", true) - 1);
     switch (result.status) {
       case "none":
-        return interaction.reply({ embeds: [errorEmbed("No track at that position.")] });
+        return interaction.reply({ embeds: [errorEmbed("No track at that position. Check the queue, I'll wait.")] });
       case "moved":
         return interaction.reply({
-          embeds: [infoEmbed(result.needed ? `⬆️ Got ${result.votes}/${result.needed} votes, **${result.title}** will play next.` : `⬆️ **${result.title}** will play next.`)],
+          embeds: [infoEmbed(result.needed ? `⬆️ Got ${result.votes}/${result.needed} votes. **${result.title}** cuts the line and plays next.` : `⬆️ **${result.title}** cuts the line and plays next.`)],
         });
       case "already":
-        return interaction.reply({ embeds: [infoEmbed(`🗳️ You already voted for **${result.title}** (${result.votes}/${result.needed}).`)] });
+        return interaction.reply({ embeds: [infoEmbed(`🗳️ You already voted for **${result.title}** (${result.votes}/${result.needed}). Democracy has limits.`)] });
       default:
         return interaction.reply({
-          embeds: [infoEmbed(`🗳️ Votes for **${result.title}**: **${result.votes}/${result.needed}**. More people need to agree.`)],
+          embeds: [infoEmbed(`🗳️ Votes for **${result.title}**: **${result.votes}/${result.needed}**. Rally some more people to agree.`)],
         });
     }
   },

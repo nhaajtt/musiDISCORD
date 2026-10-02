@@ -53,13 +53,13 @@ export async function requestSkip(player, member) {
 export function describeSkip(result) {
   switch (result.status) {
     case "none":
-      return "Nothing is playing.";
+      return "Nothing is playing. The silence is free, though.";
     case "skipped":
       return result.needed
-        ? `⏭️ Got ${result.votes}/${result.needed} votes, skipped **${result.title}**`
-        : `⏭️ Skipped **${result.title}**`;
+        ? `⏭️ Got ${result.votes}/${result.needed} votes, skipped **${result.title}**. The people have spoken.`
+        : `⏭️ Skipped **${result.title}**. That track never saw it coming.`;
     case "already":
-      return `🗳️ You already voted (${result.votes}/${result.needed}).`;
+      return `🗳️ You already voted (${result.votes}/${result.needed}). One person, one vote.`;
     default:
       return `🗳️ Skip vote recorded: **${result.votes}/${result.needed}**. More votes needed.`;
   }

@@ -505,7 +505,7 @@
         }
         ta.remove();
       }
-      btn.textContent = T("Đã chép", "Copied");
+      btn.textContent = T("Đã chép, ngon", "Copied, nice");
       setTimeout(() => (btn.textContent = T("Chép", "Copy")), 1600);
     });
   });
@@ -1268,7 +1268,7 @@
       t = 0;
       hints = 0;
       state = "run";
-      hint.textContent = T("Chưa xin gợi ý. Mỗi gợi ý trừ 150 điểm.", "No hint used yet. Each hint costs 150 points.");
+      hint.textContent = T("Chưa xin gợi ý, gan thật. Mỗi gợi ý trừ 150 điểm.", "No hint used yet, brave soul. Each hint costs 150 points.");
       stamp.classList.remove("show");
       pop.hidden = true;
       draw();

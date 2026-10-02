@@ -15,7 +15,7 @@ export default {
 
     const live = interaction.options.getBoolean("live") ?? false;
     if (live && stopLive(player)) {
-      return interaction.reply({ embeds: [infoEmbed("📜 Live lyrics turned off.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [infoEmbed("📜 Live lyrics turned off. Back to humming.")], flags: MessageFlags.Ephemeral });
     }
 
     await interaction.deferReply({ flags: live ? MessageFlags.Ephemeral : undefined });

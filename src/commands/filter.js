@@ -78,7 +78,7 @@ export default {
       case "speed": {
         const value = interaction.options.getNumber("value", true);
         await setSpeed(player, value);
-        message = `⏩ Speed set to **${value}x**.`;
+        message = `⏩ Speed set to **${value}x**. Hold onto something.`;
         break;
       }
       case "pitch": {
@@ -102,7 +102,7 @@ export default {
       }
       default:
         await resetFilters(player);
-        message = "🎚️ All filters removed.";
+        message = "🎚️ All filters removed. Back to the natural sound.";
     }
     await interaction.editReply({ embeds: [infoEmbed(message)] });
   },

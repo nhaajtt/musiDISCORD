@@ -58,7 +58,7 @@ export function createLavalink(client) {
         await ensure247(client);
       })().catch((error) => console.error("Post-connect initialization failed:", error));
     } else if (wasDown) {
-      broadcast("✅ Reconnected to the music server.");
+      broadcast("✅ Reconnected to the music server. Sorry, I just stepped out.");
       alertOwner("lavalink-up", "✅ Lavalink reconnected.");
     }
     wasDown = false;
@@ -101,7 +101,7 @@ export function createLavalink(client) {
 
     if (wasDown) return;
     wasDown = true;
-    broadcast("⚠️ Lost connection to the music server, playback may be interrupted. The bot is trying to reconnect.");
+    broadcast("⚠️ Lost connection to the music server, so playback may stutter. I'm trying to reconnect.");
     alertOwner("lavalink-down", `⚠️ Lavalink disconnected: ${reason?.reason ?? reason ?? "unknown reason"}`);
   });
 
@@ -132,12 +132,12 @@ export function createLavalink(client) {
   manager.on("trackError", (player, track, payload) => {
     console.error("Playback error:", track?.info?.title, payload?.exception?.message);
     if (player.getData("quiz")) return;
-    send(player, { content: `❌ Could not play **${track?.info?.title ?? "this track"}**, skipping.` });
+    send(player, { content: `❌ Could not play **${track?.info?.title ?? "this track"}**, skipping. It wasn't feeling it.` });
   });
 
   manager.on("trackStuck", (player, track) => {
     if (player.getData("quiz")) return;
-    send(player, { content: `⚠️ **${track?.info?.title ?? "This track"}** got stuck, skipping.` });
+    send(player, { content: `⚠️ **${track?.info?.title ?? "This track"}** got stuck, skipping. Rude of it.` });
   });
 
   manager.on("playerDestroy", (player, reason) => {
@@ -160,10 +160,10 @@ export function createLavalink(client) {
     clearVoiceStatus(client, player);
 
     if (is247(player.guildId, player.voiceChannelId)) {
-      send(player, { content: "✅ The queue has ended. The bot is staying in the channel because 24/7 mode is on." });
+      send(player, { content: "✅ The queue has ended. I'm staying because 24/7 mode is on. Awkward silence incoming." });
     } else {
       scheduleIdleLeave(player);
-      send(player, { content: "✅ The queue has ended. The bot will leave the channel if no new track is added." });
+      send(player, { content: "✅ The queue has ended. Add a track soon or I'll leave, I can take a hint." });
     }
   });
 

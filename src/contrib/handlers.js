@@ -7,7 +7,7 @@ const ephemeral = (embed) => ({ embeds: [embed], flags: MessageFlags.Ephemeral }
 
 async function requireOwner(interaction) {
   if (await isOwner(interaction.client, interaction.user.id)) return true;
-  await interaction.reply(ephemeral(errorEmbed("Only the bot owner can review contributions."))).catch(() => {});
+  await interaction.reply(ephemeral(errorEmbed("Only the bot owner can review contributions. Nice try, though."))).catch(() => {});
   return false;
 }
 

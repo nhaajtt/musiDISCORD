@@ -98,7 +98,7 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
     /** Reveal one more hint for the current round. */
     hint() {
       if (!round?.startedAt) return null;
-      if (round.hintLevel >= MAX_HINTS) return "No more hints for this round.";
+      if (round.hintLevel >= MAX_HINTS) return "No more hints for this round. I've said too much already.";
       round.hintLevel += 1;
       round.refresh();
       return `💡 Hint ${round.hintLevel}: ${hintFor(mode, round.entry, round.hintLevel)}`;
@@ -181,7 +181,7 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
       .setColor(finished.correct.size ? 0x57f287 : 0xed4245)
       .setTitle(`Round ${index + 1}/${total}: ${entry.title}`)
       .setDescription(
-        `${entry.artist ? `**${entry.artist}**` : "Unknown artist"}${entry.album ? ` • ${entry.album}` : ""}${entry.year ? ` • ${entry.year}` : ""}\n\n${winners ? `✅ ${winners}` : outcome === "skip" ? "⏭️ This round was skipped." : "😅 Nobody guessed it."}`,
+        `${entry.artist ? `**${entry.artist}**` : "Unknown artist"}${entry.album ? ` • ${entry.album}` : ""}${entry.year ? ` • ${entry.year}` : ""}\n\n${winners ? `✅ ${winners}` : outcome === "skip" ? "⏭️ This round was skipped. We don't talk about it." : "😅 Nobody guessed it. A tough crowd, or a tough song."}`,
       );
     await message?.edit({ embeds: [reveal], components: [] }).catch(() => {});
   }
@@ -195,7 +195,7 @@ export function startQuiz({ client, player, channel, starter, entries, rounds, c
     const embed = new EmbedBuilder()
       .setColor(COLOR)
       .setTitle(aborted ? "🛑 Music quiz stopped" : "🏁 Music quiz finished")
-      .setDescription(`${lines.join("\n") || "Nobody scored this game."}${shortBy ? `\n\n*The game ended ${shortBy} round${shortBy === 1 ? "" : "s"} early: not enough tracks fit this mode.*` : ""}`);
+      .setDescription(`${lines.join("\n") || "Nobody scored this game. Everyone's a winner, technically."}${shortBy ? `\n\n*The game ended ${shortBy} round${shortBy === 1 ? "" : "s"} early: not enough tracks fit this mode.*` : ""}`);
     await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
 
     for (const [id, s] of ranking) {

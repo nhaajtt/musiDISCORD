@@ -1499,7 +1499,7 @@ html.arriving::after {
 }
 .badges li {
   display: grid;
-  grid-template-columns: minmax(0, 190px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 230px) minmax(0, 1fr);
   gap: 6px 16px;
   align-items: center;
   font-size: 13px;

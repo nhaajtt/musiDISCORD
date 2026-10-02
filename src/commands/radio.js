@@ -21,10 +21,10 @@ export default {
 
     if (library.size() === 0) await library.scan();
     const files = library.all().map((e) => e.file);
-    if (!files.length) return interaction.editReply({ embeds: [errorEmbed("The music folder is empty.")] });
+    if (!files.length) return interaction.editReply({ embeds: [errorEmbed("The music folder is empty. A radio with nothing to play.")] });
 
     const count = await startNhaajt(player, files, interaction.user, { radio: true });
-    if (!count) return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files in the music folder.")] });
+    if (!count) return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files in the music folder. They're hiding.")] });
 
     const mood = config.analysis.enabled ? ` Right now it leans **${moodForHour(localHour(Date.now()))}**.` : "";
     await interaction.editReply({

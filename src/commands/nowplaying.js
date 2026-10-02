@@ -9,7 +9,7 @@ export default {
     const player = interaction.client.lavalink.getPlayer(interaction.guildId);
     const payload = player ? await nowPlayingReply(player) : null;
     if (!payload) {
-      return interaction.reply({ embeds: [errorEmbed("Nothing is playing right now.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [errorEmbed("Nothing is playing right now. The silence is free, though.")], flags: MessageFlags.Ephemeral });
     }
     await interaction.reply(payload);
   },

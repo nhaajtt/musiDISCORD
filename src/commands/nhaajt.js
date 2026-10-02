@@ -19,12 +19,12 @@ export default {
     if (library.size() === 0) await library.scan();
     const files = library.all().map((e) => e.file);
     if (!files.length) {
-      return interaction.editReply({ embeds: [errorEmbed("The music folder is empty.")] });
+      return interaction.editReply({ embeds: [errorEmbed("The music folder is empty. Zero songs, maximum echo.")] });
     }
 
     const count = await startNhaajt(player, files, interaction.user);
     if (!count) {
-      return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files in the music folder.")] });
+      return interaction.editReply({ embeds: [errorEmbed("Couldn't read any music files in the music folder. They're hiding.")] });
     }
 
     await interaction.editReply({

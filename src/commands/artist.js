@@ -21,7 +21,7 @@ export default {
     if (library.size() === 0) await library.scan();
     const artist = library.findArtist(interaction.options.getString("name", true));
     if (!artist) {
-      return interaction.reply({ embeds: [errorEmbed("Artist not found.")], flags: MessageFlags.Ephemeral });
+      return interaction.reply({ embeds: [errorEmbed("Artist not found. Never heard of them (and I've heard a lot).")], flags: MessageFlags.Ephemeral });
     }
 
     const player = await ensurePlayer(interaction);
@@ -34,7 +34,7 @@ export default {
       { shuffle: interaction.options.getBoolean("shuffle") ?? true },
     );
     await interaction.editReply({
-      embeds: [added ? infoEmbed(`🎤 Added **${added}** tracks by **${artist.name}**.`) : errorEmbed("Couldn't read any tracks by this artist.")],
+      embeds: [added ? infoEmbed(`🎤 Added **${added}** tracks by **${artist.name}**.`) : errorEmbed("Couldn't read any tracks by this artist. Their files are camera-shy.")],
     });
   },
 };

@@ -12,13 +12,13 @@ export default {
     if (!player) return;
     const track = player.queue.current;
     if (!track || !track.info.isSeekable) {
-      return interaction.reply({ embeds: [errorEmbed("The current track can't be seeked.")] });
+      return interaction.reply({ embeds: [errorEmbed("This track can't be seeked. It's the stubborn type.")] });
     }
     const ms = interaction.options.getInteger("seconds", true) * 1000;
     if (ms >= track.info.duration) {
-      return interaction.reply({ embeds: [errorEmbed("That position is past the end of the track.")] });
+      return interaction.reply({ embeds: [errorEmbed("That position is past the end of the track. Time travel isn't supported.")] });
     }
     await player.seek(ms);
-    await interaction.reply({ embeds: [infoEmbed(`⏩ Seeked to **${formatDuration(ms)}**`)] });
+    await interaction.reply({ embeds: [infoEmbed(`⏩ Jumped to **${formatDuration(ms)}**. Skipping the boring part.`)] });
   },
 };

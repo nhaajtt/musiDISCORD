@@ -14,7 +14,7 @@ export async function replyWithCard(interaction, { kind, year, target, theme, fo
   const guildId = interaction.guildId;
 
   if (isOptedOut(target.id)) {
-    return interaction.editReply({ embeds: [infoEmbed(`**${target.username}** has turned off stats, so there is no data to show.`)] });
+    return interaction.editReply({ embeds: [infoEmbed(`**${target.username}** has turned off stats, so there is nothing to show. Respect the mystery.`)] });
   }
 
   const stats = userStats(guildId, target.id, { year: kind === "wrapped" ? year : undefined });
