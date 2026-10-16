@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://musidiscord.vercel.app/sitemap.xml
